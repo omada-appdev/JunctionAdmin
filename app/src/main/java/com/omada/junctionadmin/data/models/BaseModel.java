@@ -1,4 +1,6 @@
 package com.omada.junctionadmin.data.models;
 
-public class BaseModel {
+import java.io.Serializable;
+
+public class BaseModel implements Serializable {
 }

@@ -1,4 +1,6 @@
 package com.omada.junctionadmin.viewmodels;
 
-public class ApplicationViewModel {
+import androidx.lifecycle.ViewModel;
+
+public class ApplicationViewModel extends ViewModel {
 }

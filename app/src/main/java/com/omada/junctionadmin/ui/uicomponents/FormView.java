@@ -89,10 +89,7 @@ public class FormView extends FrameLayout {
         // TODO check section button types here
 
         inflatedSectionView.findViewById(R.id.section_action_button)
-                .setOnClickListener(v->
-                        // TODO add any validation code here
-                        viewModel.registerForEvent(this.eventModel, form.getFormMap())
-                );
+                .setOnClickListener(v->{});
         return inflatedSectionView;
     }
 

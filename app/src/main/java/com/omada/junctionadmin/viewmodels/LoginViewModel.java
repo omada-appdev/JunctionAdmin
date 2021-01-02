@@ -5,15 +5,18 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
+import androidx.lifecycle.ViewModel;
 
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.DataRepository;
+import com.omada.junctionadmin.data.handler.UserDataHandler;
 import com.omada.junctionadmin.data.models.InterestModel;
 import com.omada.junctionadmin.ui.login.LoginActivity;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
+import com.omada.junctionadmin.utils.transform.TransformUtilities;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -21,27 +24,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class LoginViewModel {
-    //constant fields
-    public enum DataValidationPoint{
-        ALL_DETAILS_VALID,
-        ALL_INTERESTS_VALID,
-        ALL_SIGN_IN_INFO_VALID,
-        NO_INFO,
-        BLANK_VALUE,
-        INVALID_EMAIL,
-        INVALID_PASSWORD,
-        INVALID_DATE_OF_BIRTH,
-        INVALID_DATE_OF_BIRTH_PARSE_ERROR,
-        INVALID_DATE_OF_BIRTH_OUT_OF_RANGE,
-        INVALID_FULL_NAME,
-        INVALID_FULL_NAME_HAS_NUMBERS,
-        INVALID_INSTITUTE,
-        INVALID_GENDER,
-        INVALID_INTERESTS,
-        INVALID_INTERESTS_NONE_SELECTED,
-        INVALID_INTERESTS_MANY_SELECTED
-    }
+public class LoginViewModel extends ViewModel {
 
     private final static int MAX_INTERESTS = 5;
 

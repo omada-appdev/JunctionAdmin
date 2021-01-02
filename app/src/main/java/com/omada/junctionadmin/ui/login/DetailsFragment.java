@@ -15,15 +15,18 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.databinding.LoginDetailsFragmentLayoutBinding;
+import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.utils.transform.TransformUtilities;
 import com.omada.junctionadmin.viewmodels.LoginViewModel;
 
-public class DetailsFragment {
+public class DetailsFragment extends Fragment {
     private LoginDetailsFragmentLayoutBinding binding;
 
     public static DetailsFragment newInstance() {

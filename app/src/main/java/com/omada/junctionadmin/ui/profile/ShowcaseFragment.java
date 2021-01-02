@@ -1,4 +1,6 @@
 package com.omada.junctionadmin.ui.profile;
 
-public class ShowcaseFragment {
+import androidx.fragment.app.Fragment;
+
+public class ShowcaseFragment extends Fragment {
 }

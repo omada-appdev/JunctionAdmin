@@ -8,12 +8,14 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.databinding.LoginForgotPasswordFragmentLayoutBinding;
 import com.omada.junctionadmin.viewmodels.LoginViewModel;
 
-public class ForgotPasswordFragment {
+public class ForgotPasswordFragment extends Fragment {
     public static ForgotPasswordFragment newInstance() {
 
         Bundle args = new Bundle();

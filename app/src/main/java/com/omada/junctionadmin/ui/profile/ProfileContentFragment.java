@@ -1,4 +1,6 @@
 package com.omada.junctionadmin.ui.profile;
 
-public class ProfileContentFragment {
+import androidx.fragment.app.Fragment;
+
+public class ProfileContentFragment extends Fragment {
 }

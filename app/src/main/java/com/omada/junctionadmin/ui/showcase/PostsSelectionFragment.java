@@ -1,4 +1,6 @@
 package com.omada.junctionadmin.ui.showcase;
 
-public class PostsSelectionFragment {
+import androidx.fragment.app.Fragment;
+
+public class PostsSelectionFragment extends Fragment {
 }

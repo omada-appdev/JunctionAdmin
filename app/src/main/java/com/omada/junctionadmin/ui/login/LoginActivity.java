@@ -4,11 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.viewmodels.LoginViewModel;
 
-public class LoginActivity {
+public class LoginActivity extends AppCompatActivity {
 
     private LoginViewModel loginViewModel;
 
@@ -81,9 +83,6 @@ public class LoginActivity {
 
         loginViewModel.getGoToFeedAction().observe(this, goToFeed -> {
             if(goToFeed.getDataOnceAndReset()){
-                Intent i = new Intent(LoginActivity.this, HomeActivity.class);
-                startActivity(i);
-                finish();
             }
         });
 

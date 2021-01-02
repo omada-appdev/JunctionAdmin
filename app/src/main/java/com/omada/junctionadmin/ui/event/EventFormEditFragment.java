@@ -1,4 +1,6 @@
 package com.omada.junctionadmin.ui.event;
 
-public class EventFormEditFragment {
+import androidx.fragment.app.Fragment;
+
+public class EventFormEditFragment extends Fragment {
 }

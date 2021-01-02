@@ -5,7 +5,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.omada.junction.viewmodels.LoginViewModel" />
+            type="com.omada.junctionadmin.viewmodels.LoginViewModel" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -56,8 +56,7 @@
                     android:background="@color/white"
                     android:scaleType="centerCrop"
                     app:shapeAppearanceOverlay="@style/Widget.AppTheme.CircleShapeAppearance"
-                    android:elevation="8dp"
-                    android:onClick="@{()->viewModel.goToProfilePictureChooser()}"/>
+                    android:elevation="8dp"/>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/email_layout"

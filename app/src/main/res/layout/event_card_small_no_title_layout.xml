@@ -2,14 +2,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
-        <import type="com.omada.junction.utils.transform.TransformUtilities"/>
+        <import type="com.omada.junctionadmin.utils.transform.TransformUtilities"/>
         <import type="android.view.View"/>
         <variable
             name="eventModel"
-            type="com.omada.junction.data.models.EventModel" />
+            type="com.omada.junctionadmin.data.models.EventModel" />
         <variable
             name="viewModel"
-            type="com.omada.junction.viewmodels.FeedContentViewModel" />
+            type="com.omada.junctionadmin.viewmodels.FeedContentViewModel" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -38,8 +38,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_chainStyle="packed"
-                app:remoteImageUrl="@{eventModel.image}"
-                android:onClick="@{()->viewModel.eventViewHandler.goToEventCardDetails(eventModel)}"/>
+                app:remoteImageUrl="@{eventModel.image}"/>
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/event_name_text"

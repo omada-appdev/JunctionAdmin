@@ -5,7 +5,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.omada.junction.viewmodels.LoginViewModel" />
+            type="com.omada.junctionadmin.viewmodels.LoginViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -41,8 +41,7 @@
             app:layout_constraintTop_toTopOf="@id/guideline2"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            android:text = "sign up"
-            android:onClick="@{() -> viewModel.startSignUp()}"/>
+            android:text = "sign up"/>
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/text"
@@ -61,8 +60,7 @@
             app:layout_constraintRight_toRightOf="@id/sign_up_button"
             app:layout_constraintLeft_toLeftOf="@id/sign_up_button"
             android:text = "log in"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:onClick="@{() -> viewModel.startSignIn()}"/>
+            style="@style/Widget.MaterialComponents.Button.TextButton"/>
 
         <androidx.constraintlayout.widget.Guideline
             android:layout_width="wrap_content"

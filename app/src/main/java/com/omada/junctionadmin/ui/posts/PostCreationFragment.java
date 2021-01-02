@@ -1,4 +1,6 @@
 package com.omada.junctionadmin.ui.posts;
 
-public class PostCreationFragment {
+import androidx.fragment.app.Fragment;
+
+public class PostCreationFragment extends Fragment {
 }

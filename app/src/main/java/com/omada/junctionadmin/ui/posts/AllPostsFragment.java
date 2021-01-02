@@ -1,4 +1,6 @@
 package com.omada.junctionadmin.ui.posts;
 
-public class AllPostsFragment {
+import androidx.fragment.app.Fragment;
+
+public class AllPostsFragment extends Fragment {
 }

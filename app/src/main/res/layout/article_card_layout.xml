@@ -4,10 +4,10 @@
     <data>
         <variable
             name="articleModel"
-            type="com.omada.junction.data.models.ArticleModel" />
+            type="com.omada.junctionadmin.data.models.ArticleModel" />
         <variable
             name="viewModel"
-            type="com.omada.junction.viewmodels.FeedContentViewModel" />
+            type="com.omada.junctionadmin.viewmodels.FeedContentViewModel" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -38,8 +38,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintBottom_toTopOf="@+id/article_poster_image"
                 app:layout_constraintVertical_chainStyle="packed"
-                remoteImageUrl="@{articleModel.creatorProfilePicture}"
-                android:onClick="@{()->viewModel.goToOrganization(articleModel.creator)}"/>
+                remoteImageUrl="@{articleModel.creatorProfilePicture}"/>
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/article_title_text"
@@ -66,8 +65,7 @@
                 android:text="@{articleModel.creatorName}"
                 app:layout_constraintStart_toEndOf="@+id/publisher_profile_image"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/article_title_text"
-                android:onClick="@{()->viewModel.goToOrganization(articleModel.creator)}"/>
+                app:layout_constraintTop_toBottomOf="@+id/article_title_text"/>
 
 
             <com.google.android.material.imageview.ShapeableImageView
@@ -106,8 +104,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/article_poster_image"
-                app:srcCompat="@drawable/ic_right_24dp"
-                android:onClick="@{()->viewModel.articleViewHandler.goToArticleCardDetails(articleModel)}"/>
+                app:srcCompat="@drawable/ic_right_24dp"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

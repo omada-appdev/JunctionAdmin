@@ -8,20 +8,25 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 
+import com.omada.junctionadmin.R;
+import com.omada.junctionadmin.data.models.InterestModel;
 import com.omada.junctionadmin.databinding.LoginInterestsFragmentLayoutBinding;
+import com.omada.junctionadmin.ui.uicomponents.binders.InterestThumbnailBinder;
+import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.viewmodels.LoginViewModel;
 
 import mva3.adapter.ListSection;
 import mva3.adapter.MultiViewAdapter;
 
-public class InterestsFragment {
+public class InterestsFragment extends Fragment {
     private MultiViewAdapter adapter;
 
     private ListSection<InterestModel> interestListSection;
-    private LoginViewModel loginViewModel;
+    private LoginViewModel loginViewModel = new ViewModelProvider(requireActivity()).get(LoginViewModel.class);
     private LoginInterestsFragmentLayoutBinding binding;
 
     public static InterestsFragment newInstance() {
@@ -36,8 +41,6 @@ public class InterestsFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        this.loginViewModel = new ViewModelProvider(requireActivity()).get(LoginViewModel.class);
 
         interestListSection = new ListSection<>();
         interestListSection.set(loginViewModel.getInterestsListSection());

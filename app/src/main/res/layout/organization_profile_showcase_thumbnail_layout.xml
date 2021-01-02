@@ -5,10 +5,10 @@
         <import type="android.view.View"/>
         <variable
             name="viewModel"
-            type="com.omada.junction.viewmodels.FeedContentViewModel" />
+            type="com.omada.junctionadmin.viewmodels.FeedContentViewModel" />
         <variable
             name="showcaseModel"
-            type="com.omada.junction.data.models.ShowcaseModel" />
+            type="com.omada.junctionadmin.data.models.ShowcaseModel" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="160dp"
@@ -17,7 +17,6 @@
         android:layout_marginStart="0dp"
         android:layout_marginEnd="2dp"
         app:shapeAppearanceOverlay="@style/Widget.AppTheme.ThumbnailShapeAppearance"
-        android:onClick="@{()->viewModel.organizationViewHandler.goToOrganizationShowcase(showcaseModel)}"
         android:visibility="@{showcaseModel.showcaseID == null ? View.GONE : View.VISIBLE}">
 
         <com.google.android.material.imageview.ShapeableImageView

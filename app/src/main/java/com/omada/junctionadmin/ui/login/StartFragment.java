@@ -8,12 +8,15 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.databinding.LoginStartFragmentLayoutBinding;
 import com.omada.junctionadmin.viewmodels.LoginViewModel;
 
-public class StartFragment {
+
+public class StartFragment extends Fragment {
     public static StartFragment newInstance() {
 
         Bundle args = new Bundle();

@@ -1,4 +1,6 @@
 package com.omada.junctionadmin.ui.metrics;
 
-public class AllMetricsFragment {
+import androidx.fragment.app.Fragment;
+
+public class AllMetricsFragment extends Fragment {
 }

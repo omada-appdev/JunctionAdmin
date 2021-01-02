@@ -11,10 +11,11 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.databinding.LoginConfirmFragmentLayoutBinding;
 import com.omada.junctionadmin.viewmodels.LoginViewModel;
 
-public class ConfirmFragment {
+public class ConfirmFragment extends Fragment {
     private LoginViewModel loginViewModel;
 
     public static Fragment getInstance() {

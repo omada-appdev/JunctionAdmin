@@ -1,4 +1,4 @@
 package com.omada.junctionadmin.ui.posts;
 
-public class PostCreationFragment {
+public class EditHighlightsFragment {
 }

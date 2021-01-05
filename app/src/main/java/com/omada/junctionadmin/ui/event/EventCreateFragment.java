@@ -1,4 +1,4 @@
 package com.omada.junctionadmin.ui.event;
 
-public class EventCreateActivity {
+public class EventCreateFragment {
 }

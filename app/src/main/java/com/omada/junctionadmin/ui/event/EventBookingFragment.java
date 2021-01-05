@@ -1,4 +1,6 @@
 package com.omada.junctionadmin.ui.event;
 
-public class EventBookingFragment {
+import androidx.fragment.app.Fragment;
+
+public class EventBookingFragment extends Fragment {
 }

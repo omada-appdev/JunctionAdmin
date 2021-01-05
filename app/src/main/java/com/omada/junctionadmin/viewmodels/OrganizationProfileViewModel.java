@@ -1,4 +1,6 @@
 package com.omada.junctionadmin.viewmodels;
 
-public class OrganizationProfileViewModel {
+import androidx.lifecycle.ViewModel;
+
+public class OrganizationProfileViewModel extends ViewModel {
 }

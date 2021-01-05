@@ -1,4 +1,6 @@
 package com.omada.junctionadmin.ui.event;
 
-public class EventDetailsFragment {
+import androidx.fragment.app.Fragment;
+
+public class EventDetailsFragment extends Fragment {
 }

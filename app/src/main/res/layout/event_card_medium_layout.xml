@@ -2,14 +2,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
-        <import type="com.omada.junction.utils.transform.TransformUtilities"/>
+        <import type="com.omada.junctionadmin.utils.transform.TransformUtilities"/>
         <import type="android.view.View"/>
         <variable
             name="eventModel"
-            type="com.omada.junction.data.models.EventModel" />
+            type="com.omada.junctionadmin.data.models.EventModel" />
         <variable
             name="viewModel"
-            type="com.omada.junction.viewmodels.FeedContentViewModel" />
+            type="com.omada.junctionadmin.viewmodels.FeedContentViewModel" />
     </data>
 
     <com.google.android.material.card.MaterialCardView
@@ -38,8 +38,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintBottom_toTopOf="@+id/event_poster_image"
-                app:layout_constraintVertical_chainStyle="packed"
-                android:onClick="@{()->viewModel.goToOrganization(eventModel.creator)}"/>
+                app:layout_constraintVertical_chainStyle="packed"/>
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/event_name_text"
@@ -66,8 +65,7 @@
                 android:text="@{eventModel.creatorName}"
                 app:layout_constraintStart_toEndOf="@+id/organizer_profile_image"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/event_name_text"
-                android:onClick="@{()->viewModel.goToOrganization(eventModel.creator)}"/>
+                app:layout_constraintTop_toBottomOf="@+id/event_name_text"/>
 
 
             <com.google.android.material.imageview.ShapeableImageView
@@ -96,8 +94,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/event_poster_image"
-                app:srcCompat="@drawable/ic_right_24dp"
-                android:onClick="@{()->viewModel.eventViewHandler.goToEventCardDetails(eventModel)}"/>
+                app:srcCompat="@drawable/ic_right_24dp"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

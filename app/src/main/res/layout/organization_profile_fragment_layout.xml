@@ -4,7 +4,7 @@
         <import type="android.view.View"/>
         <variable
             name="viewModel"
-            type="com.omada.junction.viewmodels.OrganizationProfileViewModel" />
+            type="com.omada.junctionadmin.viewmodels.OrganizationProfileViewModel" />
     </data>
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -72,8 +72,7 @@
                         android:layout_marginTop="8dp"
                         android:checked="false"
                         android:textOff=""
-                        android:textOn=""
-                        onFollowClicked="@{viewModel}"/>
+                        android:textOn=""/>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 

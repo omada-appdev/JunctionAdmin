@@ -3,10 +3,10 @@
 <layout>
 
     <data>
-        <import type="com.omada.junction.data.models.InterestModel"/>
+        <import type="com.omada.junctionadmin.data.models.InterestModel"/>
         <variable
             name="viewModel"
-            type="com.omada.junction.viewmodels.LoginViewModel" />
+            type="com.omada.junctionadmin.viewmodels.LoginViewModel" />
         <variable
             name="listSection"
             type="mva3.adapter.ListSection&lt;InterestModel>" />
@@ -68,7 +68,6 @@
                 android:layout_weight="0"
                 android:layout_gravity="bottom|end"
                 android:text="Next"
-                android:onClick="@{()->viewModel.interestsSelectionDone(listSection.getSelectedItems())}"
                 android:layout_marginBottom="24dp"
                 android:layout_marginEnd="24dp" />
 

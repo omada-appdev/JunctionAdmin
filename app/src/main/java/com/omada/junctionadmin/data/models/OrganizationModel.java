@@ -9,8 +9,8 @@ public class OrganizationModel extends BaseModel {
 
     private final String profilePhoto;
 
-    private final String attendedUsersNumber;
-    private final String heldEventsNumber;
+    private final Integer attendedUsersNumber;
+    private final Integer heldEventsNumber;
     private final String institute;
 
     private final List<String> interests;
@@ -51,11 +51,11 @@ public class OrganizationModel extends BaseModel {
         return name;
     }
 
-    public String getAttendedUsersNumber() {
+    public Integer getAttendedUsersNumber() {
         return attendedUsersNumber;
     }
 
-    public String getHeldEventsNumber() {
+    public Integer getHeldEventsNumber() {
         return heldEventsNumber;
     }
 

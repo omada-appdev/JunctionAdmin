@@ -12,8 +12,8 @@ public class OrganizationModelRemoteDB extends BaseModel {
 
     private String profilePhoto;
 
-    private String attendedUsersNumber;
-    private String heldEventsNumber;
+    private Integer attendedUsersNumber;
+    private Integer heldEventsNumber;
     private String institute;
 
     private List<String> interests;
@@ -43,22 +43,22 @@ public class OrganizationModelRemoteDB extends BaseModel {
     }
 
     @PropertyName("attendedUsersNumber")
-    public String getAttendedUsersNumber() {
+    public Integer getAttendedUsersNumber() {
         return attendedUsersNumber;
     }
 
     @PropertyName("attendedUsersNumber")
-    public void setAttendedUsersNumber(String attendedUsersNumber) {
+    public void setAttendedUsersNumber(Integer attendedUsersNumber) {
         this.attendedUsersNumber = attendedUsersNumber;
     }
 
     @PropertyName("heldEventsNumber")
-    public String getHeldEventsNumber() {
+    public Integer getHeldEventsNumber() {
         return heldEventsNumber;
     }
 
     @PropertyName("heldEventsNumber")
-    public void setHeldEventsNumber(String heldEventsNumber) {
+    public void setHeldEventsNumber(Integer heldEventsNumber) {
         this.heldEventsNumber = heldEventsNumber;
     }
 

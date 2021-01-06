@@ -1,9 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout
+<merge
+    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="wrap_content"
-    android:layout_width="match_parent">
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
-</LinearLayout>
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/quote_text_layout"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_margin="12dp"
+        app:boxStrokeWidth="2dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/quote_text_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minLines="10"
+            android:inputType="textMultiLine"
+            android:gravity="top"
+            android:layout_margin="8dp"
+            android:layout_gravity="top"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+</merge>

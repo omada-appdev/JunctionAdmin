@@ -1,2 +1,3 @@
+include ':fastblog'
 include ':app'
 rootProject.name = "Junction Admin"

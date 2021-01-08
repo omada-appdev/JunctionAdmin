@@ -1,8 +1,6 @@
-package com.omada.fastblog.utils.image;
+package com.omada.junctionadmin.utils.image;
 
 import android.content.Context;
-
-import androidx.annotation.NonNull;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Registry;
@@ -13,12 +11,13 @@ import com.google.firebase.storage.StorageReference;
 
 import java.io.InputStream;
 
+import javax.annotation.Nonnull;
 
 @GlideModule
-public class CustomGlideModule extends AppGlideModule {
+public class CustomAppGlideModule extends AppGlideModule {
 
     @Override
-    public void registerComponents(@NonNull Context context, @NonNull Glide glide, Registry registry) {
+    public void registerComponents(@Nonnull Context context, @Nonnull Glide glide, Registry registry) {
         // Register FirebaseImageLoader to handle StorageReference
         registry.append(StorageReference.class, InputStream.class,
                 new FirebaseImageLoader.Factory());

@@ -10,6 +10,8 @@ public class BookingModelRemoteDB {
 
     private String id;
 
+    private String venue;
+
     private String event;
     private String eventName;
     private String timeCreated;
@@ -110,5 +112,15 @@ public class BookingModelRemoteDB {
     @PropertyName("photo")
     public void setPhoto(String photo) {
         this.photo = photo;
+    }
+
+    @PropertyName("venue")
+    public String getVenue() {
+        return venue;
+    }
+
+    @PropertyName("venue")
+    public void setVenue(String venue) {
+        this.venue = venue;
     }
 }

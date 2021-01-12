@@ -8,6 +8,8 @@ public class BookingModel {
 
     private String id;
 
+    private String venue;
+
     private String event;
     private String eventName;
     private String timeCreated;
@@ -26,6 +28,8 @@ public class BookingModel {
     public BookingModel(BookingModelRemoteDB modelRemoteDB){
 
         setId(modelRemoteDB.getId());
+
+        setVenue(modelRemoteDB.getVenue());
 
         setEvent(modelRemoteDB.getEvent());
         setEventName(modelRemoteDB.getEventName());
@@ -138,5 +142,13 @@ public class BookingModel {
 
     public void setCreatorPhone(String creatorPhone) {
         this.creatorPhone = creatorPhone;
+    }
+
+    public String getVenue() {
+        return venue;
+    }
+
+    public void setVenue(String venue) {
+        this.venue = venue;
     }
 }

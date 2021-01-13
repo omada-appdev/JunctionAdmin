@@ -1,5 +1,6 @@
 package com.omada.junctionadmin.viewmodels;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
@@ -24,5 +25,8 @@ public class FeedContentViewModel extends ViewModel {
         return eventViewHandler;
     }
 
+    public void goToOrganisation(@NonNull String organizationID){
+
+    }
 
 }

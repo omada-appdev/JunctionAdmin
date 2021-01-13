@@ -4,20 +4,22 @@ import com.omada.junctionadmin.data.models.BaseModel;
 
 public class PostDataHandler {
 
-    public void  getOrganizationHighlights(String organizationID){
+    //loaded_functionName_notifier
 
+    public void  getOrganizationHighlights(String organizationID){
+        //return a new live data.
     }
 
     public void getInstituteHighlights(String instituteID){
-
+        //a common attribute
     }
 
     public void getAllInstitutePosts(String  instituteID){
-
+        //set into a common attribute
     }
 
     public void getAllOrganizationPosts(String organizationID){
-
+        //set into a common attribute
     }
 
     public void updatePost(BaseModel baseModel){
@@ -33,7 +35,7 @@ public class PostDataHandler {
     }
 
     public void getEventRegistrations(String eventID){
-
+        //live data
     }
 
     public void updateOrganizationHighlights( String organizationID){

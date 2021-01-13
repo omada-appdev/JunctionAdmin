@@ -8,13 +8,13 @@ import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 public class ArticleViewHandler {
 
-    private MutableLiveData<LiveEvent<ArticleModel>> articleDetailsTrigger = new MutableLiveData<>();
+    private MutableLiveData<LiveEvent<ArticleModel>> articleCardDetailsTrigger = new MutableLiveData<>();
 
-    public void goToArticleDetails(ArticleModel articleModel){
-        articleDetailsTrigger.setValue(new LiveEvent<>(articleModel));
+    public void goToArticleCardDetails(ArticleModel articleModel){
+        articleCardDetailsTrigger.setValue(new LiveEvent<>(articleModel));
     }
 
-    public LiveData<LiveEvent<ArticleModel>> getArticleDetailsTrigger(){
-        return articleDetailsTrigger;
+    public LiveData<LiveEvent<ArticleModel>> getArticleCardDetailsTrigger(){
+        return articleCardDetailsTrigger;
     }
 }

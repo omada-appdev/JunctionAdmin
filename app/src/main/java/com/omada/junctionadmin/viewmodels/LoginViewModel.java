@@ -12,7 +12,7 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.handler.UserDataHandler;
-import com.omada.junctionadmin.data.models.InterestModel;
+import com.omada.junctionadmin.data.models.external.InterestModel;
 import com.omada.junctionadmin.ui.login.LoginActivity;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;

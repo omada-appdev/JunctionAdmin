@@ -1,9 +1,9 @@
 package com.omada.junctionadmin.data.handler;
 
-import com.omada.junctionadmin.data.models.EventModel;
-import com.omada.junctionadmin.data.models.VenueModel;
+import com.google.firebase.Timestamp;
+import com.omada.junctionadmin.data.models.external.EventModel;
+import com.omada.junctionadmin.data.models.external.VenueModel;
 
-import java.sql.Timestamp;
 
 public class VenueDataHandler {
     public void getAllVenues(Timestamp date, String instituteID) {

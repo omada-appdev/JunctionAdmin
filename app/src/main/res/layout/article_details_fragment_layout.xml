@@ -8,7 +8,7 @@
         <import type="com.omada.junctionadmin.utils.transform.TransformUtilities"/>
         <variable
             name="articleModel"
-            type="com.omada.junctionadmin.data.models.ArticleModel" />
+            type="com.omada.junctionadmin.data.models.external.ArticleModel" />
         <variable
             name="viewModel"
             type="com.omada.junctionadmin.viewmodels.content.EventViewHandler" />

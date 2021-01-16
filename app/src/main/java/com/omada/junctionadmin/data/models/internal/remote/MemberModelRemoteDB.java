@@ -1,12 +1,12 @@
-package com.omada.junctionadmin.data.models;
+package com.omada.junctionadmin.data.models.internal.remote;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
+import com.omada.junctionadmin.data.models.external.MemberModel;
+import com.omada.junctionadmin.data.models.internal.BaseModelInternal;
 
-public class MemberModelRemoteDB {
-
-    private String id;
+public class MemberModelRemoteDB extends BaseModelInternal {
 
     private String user;
     private String name;
@@ -16,14 +16,11 @@ public class MemberModelRemoteDB {
 
     private Timestamp dateJoined;
 
-    @Exclude
-    public String getId() {
-        return id;
+    public MemberModelRemoteDB(){
     }
 
-    @Exclude
-    public void setId(String id) {
-        this.id = id;
+    public MemberModelRemoteDB(String id) {
+        super(id);
     }
 
     @PropertyName("user")
@@ -31,14 +28,31 @@ public class MemberModelRemoteDB {
         return user;
     }
 
-    @PropertyName("user")
-    public void setUser(String user) {
-        this.user = user;
-    }
-
     @PropertyName("name")
     public String getName() {
         return name;
+    }
+
+    @PropertyName("photo")
+    public String getPhoto() {
+        return photo;
+    }
+
+    @PropertyName("position")
+    public String getPosition() {
+        return position;
+    }
+
+    @PropertyName("dateJoined")
+    public Timestamp getDateJoined() {
+        return dateJoined;
+    }
+
+
+
+    @PropertyName("user")
+    public void setUser(String user) {
+        this.user = user;
     }
 
     @PropertyName("name")
@@ -47,28 +61,13 @@ public class MemberModelRemoteDB {
     }
 
     @PropertyName("photo")
-    public String getPhoto() {
-        return photo;
-    }
-
-    @PropertyName("photo")
     public void setPhoto(String photo) {
         this.photo = photo;
     }
 
     @PropertyName("position")
-    public String getPosition() {
-        return position;
-    }
-
-    @PropertyName("position")
     public void setPosition(String position) {
         this.position = position;
-    }
-
-    @PropertyName("dateJoined")
-    public Timestamp getDateJoined() {
-        return dateJoined;
     }
 
     @PropertyName("dateJoined")

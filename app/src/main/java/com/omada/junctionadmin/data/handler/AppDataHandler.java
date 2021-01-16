@@ -1,7 +1,7 @@
 package com.omada.junctionadmin.data.handler;
 
 import com.omada.junctionadmin.R;
-import com.omada.junctionadmin.data.models.InterestModel;
+import com.omada.junctionadmin.data.models.external.InterestModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.util.Arrays;

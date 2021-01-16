@@ -3,7 +3,7 @@
 <layout>
 
     <data>
-        <import type="com.omada.junctionadmin.data.models.InterestModel"/>
+        <import type="com.omada.junctionadmin.data.models.external.InterestModel"/>
         <variable
             name="viewModel"
             type="com.omada.junctionadmin.viewmodels.LoginViewModel" />

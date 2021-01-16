@@ -1,6 +1,6 @@
 package com.omada.junctionadmin.data.handler;
 
-import com.omada.junctionadmin.data.models.BaseModel;
+import com.omada.junctionadmin.data.models.external.BaseModel;
 
 public class PostDataHandler {
 

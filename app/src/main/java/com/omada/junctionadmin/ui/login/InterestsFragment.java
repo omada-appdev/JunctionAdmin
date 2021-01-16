@@ -13,7 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.omada.junctionadmin.R;
-import com.omada.junctionadmin.data.models.InterestModel;
+import com.omada.junctionadmin.data.models.external.InterestModel;
 import com.omada.junctionadmin.databinding.LoginInterestsFragmentLayoutBinding;
 import com.omada.junctionadmin.ui.uicomponents.binders.InterestThumbnailBinder;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;

@@ -6,7 +6,7 @@
         <import type="android.view.View"/>
         <variable
             name="eventModel"
-            type="com.omada.junctionadmin.data.models.EventModel" />
+            type="com.omada.junctionadmin.data.models.external.EventModel" />
         <variable
             name="viewModel"
             type="com.omada.junctionadmin.viewmodels.FeedContentViewModel" />

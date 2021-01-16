@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.omada.junctionadmin.R;
-import com.omada.junctionadmin.data.models.ShowcaseModel;
+import com.omada.junctionadmin.data.models.external.ShowcaseModel;
 import com.omada.junctionadmin.ui.uicomponents.binders.organizationfeed.OrganizationShowcaseThumbnailBinder;
 import com.omada.junctionadmin.viewmodels.FeedContentViewModel;
 

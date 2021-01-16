@@ -3,7 +3,7 @@ package com.omada.junctionadmin.ui.uicomponents.binders.organizationfeed;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.omada.junctionadmin.data.models.EventModel;
+import com.omada.junctionadmin.data.models.external.EventModel;
 
 import mva3.adapter.ItemBinder;
 import mva3.adapter.ItemViewHolder;

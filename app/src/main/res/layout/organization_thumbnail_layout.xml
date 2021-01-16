@@ -8,7 +8,7 @@
             type="com.omada.junctionadmin.viewmodels.FeedContentViewModel" />
         <variable
             name="organizationModel"
-            type="com.omada.junctionadmin.data.models.OrganizationModel" />
+            type="com.omada.junctionadmin.data.models.external.OrganizationModel" />
     </data>
     <com.google.android.material.imageview.ShapeableImageView
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -21,5 +21,5 @@
         android:layout_margin="8dp"
         app:shapeAppearanceOverlay="@style/Widget.AppTheme.CircleShapeAppearance"
         android:elevation="2dp"
-        android:visibility="@{organizationModel.organizationID == null ? View.GONE : View.VISIBLE}"/>
+        android:visibility="@{organizationModel.id == null ? View.GONE : View.VISIBLE}"/>
 </layout>

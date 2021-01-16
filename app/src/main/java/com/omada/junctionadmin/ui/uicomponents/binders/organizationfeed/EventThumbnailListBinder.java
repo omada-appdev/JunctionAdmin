@@ -2,7 +2,7 @@ package com.omada.junctionadmin.ui.uicomponents.binders.organizationfeed;
 
 import android.view.ViewGroup;
 
-import com.omada.junctionadmin.data.models.EventModel;
+import com.omada.junctionadmin.data.models.external.EventModel;
 import com.omada.junctionadmin.viewmodels.FeedContentViewModel;
 
 import java.util.List;

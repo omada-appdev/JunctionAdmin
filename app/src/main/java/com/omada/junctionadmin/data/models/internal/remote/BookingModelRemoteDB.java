@@ -1,14 +1,14 @@
-package com.omada.junctionadmin.data.models;
+package com.omada.junctionadmin.data.models.internal.remote;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
+import com.omada.junctionadmin.data.models.external.BookingModel;
+import com.omada.junctionadmin.data.models.internal.BaseModelInternal;
 
 import java.util.Map;
 
-public class BookingModelRemoteDB {
-
-    private String id;
+public class BookingModelRemoteDB extends BaseModelInternal {
 
     private String venue;
 
@@ -24,19 +24,56 @@ public class BookingModelRemoteDB {
 
     private String photo;
 
-    @Exclude
-    public String getId() {
-        return id;
+    public BookingModelRemoteDB(){
     }
 
-    @Exclude
-    public void setId(String id) {
-        this.id = id;
+    public BookingModelRemoteDB(String id) {
+        super(id);
     }
 
     @PropertyName("event")
     public String getEvent() {
         return event;
+    }
+
+    @PropertyName("name")
+    public String getEventName() {
+        return eventName;
+    }
+
+    @PropertyName("timeCreated")
+    public String getTimeCreated() {
+        return timeCreated;
+    }
+
+    @PropertyName("startTime")
+    public Timestamp getStartTime() {
+        return startTime;
+    }
+
+    @PropertyName("endTime")
+    public Timestamp getEndTime() {
+        return endTime;
+    }
+
+    @PropertyName("creator")
+    public String getCreator() {
+        return creator;
+    }
+
+    @PropertyName("creatorCache")
+    public Map<String, String> getCreatorCache() {
+        return creatorCache;
+    }
+
+    @PropertyName("photo")
+    public String getPhoto() {
+        return photo;
+    }
+
+    @PropertyName("venue")
+    public String getVenue() {
+        return venue;
     }
 
     @PropertyName("event")
@@ -45,18 +82,8 @@ public class BookingModelRemoteDB {
     }
 
     @PropertyName("name")
-    public String getEventName() {
-        return eventName;
-    }
-
-    @PropertyName("name")
     public void setEventName(String eventName) {
         this.eventName = eventName;
-    }
-
-    @PropertyName("timeCreated")
-    public String getTimeCreated() {
-        return timeCreated;
     }
 
     @PropertyName("timeCreated")
@@ -65,18 +92,8 @@ public class BookingModelRemoteDB {
     }
 
     @PropertyName("startTime")
-    public Timestamp getStartTime() {
-        return startTime;
-    }
-
-    @PropertyName("startTime")
     public void setStartTime(Timestamp startTime) {
         this.startTime = startTime;
-    }
-
-    @PropertyName("endTime")
-    public Timestamp getEndTime() {
-        return endTime;
     }
 
     @PropertyName("endTime")
@@ -85,18 +102,8 @@ public class BookingModelRemoteDB {
     }
 
     @PropertyName("creator")
-    public String getCreator() {
-        return creator;
-    }
-
-    @PropertyName("creator")
     public void setCreator(String creator) {
         this.creator = creator;
-    }
-
-    @PropertyName("creatorCache")
-    public Map<String, String> getCreatorCache() {
-        return creatorCache;
     }
 
     @PropertyName("creatorCache")
@@ -105,18 +112,8 @@ public class BookingModelRemoteDB {
     }
 
     @PropertyName("photo")
-    public String getPhoto() {
-        return photo;
-    }
-
-    @PropertyName("photo")
     public void setPhoto(String photo) {
         this.photo = photo;
-    }
-
-    @PropertyName("venue")
-    public String getVenue() {
-        return venue;
     }
 
     @PropertyName("venue")

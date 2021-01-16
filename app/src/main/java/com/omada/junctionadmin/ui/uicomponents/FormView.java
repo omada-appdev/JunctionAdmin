@@ -17,7 +17,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textview.MaterialTextView;
 import com.omada.junctionadmin.R;
-import com.omada.junctionadmin.data.models.EventModel;
+import com.omada.junctionadmin.data.models.external.EventModel;
 import com.omada.junctionadmin.viewmodels.content.EventViewHandler;
 
 import java.text.ParseException;

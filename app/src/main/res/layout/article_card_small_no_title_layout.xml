@@ -6,7 +6,7 @@
         <import type="android.view.View"/>
         <variable
             name="articleModel"
-            type="com.omada.junctionadmin.data.models.ArticleModel" />
+            type="com.omada.junctionadmin.data.models.external.ArticleModel" />
         <variable
             name="viewModel"
             type="com.omada.junctionadmin.viewmodels.FeedContentViewModel" />

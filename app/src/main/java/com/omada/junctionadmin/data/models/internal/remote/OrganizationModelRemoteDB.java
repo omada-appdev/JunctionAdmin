@@ -1,13 +1,15 @@
-package com.omada.junctionadmin.data.models;
+package com.omada.junctionadmin.data.models.internal.remote;
 
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
+import com.omada.junctionadmin.data.models.external.BaseModel;
+import com.omada.junctionadmin.data.models.external.OrganizationModel;
+import com.omada.junctionadmin.data.models.internal.BaseModelInternal;
 
 import java.util.List;
 
-public class OrganizationModelRemoteDB extends BaseModel {
+public class OrganizationModelRemoteDB extends BaseModelInternal {
 
-    private String organizationID;
     private String name;
 
     private String profilePhoto;
@@ -22,14 +24,11 @@ public class OrganizationModelRemoteDB extends BaseModel {
 
     private String type;
 
-    @Exclude
-    public String getOrganizationID() {
-        return organizationID;
+    public OrganizationModelRemoteDB(String id) {
+        super(id);
     }
 
-    @Exclude
-    public void setOrganizationID(String organizationID) {
-        this.organizationID = organizationID;
+    public OrganizationModelRemoteDB(){
     }
 
     @PropertyName("name")
@@ -37,14 +36,51 @@ public class OrganizationModelRemoteDB extends BaseModel {
         return name;
     }
 
-    @PropertyName("name")
-    public void setName(String name) {
-        this.name = name;
-    }
-
     @PropertyName("attendedUsersNumber")
     public Integer getAttendedUsersNumber() {
         return attendedUsersNumber;
+    }
+
+    @PropertyName("heldEventsNumber")
+    public Integer getHeldEventsNumber() {
+        return heldEventsNumber;
+    }
+
+    @PropertyName("institute")
+    public String getInstitute() {
+        return institute;
+    }
+
+    @PropertyName("interests")
+    public List<String> getInterests() {
+        return interests;
+    }
+
+    @PropertyName("mail")
+    public String getMail() {
+        return mail;
+    }
+
+    @PropertyName("phone")
+    public String getPhone() {
+        return phone;
+    }
+
+    @PropertyName("type")
+    public String getType() {
+        return type;
+    }
+
+    @PropertyName("profilePicture")
+    public String getProfilePhoto() {
+        return profilePhoto;
+    }
+
+
+
+    @PropertyName("name")
+    public void setName(String name) {
+        this.name = name;
     }
 
     @PropertyName("attendedUsersNumber")
@@ -53,18 +89,8 @@ public class OrganizationModelRemoteDB extends BaseModel {
     }
 
     @PropertyName("heldEventsNumber")
-    public Integer getHeldEventsNumber() {
-        return heldEventsNumber;
-    }
-
-    @PropertyName("heldEventsNumber")
     public void setHeldEventsNumber(Integer heldEventsNumber) {
         this.heldEventsNumber = heldEventsNumber;
-    }
-
-    @PropertyName("institute")
-    public String getInstitute() {
-        return institute;
     }
 
     @PropertyName("institute")
@@ -73,18 +99,8 @@ public class OrganizationModelRemoteDB extends BaseModel {
     }
 
     @PropertyName("interests")
-    public List<String> getInterests() {
-        return interests;
-    }
-
-    @PropertyName("interests")
     public void setInterests(List<String> interests) {
         this.interests = interests;
-    }
-
-    @PropertyName("mail")
-    public String getMail() {
-        return mail;
     }
 
     @PropertyName("mail")
@@ -93,28 +109,13 @@ public class OrganizationModelRemoteDB extends BaseModel {
     }
 
     @PropertyName("phone")
-    public String getPhone() {
-        return phone;
-    }
-
-    @PropertyName("phone")
     public void setPhone(String phone) {
         this.phone = phone;
     }
 
     @PropertyName("type")
-    public String getType() {
-        return type;
-    }
-
-    @PropertyName("type")
     public void setType(String type) {
         this.type = type;
-    }
-
-    @PropertyName("profilePicture")
-    public String getProfilePhoto() {
-        return profilePhoto;
     }
 
     @PropertyName("profilePicture")

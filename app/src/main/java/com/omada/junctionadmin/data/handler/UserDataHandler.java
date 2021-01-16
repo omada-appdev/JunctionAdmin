@@ -1,5 +1,7 @@
 package com.omada.junctionadmin.data.handler;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -14,8 +16,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.omada.junctionadmin.data.models.BaseModel;
-import com.omada.junctionadmin.data.models.InterestModel;
+import com.omada.junctionadmin.data.models.external.BaseModel;
+import com.omada.junctionadmin.data.models.external.InterestModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.util.ArrayList;
@@ -424,6 +426,30 @@ public class UserDataHandler {
 
         private UserModel(){}
 
+        protected UserModel(Parcel in) {
+            UID = in.readString();
+            email = in.readString();
+            name = in.readString();
+            phone = in.readString();
+            interestsRating = in.createTypedArrayList(InterestModel.CREATOR);
+            interests = in.createStringArrayList();
+            dateOfBirth = in.readParcelable(Timestamp.class.getClassLoader());
+            gender = in.readString();
+            institute = in.readString();
+        }
+
+        public static final Creator<UserModel> CREATOR = new Creator<UserModel>() {
+            @Override
+            public UserModel createFromParcel(Parcel in) {
+                return new UserModel(in);
+            }
+
+            @Override
+            public UserModel[] newArray(int size) {
+                return new UserModel[size];
+            }
+        };
+
         @NonNull
         public String getUID() {
             return UID;
@@ -479,6 +505,23 @@ public class UserDataHandler {
             return mapUserModel;
         }
 
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(UID);
+            dest.writeString(email);
+            dest.writeString(name);
+            dest.writeString(phone);
+            dest.writeTypedList(interestsRating);
+            dest.writeStringList(interests);
+            dest.writeParcelable(dateOfBirth, flags);
+            dest.writeString(gender);
+            dest.writeString(institute);
+        }
     }
 
     /*

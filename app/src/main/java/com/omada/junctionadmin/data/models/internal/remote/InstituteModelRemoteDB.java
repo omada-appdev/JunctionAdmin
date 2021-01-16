@@ -1,23 +1,19 @@
-package com.omada.junctionadmin.data.models;
+package com.omada.junctionadmin.data.models.internal.remote;
 
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
+import com.omada.junctionadmin.data.models.internal.BaseModelInternal;
 
-public class InstituteModelRemoteDB {
-
-    private String id;
+public class InstituteModelRemoteDB extends BaseModelInternal {
 
     private String handle;
     private String name;
 
-    @Exclude
-    public String getId() {
-        return id;
+    public InstituteModelRemoteDB(String id) {
+        super(id);
     }
 
-    @Exclude
-    public void setId(String id) {
-        this.id = id;
+    public InstituteModelRemoteDB(){
     }
 
     @PropertyName("handle")
@@ -29,6 +25,8 @@ public class InstituteModelRemoteDB {
     public String getName(){
         return name;
     }
+
+
 
     @PropertyName("handle")
     public void setHandle(String handle){

@@ -3,11 +3,8 @@ package com.omada.junctionadmin.viewmodels.content;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.omada.junctionadmin.data.models.OrganizationModel;
-import com.omada.junctionadmin.data.models.ShowcaseModel;
+import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
-
-import javax.annotation.Nonnull;
 
 public class OrganizationViewHandler {
 

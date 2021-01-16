@@ -16,25 +16,13 @@ import javax.annotation.Nonnull;
 
 public class EventModel extends PostModel {
 
-    protected String title;
     protected String description;
 
-    protected String creator;
-    protected String creatorName;
-    protected String creatorPhone;
-    protected String creatorMail;
-
-    protected String creatorProfilePicture;
-
     protected Map<String, Map<String, Map<String, String>>> form;
-
-    protected String image;
 
     protected String status;
     protected Timestamp startTime;
     protected Timestamp endTime;
-
-    protected Timestamp timeCreated;
 
     protected String venue;
     protected String venueName;
@@ -77,14 +65,6 @@ public class EventModel extends PostModel {
         }
     };
 
-    public String getTitle() {
-        return title;
-    }
-
-    public String getCreator() {
-        return creator;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -105,10 +85,6 @@ public class EventModel extends PostModel {
         return endTime;
     }
 
-    public Timestamp getTimeCreated() {
-        return timeCreated;
-    }
-
     public String getVenue() {
         return venue;
     }
@@ -123,26 +99,6 @@ public class EventModel extends PostModel {
 
     public String getVenueAddress() {
         return venueAddress;
-    }
-
-    public String getCreatorName() {
-        return creatorName;
-    }
-
-    public String getCreatorMail() {
-        return creatorMail;
-    }
-
-    public String getCreatorProfilePicture() {
-        return creatorProfilePicture;
-    }
-
-    public String getCreatorPhone() {
-        return creatorPhone;
-    }
-
-    public String getImage() {
-        return image;
     }
 
     @Override

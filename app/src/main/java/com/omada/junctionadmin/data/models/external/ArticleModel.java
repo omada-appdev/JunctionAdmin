@@ -10,19 +10,8 @@ import java.util.Map;
 
 public class ArticleModel extends PostModel {
 
-    protected String title;
-    protected String creator;
     protected String text;
     protected String author;
-
-    protected String creatorName;
-    protected String creatorPhone;
-    protected String creatorProfilePicture;
-    protected String creatorMail;
-
-    protected String image;
-
-    protected Timestamp timeCreated;
 
     protected ArticleModel(){
     }
@@ -52,44 +41,12 @@ public class ArticleModel extends PostModel {
         }
     };
 
-    public String getTitle() {
-        return title;
-    }
-
-    public String getCreator() {
-        return creator;
-    }
-
     public String getText() {
         return text;
     }
 
     public String getAuthor() {
         return author;
-    }
-
-    public String getCreatorName() {
-        return creatorName;
-    }
-
-    public String getCreatorPhone() {
-        return creatorPhone;
-    }
-
-    public String getCreatorProfilePicture() {
-        return creatorProfilePicture;
-    }
-
-    public String getCreatorMail() {
-        return creatorMail;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public Timestamp getTimeCreated() {
-        return timeCreated;
     }
 
     @Override

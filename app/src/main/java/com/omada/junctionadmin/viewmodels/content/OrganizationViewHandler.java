@@ -4,7 +4,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
+import com.omada.junctionadmin.data.models.external.ShowcaseModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
+
+import javax.annotation.Nonnull;
 
 public class OrganizationViewHandler {
 

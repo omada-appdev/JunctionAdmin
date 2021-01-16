@@ -6,6 +6,7 @@ import com.omada.junctionadmin.data.models.external.VenueModel;
 
 
 public class VenueDataHandler {
+
     public void getAllVenues(Timestamp date, String instituteID) {
 
     }

@@ -5,7 +5,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.omada.junctionadmin.data.DataRepository;
-import com.omada.junctionadmin.data.models.BaseModel;
+import com.omada.junctionadmin.data.models.external.BaseModel;
 
 import java.util.List;
 

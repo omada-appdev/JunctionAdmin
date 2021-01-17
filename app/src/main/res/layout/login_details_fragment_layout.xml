@@ -131,8 +131,7 @@
                         android:id="@+id/date_of_birth_input"
                         android:inputType="date"
                         android:background="@color/transparent"
-                        android:onClick="@{()->dateOfBirthLayout.setErrorEnabled(false)}"
-                        android:text="@={viewModel.dateOfBirth}"/>
+                        android:onClick="@{()->dateOfBirthLayout.setErrorEnabled(false)}"/>
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -150,8 +149,7 @@
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
                         android:background="@color/transparent"
-                        android:focusable="false"
-                        android:text="@={viewModel.gender}"/>
+                        android:focusable="false"/>
 
                 </com.google.android.material.textfield.TextInputLayout>
 

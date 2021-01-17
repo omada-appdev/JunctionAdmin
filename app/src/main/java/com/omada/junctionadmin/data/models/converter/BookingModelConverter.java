@@ -37,6 +37,11 @@ public class BookingModelConverter extends BaseConverter <BookingModel, BookingM
         model.setCreatorName(creatorData.get("mail"));
         model.setCreatorName(creatorData.get("phone"));
 
+        Map<String, String> venueData = remoteModel.getVenueCache();
+        model.setVenueName(venueData.get("name"));
+        model.setVenueAddress(venueData.get("address"));
+        model.setVenueInstitute(venueData.get("institute"));
+
         return model;
         
     }
@@ -47,6 +52,7 @@ public class BookingModelConverter extends BaseConverter <BookingModel, BookingM
         BookingModelRemoteDB model = new BookingModelRemoteDB();
 
         model.setId(externalModel.getId());
+        model.setVenue(externalModel.getVenue());
         model.setEvent(externalModel.getEvent());
         model.setEventName(externalModel.getEventName());
         model.setTimeCreated(externalModel.getTimeCreated());
@@ -61,6 +67,12 @@ public class BookingModelConverter extends BaseConverter <BookingModel, BookingM
         creatorCache.put("phone", externalModel.getCreatorPhone());
         creatorCache.put("profilePicture", externalModel.getCreatorProfilePicture());
         model.setCreatorCache(creatorCache);
+
+        Map<String, String> venueCache = new HashMap<>();
+        venueCache.put("name", externalModel.getVenueName());
+        venueCache.put("address", externalModel.getVenueAddress());
+        venueCache.put("institute", externalModel.getVenueInstitute());
+        model.setVenueCache(venueCache);
 
         return model;
 

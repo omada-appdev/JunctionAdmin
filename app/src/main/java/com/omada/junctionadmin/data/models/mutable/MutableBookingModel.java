@@ -53,4 +53,17 @@ public class MutableBookingModel extends BookingModel {
     public void setVenue(String venue) {
         this.venue = venue;
     }
+
+    public void setVenueName(String venueName) {
+        this.venueName = venueName;
+    }
+
+    public void setVenueAddress(String venueAddress) {
+        this.venueAddress = venueAddress;
+    }
+
+    public void setVenueInstitute(String venueInstitute) {
+        this.venueInstitute = venueInstitute;
+    }
+
 }

@@ -11,6 +11,9 @@ import java.util.Map;
 public class BookingModel extends BaseModel {
 
     protected String venue;
+    protected String venueName;
+    protected String venueAddress;
+    protected String venueInstitute;
 
     protected String event;
     protected String eventName;
@@ -33,6 +36,9 @@ public class BookingModel extends BaseModel {
     protected BookingModel(Parcel in) {
         id = in.readString();
         venue = in.readString();
+        venueName = in.readString();
+        venueAddress = in.readString();
+        venueInstitute = in.readString();
         event = in.readString();
         eventName = in.readString();
         timeCreated = in.readString();
@@ -106,6 +112,18 @@ public class BookingModel extends BaseModel {
         return venue;
     }
 
+    public String getVenueName() {
+        return venueName;
+    }
+
+    public String getVenueAddress() {
+        return venueAddress;
+    }
+
+    public String getVenueInstitute() {
+        return venueInstitute;
+    }
+
 
     @Override
     public int describeContents() {
@@ -116,6 +134,9 @@ public class BookingModel extends BaseModel {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(id);
         dest.writeString(venue);
+        dest.writeString(venueName);
+        dest.writeString(venueAddress);
+        dest.writeString(venueInstitute);
         dest.writeString(event);
         dest.writeString(eventName);
         dest.writeString(timeCreated);

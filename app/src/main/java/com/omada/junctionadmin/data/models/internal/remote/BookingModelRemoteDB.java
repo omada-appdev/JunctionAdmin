@@ -11,6 +11,7 @@ import java.util.Map;
 public class BookingModelRemoteDB extends BaseModelInternal {
 
     private String venue;
+    private Map<String, String> venueCache;
 
     private String event;
     private String eventName;
@@ -119,5 +120,15 @@ public class BookingModelRemoteDB extends BaseModelInternal {
     @PropertyName("venue")
     public void setVenue(String venue) {
         this.venue = venue;
+    }
+
+    @PropertyName("venueCache")
+    public Map<String, String> getVenueCache() {
+        return venueCache;
+    }
+
+    @PropertyName("venueCache")
+    public void setVenueCache(Map<String, String> venueCache) {
+        this.venueCache = venueCache;
     }
 }

@@ -13,6 +13,7 @@ import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.handler.UserDataHandler;
 import com.omada.junctionadmin.data.models.external.InterestModel;
+import com.omada.junctionadmin.data.models.mutable.MutableOrganizationModel;
 import com.omada.junctionadmin.ui.login.LoginActivity;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
@@ -39,8 +40,6 @@ public class LoginViewModel extends ViewModel {
     public final MutableLiveData<String> name = new MutableLiveData<>();
     public final MutableLiveData<String> password = new MutableLiveData<>();
     public final MutableLiveData<String> email = new MutableLiveData<>();
-    public final MutableLiveData<String> dateOfBirth = new MutableLiveData<>();
-    public final MutableLiveData<String> gender = new MutableLiveData<>();
     public final MutableLiveData<String> institute = new MutableLiveData<>();
 
     private final List<InterestModel> selectedInterests = new ArrayList<>();
@@ -149,9 +148,7 @@ public class LoginViewModel extends ViewModel {
 
     public void forgotPassword(){
         password.setValue(null);
-        dateOfBirth.setValue(null);
         email.setValue(null);
-        gender.setValue(null);
         fragmentChangeAction.setValue(new LiveEvent<>(LoginActivity.FragmentIdentifier.LOGIN_FORGOTPASSWORD_FRAGMENT));
     }
 
@@ -168,28 +165,8 @@ public class LoginViewModel extends ViewModel {
 
         //TODO add code to verify email and go to home only if email is verified
 
-        UserDataHandler.MutableUserModel userModel = new UserDataHandler.MutableUserModel();
+        MutableOrganizationModel userModel = new MutableOrganizationModel();
         AtomicBoolean anyDetailsEntryInvalid = new AtomicBoolean(false);
-
-        dataValidator.validateDateOfBirth(dateOfBirth.getValue(), dataValidationInformation -> {
-            if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID){
-                userModel.setDateOfBirth(
-                        new Timestamp(TransformUtilities.convertDDMMYYYYtoDate(dateOfBirth.getValue(), "/"))
-                );
-            }
-            else anyDetailsEntryInvalid.set(true);
-            notifyValidity(dataValidationInformation);
-        });
-
-        dataValidator.validateGender(gender.getValue(), dataValidationInformation -> {
-            if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID){
-                userModel.setGender(
-                        Character.toString(gender.getValue().charAt(0))
-                );
-            }
-            else anyDetailsEntryInvalid.set(true);
-            notifyValidity(dataValidationInformation);
-        });
 
         dataValidator.validateInstitute(institute.getValue(), dataValidationInformation -> {
             if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID){
@@ -213,7 +190,7 @@ public class LoginViewModel extends ViewModel {
 
         dataValidator.validateEmail(email.getValue(), dataValidationInformation -> {
             if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID){
-                userModel.setEmail(
+                userModel.setMail(
                         email.getValue()
                 );
             }
@@ -228,10 +205,12 @@ public class LoginViewModel extends ViewModel {
             notifyValidity(dataValidationInformation);
         });
 
-
-
         if(selectedInterests.size()>0){
-            userModel.setInterests(selectedInterests);
+            List<String> interests = new ArrayList<>();
+            for(InterestModel model : selectedInterests) {
+                interests.add(model.interestString);
+            }
+            userModel.setInterests(interests);
         }
 
 
@@ -281,10 +260,8 @@ public class LoginViewModel extends ViewModel {
     public void exitInterestsScreen(){
         name.setValue(null);
         institute.setValue(null);
-        gender.setValue(null);
         password.setValue(null);
         email.setValue(null);
-        dateOfBirth.setValue(null);
     }
 
     public void exitSignInScreen(){

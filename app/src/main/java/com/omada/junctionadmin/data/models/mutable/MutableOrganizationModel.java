@@ -6,6 +6,12 @@ import java.util.List;
 
 public class MutableOrganizationModel extends OrganizationModel {
 
+    public MutableOrganizationModel(){
+    }
+
+    public MutableOrganizationModel(OrganizationModel model){
+        super(model);
+    }
 
     public void setName(String name) {
         this.name = name;

@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.omada.junctionadmin.data.models.internal.remote.OrganizationModelRemoteDB;
+import com.omada.junctionadmin.data.models.mutable.MutableOrganizationModel;
 
 import java.util.List;
 
@@ -24,6 +25,24 @@ public class OrganizationModel extends BaseModel {
     protected String type;
 
     protected OrganizationModel(){
+    }
+    
+    protected OrganizationModel(OrganizationModel externalModel){
+        
+        id = externalModel.getId();
+
+        type = externalModel.getType();
+        institute = externalModel.getInstitute();
+
+        name = externalModel.getName();
+        mail = externalModel.getMail();
+        phone = externalModel.getPhone();
+        profilePhoto = externalModel.getProfilePhoto();
+
+        interests = externalModel.getInterests();
+        attendedUsersNumber = externalModel.getAttendedUsersNumber();
+        heldEventsNumber = externalModel.getHeldEventsNumber();
+
     }
 
     protected OrganizationModel(Parcel in) {

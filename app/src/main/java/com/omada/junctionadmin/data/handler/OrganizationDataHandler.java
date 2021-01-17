@@ -8,6 +8,7 @@ import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 //user is organization
 public class OrganizationDataHandler {
+
     public LiveData<LiveEvent<OrganizationModel>> getOrganizationDetails(String organizationID) {
         return null;
     }

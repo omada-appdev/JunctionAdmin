@@ -16,8 +16,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.omada.junctionadmin.data.models.converter.OrganizationModelConverter;
 import com.omada.junctionadmin.data.models.external.BaseModel;
 import com.omada.junctionadmin.data.models.external.InterestModel;
+import com.omada.junctionadmin.data.models.external.OrganizationModel;
+import com.omada.junctionadmin.data.models.internal.remote.OrganizationModelRemoteDB;
+import com.omada.junctionadmin.data.models.mutable.MutableOrganizationModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.util.ArrayList;
@@ -26,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 public class UserDataHandler {
+
     public enum AuthStatus {
 
         CURRENT_USER_SUCCESS,
@@ -51,14 +56,14 @@ public class UserDataHandler {
     }
 
     //to be used as a cache to check for changes
-    private final UserModelInternal signedInUser = new UserModelInternal();
-    private String prevUserUID = "";
+    private MutableOrganizationModel signedInUser = new MutableOrganizationModel();
 
     //output fields to view model or mid level layers
     MutableLiveData<LiveEvent<AuthStatus>> authResponseNotifier = new MutableLiveData<>();
-    MutableLiveData<LiveEvent<UserModel>> signedInUserNotifier = new MutableLiveData<>();
+    MutableLiveData<LiveEvent<OrganizationModel>> signedInUserNotifier = new MutableLiveData<>();
 
     //state fields go here
+    private final OrganizationModelConverter organizationModelConverter = new OrganizationModelConverter();
 
 
     public UserDataHandler(){
@@ -70,15 +75,14 @@ public class UserDataHandler {
                 .addAuthStateListener(firebaseAuth -> {
 
                     if(firebaseAuth.getCurrentUser() == null){
-                        prevUserUID = signedInUser.getUID();
-                        signedInUser.resetUser();
+                        signedInUser = null;
                         authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.USER_SIGNED_OUT));
                     }
 
                 });
     }
 
-    public void createNewUserWithEmailAndPassword(String email, String password, MutableUserModel details){
+    public void createNewUserWithEmailAndPassword(String email, String password, MutableOrganizationModel details){
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
         /*
@@ -92,7 +96,7 @@ public class UserDataHandler {
                     if(task.isSuccessful()){
                         Log.d("AUTH", "create new user successful");
                         authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.SIGNUP_SUCCESS));
-                        addCreatedUserDetails(details);
+                        addCreatedUserDetails(organizationModelConverter.convertExternalToRemoteDBModel(details));
                     }
                     else{
                         Log.d("AUTH", "create new user unsuccessful");
@@ -103,7 +107,7 @@ public class UserDataHandler {
     }
 
     //to be called in createNewUser when it is successful and not anywhere else
-    private void addCreatedUserDetails(UserModel details){
+    private void addCreatedUserDetails(OrganizationModelRemoteDB details){
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -115,7 +119,7 @@ public class UserDataHandler {
             FirebaseFirestore.getInstance()
                     .collection("users")
                     .document(user.getUid())
-                    .set(details.toMapObject())
+                    .set(details)
                     .addOnSuccessListener(task -> {
                         authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.ADD_EXTRA_DETAILS_SUCCESS));
                     })
@@ -145,8 +149,7 @@ public class UserDataHandler {
      */
     private void getAuthenticatedUserDetails(){
 
-        prevUserUID = signedInUser.getUID();
-        signedInUser.resetUser();
+        signedInUser = null;
 
         FirebaseUser newUser = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -155,74 +158,28 @@ public class UserDataHandler {
         }
         else{
 
-            signedInUser.setUID(newUser.getUid());
-            signedInUser.setName(newUser.getDisplayName());
-            signedInUser.setEmail(newUser.getEmail());
-            signedInUser.setPhone(newUser.getPhoneNumber());
-
             FirebaseFirestore.getInstance()
                     .collection("users")
-                    .document(signedInUser.getUID())
+                    .document(newUser.getUid())
                     .get()
                     .addOnSuccessListener(documentSnapshot -> {
 
-                        signedInUser.setDateOfBirth(documentSnapshot.getTimestamp("dateOfBirth"));
-                        signedInUser.setInstitute(documentSnapshot.getString("institute"));
+                        signedInUser = new MutableOrganizationModel(
+                                organizationModelConverter.convertRemoteDBToExternalModel(
+                                        documentSnapshot.toObject(OrganizationModelRemoteDB.class)
+                                )
+                        );
 
-                        signedInUser.setName(documentSnapshot.getString("name"));
-                        signedInUser.setGender(documentSnapshot.getString("gender"));
+                        authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.LOGIN_SUCCESS));
+                        signedInUserNotifier.setValue(new LiveEvent<>(signedInUser));
 
-                        try {
-                            @SuppressWarnings("unchecked")
-                            List<Map<String, Object>> interestsTempRaw = (List<Map<String, Object>>)documentSnapshot.get("interestsRating");
-                            if(interestsTempRaw != null && interestsTempRaw.size()>0) {
-
-                                List<InterestModel> interestsRating = new ArrayList<>(interestsTempRaw.size());
-
-                                for (Map<String, Object> elem : interestsTempRaw) {
-
-                                    InterestModel interestModel = new InterestModel((String) elem.get("interestsRating"));
-                                    interestsRating.add(interestModel);
-                                }
-                                signedInUser.setInterests(interestsRating);
-                            }
-
-                        }
-                        catch (Exception e){
-                            signedInUser.setInterests(null);
-                        }
-
-                        FirebaseDatabase.getInstance()
-                                .getReference()
-                                .child("follows")
-                                .child(signedInUser.getUID())
-                                .addValueEventListener(new ValueEventListener(){
-
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                        HashMap<String, Object> dataMap = new HashMap<>();
-                                        for (DataSnapshot childSnapshot: snapshot.getChildren()) {
-                                            dataMap.put(childSnapshot.getKey(), childSnapshot.getValue());
-                                        }
-                                        signedInUser.following = dataMap;
-
-                                        authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.LOGIN_SUCCESS));
-                                        signedInUserNotifier.setValue(new LiveEvent<>(signedInUser));
-
-                                    }
-
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError error) {
-
-                                    }
-                                });
 
                     })
                     .addOnFailureListener(e -> authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.LOGIN_FAILURE)));
         }
     }
 
-    public UserModel getCurrentUserModel(){
+    public OrganizationModel getCurrentUserModel(){
         return signedInUser;
     }
 
@@ -231,17 +188,11 @@ public class UserDataHandler {
     notifier live data through the auth state listener callback
      */
     public void getCurrentUserDetails(){
+
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if(user != null){
-
-            prevUserUID = signedInUser.getUID();
-
-            signedInUser.setUID(user.getUid());
-            signedInUser.setName(user.getDisplayName());
-            signedInUser.setEmail(user.getEmail());
-
+        if(user != null && user.getUid() != null && !user.getUid().equals("")) {
             authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.CURRENT_USER_SUCCESS));
-            getUserDetailsFromRemote();
+            getUserDetailsFromRemote(user.getUid());
         }
         else {
             authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.CURRENT_USER_FAILURE));
@@ -252,69 +203,25 @@ public class UserDataHandler {
     This method is called after login and getting details is done. ie, when firebase already has a current user.
     It sets details into the signed in user notifier live data
      */
-    private void getUserDetailsFromRemote(){
+    private void getUserDetailsFromRemote(String uid){
 
-        if(!signedInUser.getUID().equals("")){
+        if(!FirebaseAuth.getInstance().getCurrentUser().getUid().equals("")){
             //TODO get data from local and then remote if that fails
 
             FirebaseFirestore.getInstance()
                     .collection("users")
-                    .document(signedInUser.getUID())
+                    .document(uid)
                     .get()
                     .addOnSuccessListener(documentSnapshot -> {
 
-                        signedInUser.setName(documentSnapshot.getString("name"));
-                        signedInUser.setEmail(documentSnapshot.getString("email"));
-                        signedInUser.setPhone(documentSnapshot.getString("phone"));
+                        signedInUser = new MutableOrganizationModel(
+                                organizationModelConverter.convertRemoteDBToExternalModel(
+                                        documentSnapshot.toObject(OrganizationModelRemoteDB.class)
+                                )
+                        );
 
-                        signedInUser.setGender(documentSnapshot.getString("gender"));
-                        signedInUser.setDateOfBirth(documentSnapshot.getTimestamp("dateOfBirth"));
-                        signedInUser.setInstitute(documentSnapshot.getString("institute"));
-
-                        try {
-                            @SuppressWarnings("unchecked")
-                            List<Map<String, Object>> interestsTempRaw = (List<Map<String, Object>>)documentSnapshot.get("interestsRating");
-                            if(interestsTempRaw != null && interestsTempRaw.size()>0) {
-
-                                List<InterestModel> userInterests = new ArrayList<>(interestsTempRaw.size());
-
-                                for (Map<String, Object> elem : interestsTempRaw) {
-
-                                    InterestModel interestModel = new InterestModel((String) elem.get("interests"));
-                                    userInterests.add(interestModel);
-                                }
-                                signedInUser.setInterests(userInterests);
-                            }
-
-                        }
-                        catch (Exception e){
-                            signedInUser.setInterests(null);
-                        }
-
-                        FirebaseDatabase.getInstance()
-                                .getReference()
-                                .child("follows")
-                                .child(signedInUser.getUID())
-                                .addValueEventListener(new ValueEventListener(){
-
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                        HashMap<String, Object> dataMap = new HashMap<>();
-                                        for (DataSnapshot childSnapshot: snapshot.getChildren()) {
-                                            dataMap.put(childSnapshot.getKey(), childSnapshot.getValue());
-                                        }
-                                        signedInUser.following = dataMap;
-
-                                        authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.CURRENT_USER_LOGIN_SUCCESS));
-                                        signedInUserNotifier.setValue(new LiveEvent<>(signedInUser));
-
-                                    }
-
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError error) {
-
-                                    }
-                                });
+                        authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.CURRENT_USER_LOGIN_SUCCESS));
+                        signedInUserNotifier.setValue(new LiveEvent<>(signedInUser));
 
                     })
                     .addOnFailureListener(e -> authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.LOGIN_FAILURE)));
@@ -328,53 +235,21 @@ public class UserDataHandler {
 
     public void signOutCurrentUser(){
         FirebaseAuth.getInstance().signOut();
-        prevUserUID = signedInUser.getUID();
-        signedInUser.resetUser();
+        signedInUser = null;
     }
 
-    public void updateCurrentUserDetails(UserModel updatedUserModel){
+    public void updateCurrentUserDetails(OrganizationModel updatedUserModel){
 
         FirebaseFirestore.getInstance()
                 .collection("users")
-                .document(getCurrentUserModel().UID)
-                .update(
-                        "name", updatedUserModel.name,
-                        "gender", updatedUserModel.gender,
-                        "dateOfBirth", updatedUserModel.dateOfBirth
-                )
+                .document(getCurrentUserModel().getId())
+                .set(organizationModelConverter.convertExternalToRemoteDBModel(updatedUserModel))
                 .addOnSuccessListener(aVoid -> {
                     Log.e("Update", "success");
-                    signedInUser.dateOfBirth = updatedUserModel.dateOfBirth;
-                    signedInUser.gender = updatedUserModel.gender;
-                    signedInUser.name = updatedUserModel.name;
-                    signedInUser.institute = updatedUserModel.institute;
+                    signedInUser = new MutableOrganizationModel(updatedUserModel);
                 })
                 .addOnFailureListener(e -> Log.e("Update", e.getMessage()));
 
-    }
-
-    public void updateFollow(String organizationID, boolean following) {
-
-        if(following) {
-            FirebaseDatabase.getInstance()
-                    .getReference()
-                    .child("follows")
-                    .child(getCurrentUserModel().getUID())
-                    .child(organizationID)
-                    .setValue(true);
-
-            getCurrentUserModel().getFollowing().put(organizationID, true);
-        }
-        else {
-            FirebaseDatabase.getInstance()
-                    .getReference()
-                    .child("follows")
-                    .child(getCurrentUserModel().getUID())
-                    .child(organizationID)
-                    .removeValue();
-
-            getCurrentUserModel().getFollowing().remove(organizationID);
-        }
     }
 
     /*
@@ -389,205 +264,7 @@ public class UserDataHandler {
     this is distinct to auth response as that only shares status of request
     this shares result of request ie, current user or null
     */
-    public LiveData<LiveEvent<UserModel>> getSignedInUserNotifier(){
+    public LiveData<LiveEvent<OrganizationModel>> getSignedInUserNotifier(){
         return signedInUserNotifier;
-    }
-
-    /*
-    to be used to handle the case when signed in user changed or if you just want access to previous
-    user
-     */
-    public String getPrevUserUID() {
-        return prevUserUID;
-    }
-
-    /*
-    this class is shown to outside world there is only one instance of this
-    class and the derived class they contain all the data needed
-    */
-    public static class UserModel extends BaseModel {
-
-        // Variables are package-private to prevent subclasses of MutableUserModel
-        // gaining access to fields
-        @NonNull String UID = "";
-        String email;
-        String name;
-        String phone;
-
-        List<InterestModel> interestsRating;
-        List<String> interests;
-
-        Timestamp dateOfBirth;
-        String gender;
-        String institute;
-
-        // get this from realtime database
-        Map<String, Object> following;
-
-        private UserModel(){}
-
-        protected UserModel(Parcel in) {
-            UID = in.readString();
-            email = in.readString();
-            name = in.readString();
-            phone = in.readString();
-            interestsRating = in.createTypedArrayList(InterestModel.CREATOR);
-            interests = in.createStringArrayList();
-            dateOfBirth = in.readParcelable(Timestamp.class.getClassLoader());
-            gender = in.readString();
-            institute = in.readString();
-        }
-
-        public static final Creator<UserModel> CREATOR = new Creator<UserModel>() {
-            @Override
-            public UserModel createFromParcel(Parcel in) {
-                return new UserModel(in);
-            }
-
-            @Override
-            public UserModel[] newArray(int size) {
-                return new UserModel[size];
-            }
-        };
-
-        @NonNull
-        public String getUID() {
-            return UID;
-        }
-
-        public String getEmail() {
-            return email;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getPhone() {
-            return phone;
-        }
-
-        public List<InterestModel> getInterestsRating() {
-            return interestsRating;
-        }
-
-        public Map<String, Object> getFollowing() {
-            return following;
-        }
-
-        public List<String> getInterests(){
-            return interests;
-        }
-
-        public Timestamp getDateOfBirth() {
-            return dateOfBirth;
-        }
-
-        public String getGender() {
-            return gender;
-        }
-
-        public String getInstitute() {
-            return institute;
-        }
-
-        public Map<String, Object> toMapObject(){
-
-            Map<String, Object> mapUserModel = new HashMap<>();
-            mapUserModel.put("institute", institute);
-            mapUserModel.put("gender", gender);
-            mapUserModel.put("dateOfBirth", dateOfBirth);
-            mapUserModel.put("interestsRating", interestsRating);
-            mapUserModel.put("name", name);
-            mapUserModel.put("interests", interests);
-            mapUserModel.put("email", email);
-
-            return mapUserModel;
-        }
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeString(UID);
-            dest.writeString(email);
-            dest.writeString(name);
-            dest.writeString(phone);
-            dest.writeTypedList(interestsRating);
-            dest.writeStringList(interests);
-            dest.writeParcelable(dateOfBirth, flags);
-            dest.writeString(gender);
-            dest.writeString(institute);
-        }
-    }
-
-    /*
-    this is for outside world to be able to make a user object and send it
-    to auth handler but without being able to set a UID
-    */
-    public static class MutableUserModel extends UserModel{
-
-
-        public void setEmail(String email) {
-            this.email = email;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public void setPhone(String phone) {
-            this.phone = phone;
-        }
-
-        public void setInterests(List<InterestModel> interestsRating) {
-
-            this.interestsRating = interestsRating;
-
-            if(this.interestsRating != null) {
-                this.interests = new ArrayList<>(this.interestsRating.size());
-                for (InterestModel i : this.interestsRating) {
-                    interests.add(i.interestString);
-                }
-            }
-        }
-
-        public void setDateOfBirth(Timestamp dateOfBirth) {
-            this.dateOfBirth = dateOfBirth;
-        }
-
-        public void setGender(String gender) {
-            this.gender = gender;
-        }
-
-        public void setInstitute(String institute) {
-            this.institute = institute;
-        }
-
-    }
-
-    /*
-    This is for internal use and under no instance must it be used outside this class
-     */
-    private static class UserModelInternal extends MutableUserModel{
-
-        public void setUID(@NonNull String UID) {
-            this.UID = UID;
-        }
-
-        public void resetUser(){
-            UID = "";
-            email = null;
-            name = null;
-            phone = null;
-            interestsRating = null;
-            interests = null;
-            dateOfBirth = null;
-            gender = null;
-            institute = null;
-        }
     }
 }

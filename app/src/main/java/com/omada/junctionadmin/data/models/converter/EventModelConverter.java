@@ -41,6 +41,7 @@ public class EventModelConverter extends BaseConverter <EventModel, EventModelRe
         model.setVenue(remoteModel.getVenue());
         model.setVenueName(remoteModel.getVenueCache().get("name"));
         model.setVenueAddress(remoteModel.getVenueCache().get("address"));
+        model.setVenueInstitute(remoteModel.getVenueCache().get("institute"));
 
         model.setTags(remoteModel.getTags());
 
@@ -81,6 +82,7 @@ public class EventModelConverter extends BaseConverter <EventModel, EventModelRe
         Map<String, String> venueCache = new HashMap<>();
         venueCache.put("name", externalModel.getVenueName());
         venueCache.put("address", externalModel.getVenueAddress());
+        venueCache.put("institute", externalModel.getVenueInstitute());
         model.setVenueCache(venueCache);
 
         model.setTags(externalModel.getTags());
@@ -90,6 +92,16 @@ public class EventModelConverter extends BaseConverter <EventModel, EventModelRe
 
     @Override
     public Void convertExternalToLocalDBModel(EventModel externalModel) {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> convertExternalToMapObject(EventModel externalModel) {
+        return null;
+    }
+
+    @Override
+    public EventModel convertMapObjectToExternal(Map<String, Object> externalModel) {
         return null;
     }
 }

@@ -4,6 +4,8 @@ import com.omada.junctionadmin.data.models.external.InstituteModel;
 import com.omada.junctionadmin.data.models.internal.remote.InstituteModelRemoteDB;
 import com.omada.junctionadmin.data.models.mutable.MutableInstituteModel;
 
+import java.util.Map;
+
 
 public class InstituteModelConverter extends BaseConverter <InstituteModel, InstituteModelRemoteDB, Void> {
 
@@ -38,6 +40,16 @@ public class InstituteModelConverter extends BaseConverter <InstituteModel, Inst
 
     @Override
     public Void convertExternalToLocalDBModel(InstituteModel externalModel) {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> convertExternalToMapObject(InstituteModel externalModel) {
+        return null;
+    }
+
+    @Override
+    public InstituteModel convertMapObjectToExternal(Map<String, Object> externalModel) {
         return null;
     }
 }

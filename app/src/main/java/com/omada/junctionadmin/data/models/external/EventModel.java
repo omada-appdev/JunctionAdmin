@@ -27,6 +27,7 @@ public class EventModel extends PostModel {
     protected String venue;
     protected String venueName;
     protected String venueAddress;
+    protected String venueInstitute;
 
     protected ArrayList<String> tags;
 
@@ -50,6 +51,7 @@ public class EventModel extends PostModel {
         venue = in.readString();
         venueName = in.readString();
         venueAddress = in.readString();
+        venueInstitute = in.readString();
         tags = in.createStringArrayList();
     }
 
@@ -101,6 +103,10 @@ public class EventModel extends PostModel {
         return venueAddress;
     }
 
+    public String getVenueInstitute() {
+        return venueInstitute;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -123,6 +129,7 @@ public class EventModel extends PostModel {
         dest.writeString(venue);
         dest.writeString(venueName);
         dest.writeString(venueAddress);
+        dest.writeString(venueInstitute);
         dest.writeStringList(tags);
     }
 }

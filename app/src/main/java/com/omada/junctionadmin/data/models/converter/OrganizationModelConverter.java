@@ -4,6 +4,8 @@ import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.internal.remote.OrganizationModelRemoteDB;
 import com.omada.junctionadmin.data.models.mutable.MutableOrganizationModel;
 
+import java.util.Map;
+
 public class OrganizationModelConverter extends BaseConverter <OrganizationModel, OrganizationModelRemoteDB, Void>{
 
     @Override
@@ -55,6 +57,16 @@ public class OrganizationModelConverter extends BaseConverter <OrganizationModel
 
     @Override
     public Void convertExternalToLocalDBModel(OrganizationModel externalModel) {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> convertExternalToMapObject(OrganizationModel externalModel) {
+        return null;
+    }
+
+    @Override
+    public OrganizationModel convertMapObjectToExternal(Map<String, Object> externalModel) {
         return null;
     }
 }

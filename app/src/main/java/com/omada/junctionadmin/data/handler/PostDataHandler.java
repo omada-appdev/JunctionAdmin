@@ -5,11 +5,13 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.common.api.Batch;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
+import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.models.converter.ArticleModelConverter;
 import com.omada.junctionadmin.data.models.converter.EventModelConverter;
 import com.omada.junctionadmin.data.models.converter.RegistrationModelConverter;
@@ -20,6 +22,7 @@ import com.omada.junctionadmin.data.models.external.RegistrationModel;
 import com.omada.junctionadmin.data.models.internal.remote.ArticleModelRemoteDB;
 import com.omada.junctionadmin.data.models.internal.remote.EventModelRemoteDB;
 import com.omada.junctionadmin.data.models.internal.remote.RegistrationModelRemoteDB;
+import com.omada.junctionadmin.data.models.mutable.MutableBookingModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.util.ArrayList;
@@ -61,6 +64,7 @@ public class PostDataHandler {
                 })
                 .addOnFailureListener(e -> {
                     Log.e("Posts", "Error retrieving organization highlights");
+                    loadedOrganizationHighlights.setValue(null);
                 });
 
         return loadedOrganizationHighlights;
@@ -90,6 +94,7 @@ public class PostDataHandler {
                 })
                 .addOnFailureListener(e -> {
                     Log.e("Posts", "Error retrieving organization highlights");
+                    loadedAllOrganizationPostsNotifier.setValue(null);
                 });
 
 
@@ -119,6 +124,7 @@ public class PostDataHandler {
                 })
                 .addOnFailureListener(e -> {
                     Log.e("Posts", "Error retrieving all organization posts");
+                    loadedAllOrganizationPostsNotifier.setValue(null);
                 });
 
     }
@@ -147,8 +153,40 @@ public class PostDataHandler {
                 })
                 .addOnFailureListener(e -> {
                     Log.e("Posts", "Error retrieving organization highlights");
+                    loadedAllOrganizationPostsNotifier.setValue(null);
                 });
 
+    }
+
+    public LiveData<LiveEvent<List<PostModel>>> getShowcasePosts(String showcaseId) {
+
+        MutableLiveData<LiveEvent<List<PostModel>>> loadedShowcasePostsLiveData = new MutableLiveData<>();
+
+        FirebaseFirestore
+                .getInstance()
+                .collection("posts")
+                .whereEqualTo("showcase", showcaseId)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+
+                    List<PostModel> postModels = new ArrayList<>();
+
+                    for(DocumentSnapshot snapshot: queryDocumentSnapshots){
+                        PostModel postModel = convertSnapshotToPostModel(snapshot);
+                        if(postModel != null){
+                            postModels.add(postModel);
+                        }
+                    }
+
+                    loadedShowcasePostsLiveData.setValue(new LiveEvent<>(postModels));
+
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Posts", "Failed to retrieve showcase posts");
+                    loadedShowcasePostsLiveData.setValue(null);
+                });
+
+        return loadedShowcasePostsLiveData;
     }
 
     /*
@@ -181,12 +219,28 @@ public class PostDataHandler {
 
         MutableLiveData<LiveEvent<Boolean>> resultLiveData = new MutableLiveData<>();
 
-        Object data = null;
+        WriteBatch batch = FirebaseFirestore.getInstance().batch();
 
+        // Generate a new random Id to correlate booking and event
+        String randomId = FirebaseFirestore.getInstance()
+                .collection("posts").document().getId();
+
+
+        Object data = null;
         Class<? extends PostModel> postClass = postModel.getClass();
 
         if (EventModel.class.equals(postClass)) {
-            data = eventModelConverter.convertExternalToRemoteDBModel((EventModel) postModel);
+
+            EventModel eventModel = (EventModel) postModel;
+            data = eventModelConverter.convertExternalToRemoteDBModel(eventModel);
+
+            eventModel.setId(randomId);
+
+            // Creating a new booking in the write batch
+            DataRepository
+                    .getInstance()
+                    .getVenueDataHandler()
+                    .createNewBooking(MutableBookingModel.fromEventModel(eventModel), batch);
         }
         else if (ArticleModel.class.equals(postClass)) {
             data = articleModelConverter.convertExternalToRemoteDBModel((ArticleModel) postModel);
@@ -197,10 +251,13 @@ public class PostDataHandler {
             return resultLiveData;
         }
 
-        FirebaseFirestore.getInstance()
+        DocumentReference eventDocRef = FirebaseFirestore.getInstance()
                 .collection("posts")
-                .document()
-                .set(data)
+                .document(randomId);
+
+        batch.set(eventDocRef, data);
+
+        batch.commit()
                 .addOnSuccessListener(aVoid -> {
                     resultLiveData.setValue(new LiveEvent<>(true));
                 })
@@ -235,7 +292,7 @@ public class PostDataHandler {
 
     public LiveData<LiveEvent<List<RegistrationModel>>> getEventRegistrations(String eventId){
 
-        MutableLiveData<LiveEvent<List<RegistrationModel>>> registrations = new MutableLiveData<>();
+        MutableLiveData<LiveEvent<List<RegistrationModel>>> registrationsLiveData = new MutableLiveData<>();
 
         FirebaseFirestore
                 .getInstance()
@@ -253,14 +310,14 @@ public class PostDataHandler {
                             registrationModels.add(model);
                         }
                     }
-                    registrations.setValue(new LiveEvent<>(registrationModels));
+                    registrationsLiveData.setValue(new LiveEvent<>(registrationModels));
                 })
                 .addOnFailureListener(e -> {
                     Log.e("Registrations", "Error retrieving registrations");
-                    registrations.setValue(null);
+                    registrationsLiveData.setValue(null);
                 });
 
-        return registrations;
+        return registrationsLiveData;
     }
 
     public void updateOrganizationHighlights(String organizationId){

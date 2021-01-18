@@ -3,6 +3,7 @@ package com.omada.junctionadmin.data;
 import com.omada.junctionadmin.data.handler.AppDataHandler;
 import com.omada.junctionadmin.data.handler.ArticleDataHandler;
 import com.omada.junctionadmin.data.handler.EventDataHandler;
+import com.omada.junctionadmin.data.handler.InstituteDataHandler;
 import com.omada.junctionadmin.data.handler.OrganizationDataHandler;
 import com.omada.junctionadmin.data.handler.PostDataHandler;
 import com.omada.junctionadmin.data.handler.ShowcaseDataHandler;
@@ -20,6 +21,7 @@ public class DataRepository {
     private final ShowcaseDataHandler showcaseDataHandler = new ShowcaseDataHandler();
     private final PostDataHandler postDataHandler = new PostDataHandler();
     private final VenueDataHandler venueDataHandler = new VenueDataHandler();
+    private final InstituteDataHandler instituteDataHandler = new InstituteDataHandler();
 
     //this is only for events
     private final EventDataHandler eventDataHandler = new EventDataHandler();
@@ -66,6 +68,10 @@ public class DataRepository {
 
     public VenueDataHandler getVenueDataHandler() {
         return venueDataHandler;
+    }
+
+    public InstituteDataHandler getInstituteDataHandler() {
+        return instituteDataHandler;
     }
 }
 

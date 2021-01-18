@@ -58,6 +58,10 @@ public class MutableEventModel extends EventModel {
         this.venueAddress = venueAddress;
     }
 
+    public void setVenueInstitute(String venueInstitute) {
+        this.venueInstitute = venueInstitute;
+    }
+
     public void setCreatorName(String creatorName) {
         this.creatorName = creatorName;
     }

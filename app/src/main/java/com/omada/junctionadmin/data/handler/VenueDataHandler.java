@@ -6,8 +6,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.WriteBatch;
 import com.omada.junctionadmin.data.models.converter.BookingModelConverter;
 import com.omada.junctionadmin.data.models.converter.VenueModelConverter;
 import com.omada.junctionadmin.data.models.external.BookingModel;
@@ -15,6 +17,7 @@ import com.omada.junctionadmin.data.models.external.EventModel;
 import com.omada.junctionadmin.data.models.external.VenueModel;
 import com.omada.junctionadmin.data.models.internal.remote.BookingModelRemoteDB;
 import com.omada.junctionadmin.data.models.internal.remote.VenueModelRemoteDB;
+import com.omada.junctionadmin.data.models.mutable.MutableBookingModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.time.format.DateTimeFormatterBuilder;
@@ -86,25 +89,36 @@ public class VenueDataHandler {
                     List<BookingModel> bookingModels = new ArrayList<>();
 
                     for(DocumentSnapshot documentSnapshot: queryDocumentSnapshots) {
+
+                        BookingModelRemoteDB modelRemoteDB = documentSnapshot.toObject(BookingModelRemoteDB.class);
+                        modelRemoteDB.setId(documentSnapshot.getId());
                         bookingModels.add(
-                                bookingModelConverter.convertRemoteDBToExternalModel(
-                                        documentSnapshot.toObject(BookingModelRemoteDB.class)
-                                )
+                                bookingModelConverter.convertRemoteDBToExternalModel(modelRemoteDB)
                         );
                     }
-
                     venueBookingsLiveData.setValue(new LiveEvent<>(bookingModels));
-
                 })
                 .addOnFailureListener(e -> {
-
+                    Log.e("Venue", "Failed to retrieve venue bookings on given date");
+                    venueBookingsLiveData.setValue(null);
                 });
 
         return venueBookingsLiveData;
 
     }
 
-    public void createNewBooking(EventModel eventModel, VenueModel venueModel) {
+    // package private because EventDataHandler needs access to this method
+    void createNewBooking(BookingModel bookingModel, WriteBatch batch) {
+
+        DocumentReference docRef = FirebaseFirestore
+                .getInstance()
+                .collection("venues")
+                .document(bookingModel.getVenue())
+                .collection("bookings")
+                .document();
+
+        batch.set(docRef, bookingModelConverter.convertExternalToRemoteDBModel(bookingModel));
 
     }
+
 }

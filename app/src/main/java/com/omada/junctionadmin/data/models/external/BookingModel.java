@@ -1,12 +1,8 @@
 package com.omada.junctionadmin.data.models.external;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 
 import com.google.firebase.Timestamp;
-import com.omada.junctionadmin.data.models.internal.remote.BookingModelRemoteDB;
-
-import java.util.Map;
 
 public class BookingModel extends BaseModel {
 
@@ -17,7 +13,7 @@ public class BookingModel extends BaseModel {
 
     protected String event;
     protected String eventName;
-    protected String timeCreated;
+    protected Timestamp timeCreated;
 
     protected Timestamp startTime;
     protected Timestamp endTime;
@@ -28,7 +24,7 @@ public class BookingModel extends BaseModel {
     protected String creatorMail;
     protected String creatorPhone;
 
-    protected String photo;
+    protected String image;
 
     public BookingModel(){
     }
@@ -41,7 +37,7 @@ public class BookingModel extends BaseModel {
         venueInstitute = in.readString();
         event = in.readString();
         eventName = in.readString();
-        timeCreated = in.readString();
+        timeCreated = in.readParcelable(Timestamp.class.getClassLoader());
         startTime = in.readParcelable(Timestamp.class.getClassLoader());
         endTime = in.readParcelable(Timestamp.class.getClassLoader());
         creator = in.readString();
@@ -49,7 +45,7 @@ public class BookingModel extends BaseModel {
         creatorProfilePicture = in.readString();
         creatorMail = in.readString();
         creatorPhone = in.readString();
-        photo = in.readString();
+        image = in.readString();
     }
 
     public static final Creator<BookingModel> CREATOR = new Creator<BookingModel>() {
@@ -72,7 +68,7 @@ public class BookingModel extends BaseModel {
         return eventName;
     }
 
-    public String getTimeCreated() {
+    public Timestamp getTimeCreated() {
         return timeCreated;
     }
 
@@ -88,8 +84,8 @@ public class BookingModel extends BaseModel {
         return creator;
     }
 
-    public String getPhoto() {
-        return photo;
+    public String getImage() {
+        return image;
     }
 
     public String getCreatorName() {
@@ -139,7 +135,7 @@ public class BookingModel extends BaseModel {
         dest.writeString(venueInstitute);
         dest.writeString(event);
         dest.writeString(eventName);
-        dest.writeString(timeCreated);
+        dest.writeParcelable(timeCreated, flags);
         dest.writeParcelable(startTime, flags);
         dest.writeParcelable(endTime, flags);
         dest.writeString(creator);
@@ -147,6 +143,6 @@ public class BookingModel extends BaseModel {
         dest.writeString(creatorProfilePicture);
         dest.writeString(creatorMail);
         dest.writeString(creatorPhone);
-        dest.writeString(photo);
+        dest.writeString(image);
     }
 }

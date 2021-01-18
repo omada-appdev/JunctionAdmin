@@ -2,6 +2,8 @@ package com.omada.junctionadmin.data.models.mutable;
 
 import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.external.BookingModel;
+import com.omada.junctionadmin.data.models.external.EventModel;
+import com.omada.junctionadmin.data.models.external.VenueModel;
 
 
 public class MutableBookingModel extends BookingModel {
@@ -14,7 +16,7 @@ public class MutableBookingModel extends BookingModel {
         this.eventName = eventName;
     }
 
-    public void setTimeCreated(String timeCreated) {
+    public void setTimeCreated(Timestamp timeCreated) {
         this.timeCreated = timeCreated;
     }
 
@@ -30,8 +32,8 @@ public class MutableBookingModel extends BookingModel {
         this.creator = creator;
     }
 
-    public void setPhoto(String photo) {
-        this.photo = photo;
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public void setCreatorName(String creatorName) {
@@ -64,6 +66,30 @@ public class MutableBookingModel extends BookingModel {
 
     public void setVenueInstitute(String venueInstitute) {
         this.venueInstitute = venueInstitute;
+    }
+
+
+    public static MutableBookingModel fromEventModel(EventModel eventModel) {
+
+        MutableBookingModel mutableBookingModel = new MutableBookingModel();
+
+        mutableBookingModel.setVenue(eventModel.getVenue());
+        mutableBookingModel.setVenueName(eventModel.getVenueName());
+        mutableBookingModel.setVenueAddress(eventModel.getVenueAddress());
+        mutableBookingModel.setVenueInstitute(eventModel.getVenueInstitute());
+        mutableBookingModel.setEvent(eventModel.getId());
+        mutableBookingModel.setEventName(eventModel.getTitle());
+        mutableBookingModel.setTimeCreated(eventModel.getTimeCreated());
+        mutableBookingModel.setStartTime(eventModel.getStartTime());
+        mutableBookingModel.setEndTime(eventModel.getEndTime());
+        mutableBookingModel.setCreator(eventModel.getCreator());
+        mutableBookingModel.setCreatorName(eventModel.getCreatorName());
+        mutableBookingModel.setCreatorProfilePicture(eventModel.getCreatorProfilePicture());
+        mutableBookingModel.setCreatorMail(eventModel.getCreatorMail());
+        mutableBookingModel.setCreatorPhone(eventModel.getCreatorPhone());
+
+        return mutableBookingModel;
+
     }
 
 }

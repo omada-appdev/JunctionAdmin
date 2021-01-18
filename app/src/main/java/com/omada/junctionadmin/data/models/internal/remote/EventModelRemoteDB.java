@@ -13,6 +13,8 @@ import java.util.Map;
 
 public class EventModelRemoteDB extends BaseModelInternal {
 
+    private final String type = "event";
+
     private String title;
     private String description;
     private String image;
@@ -170,5 +172,10 @@ public class EventModelRemoteDB extends BaseModelInternal {
     @PropertyName("timeCreated")
     public void setTimeCreated(Timestamp timeCreated) {
         this.timeCreated = timeCreated;
+    }
+
+    @PropertyName("type")
+    public String getType() {
+        return type;
     }
 }

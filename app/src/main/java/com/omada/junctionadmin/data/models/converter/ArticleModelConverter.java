@@ -60,4 +60,14 @@ public class ArticleModelConverter extends BaseConverter <ArticleModel, ArticleM
     public Void convertExternalToLocalDBModel(ArticleModel externalModel) {
         return null;
     }
+
+    @Override
+    public Map<String, Object> convertExternalToMapObject(ArticleModel externalModel) {
+        return null;
+    }
+
+    @Override
+    public ArticleModel convertMapObjectToExternal(Map<String, Object> externalModel) {
+        return null;
+    }
 }

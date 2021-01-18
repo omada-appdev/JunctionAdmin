@@ -4,6 +4,8 @@ import com.omada.junctionadmin.data.models.external.ShowcaseModel;
 import com.omada.junctionadmin.data.models.internal.remote.ShowcaseModelRemoteDB;
 import com.omada.junctionadmin.data.models.mutable.MutableShowcaseModel;
 
+import java.util.Map;
+
 public class ShowcaseModelConverter extends BaseConverter <ShowcaseModel, ShowcaseModelRemoteDB, Void> {
 
     @Override
@@ -41,6 +43,16 @@ public class ShowcaseModelConverter extends BaseConverter <ShowcaseModel, Showca
 
     @Override
     public Void convertExternalToLocalDBModel(ShowcaseModel externalModel) {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> convertExternalToMapObject(ShowcaseModel externalModel) {
+        return null;
+    }
+
+    @Override
+    public ShowcaseModel convertMapObjectToExternal(Map<String, Object> externalModel) {
         return null;
     }
 }

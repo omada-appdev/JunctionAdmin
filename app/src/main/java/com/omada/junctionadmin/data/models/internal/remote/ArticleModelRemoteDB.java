@@ -10,6 +10,8 @@ import java.util.Map;
 
 public class ArticleModelRemoteDB extends BaseModelInternal {
 
+    private final String type = "article";
+
     private String title;
     private String creator;
     private String text;
@@ -97,5 +99,10 @@ public class ArticleModelRemoteDB extends BaseModelInternal {
     @PropertyName("timeCreated")
     public void setTimeCreated(Timestamp timeCreated) {
         this.timeCreated = timeCreated;
+    }
+
+    @PropertyName("type")
+    public String getType() {
+        return type;
     }
 }

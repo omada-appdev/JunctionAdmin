@@ -22,7 +22,7 @@ public class BookingModelConverter extends BaseConverter <BookingModel, BookingM
         model.setId(remoteModel.getId());
         model.setEvent(remoteModel.getEvent());
         model.setEventName(remoteModel.getEventName());
-        model.setPhoto(remoteModel.getPhoto());
+        model.setImage(remoteModel.getImage());
 
         model.setVenue(remoteModel.getVenue());
         model.setStartTime(remoteModel.getStartTime());
@@ -59,7 +59,7 @@ public class BookingModelConverter extends BaseConverter <BookingModel, BookingM
         model.setStartTime(externalModel.getStartTime());
         model.setEndTime(externalModel.getEndTime());
         model.setCreator(externalModel.getCreator());
-        model.setPhoto(externalModel.getPhoto());
+        model.setImage(externalModel.getImage());
 
         Map<String, String> creatorCache = new HashMap<>();
         creatorCache.put("name", externalModel.getCreatorName());
@@ -80,6 +80,16 @@ public class BookingModelConverter extends BaseConverter <BookingModel, BookingM
 
     @Override
     public Void convertExternalToLocalDBModel(BookingModel externalModel) {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> convertExternalToMapObject(BookingModel externalModel) {
+        return null;
+    }
+
+    @Override
+    public BookingModel convertMapObjectToExternal(Map<String, Object> externalModel) {
         return null;
     }
 }

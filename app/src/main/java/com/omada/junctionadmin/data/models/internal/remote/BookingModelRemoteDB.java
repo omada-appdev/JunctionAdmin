@@ -1,9 +1,7 @@
 package com.omada.junctionadmin.data.models.internal.remote;
 
 import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
-import com.omada.junctionadmin.data.models.external.BookingModel;
 import com.omada.junctionadmin.data.models.internal.BaseModelInternal;
 
 import java.util.Map;
@@ -15,7 +13,7 @@ public class BookingModelRemoteDB extends BaseModelInternal {
 
     private String event;
     private String eventName;
-    private String timeCreated;
+    private Timestamp timeCreated;
 
     private Timestamp startTime;
     private Timestamp endTime;
@@ -23,7 +21,7 @@ public class BookingModelRemoteDB extends BaseModelInternal {
     private String creator;
     private Map<String, String> creatorCache;
 
-    private String photo;
+    private String image;
 
     public BookingModelRemoteDB(){
     }
@@ -43,7 +41,7 @@ public class BookingModelRemoteDB extends BaseModelInternal {
     }
 
     @PropertyName("timeCreated")
-    public String getTimeCreated() {
+    public Timestamp getTimeCreated() {
         return timeCreated;
     }
 
@@ -67,9 +65,9 @@ public class BookingModelRemoteDB extends BaseModelInternal {
         return creatorCache;
     }
 
-    @PropertyName("photo")
-    public String getPhoto() {
-        return photo;
+    @PropertyName("image")
+    public String getImage() {
+        return image;
     }
 
     @PropertyName("venue")
@@ -88,7 +86,7 @@ public class BookingModelRemoteDB extends BaseModelInternal {
     }
 
     @PropertyName("timeCreated")
-    public void setTimeCreated(String timeCreated) {
+    public void setTimeCreated(Timestamp timeCreated) {
         this.timeCreated = timeCreated;
     }
 
@@ -112,9 +110,9 @@ public class BookingModelRemoteDB extends BaseModelInternal {
         this.creatorCache = creatorCache;
     }
 
-    @PropertyName("photo")
-    public void setPhoto(String photo) {
-        this.photo = photo;
+    @PropertyName("image")
+    public void setImage(String image) {
+        this.image = image;
     }
 
     @PropertyName("venue")

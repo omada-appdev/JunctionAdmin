@@ -4,6 +4,8 @@ import com.omada.junctionadmin.data.models.external.VenueModel;
 import com.omada.junctionadmin.data.models.internal.remote.VenueModelRemoteDB;
 import com.omada.junctionadmin.data.models.mutable.MutableVenueModel;
 
+import java.util.Map;
+
 public class VenueModelConverter extends BaseConverter <VenueModel, VenueModelRemoteDB, Void>{
 
     @Override
@@ -40,6 +42,16 @@ public class VenueModelConverter extends BaseConverter <VenueModel, VenueModelRe
 
     @Override
     public Void convertExternalToLocalDBModel(VenueModel externalModel) {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> convertExternalToMapObject(VenueModel externalModel) {
+        return null;
+    }
+
+    @Override
+    public VenueModel convertMapObjectToExternal(Map<String, Object> externalModel) {
         return null;
     }
 }

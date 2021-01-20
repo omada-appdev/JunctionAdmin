@@ -8,6 +8,8 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.omada.junctionadmin.data.BaseDataHandler;
+import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.models.converter.OrganizationModelConverter;
 import com.omada.junctionadmin.data.models.external.InstituteModel;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
@@ -17,8 +19,9 @@ import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-//user is organization
-public class OrganizationDataHandler {
+public class OrganizationDataHandler extends BaseDataHandler {
+
+    private MutableLiveData<LiveEvent<List<OrganizationModel>>> loadedInstituteOrganizationsNotifier = new MutableLiveData<>();
 
     private final OrganizationModelConverter organizationModelConverter = new OrganizationModelConverter();
 
@@ -54,9 +57,12 @@ public class OrganizationDataHandler {
     }
 
 
-    public LiveData<LiveEvent<List<OrganizationModel>>> getInstituteOrganizations(String instituteId) {
+    public void getInstituteOrganizations(DataRepository.DataRepositoryAccessIdentifier identifier) {
 
-        MutableLiveData<LiveEvent<List<OrganizationModel>>> instituteOrganizationsLiveData = new MutableLiveData<>();
+        String instituteId = DataRepository.getInstance()
+                .getUserDataHandler()
+                .getCurrentUserModel()
+                .getInstitute();
 
         FirebaseFirestore
                 .getInstance()
@@ -79,14 +85,16 @@ public class OrganizationDataHandler {
                         }
 
                     }
-                    instituteOrganizationsLiveData.setValue(new LiveEvent<>(organizationModels));
+                    loadedInstituteOrganizationsNotifier.setValue(new LiveEvent<>(organizationModels));
                 })
                 .addOnFailureListener(e -> {
                     Log.e("Organizations", "Error retrieving institute organizations");
-                    instituteOrganizationsLiveData.setValue(null);
+                    loadedInstituteOrganizationsNotifier.setValue(null);
                 });
 
-        return instituteOrganizationsLiveData;
+    }
 
+    public MutableLiveData<LiveEvent<List<OrganizationModel>>> getLoadedInstituteOrganizationsNotifier() {
+        return loadedInstituteOrganizationsNotifier;
     }
 }

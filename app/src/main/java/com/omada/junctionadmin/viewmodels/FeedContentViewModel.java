@@ -8,7 +8,7 @@ import com.omada.junctionadmin.viewmodels.content.ArticleViewHandler;
 import com.omada.junctionadmin.viewmodels.content.EventViewHandler;
 import com.omada.junctionadmin.viewmodels.content.OrganizationViewHandler;
 
-public class FeedContentViewModel extends ViewModel {
+public class FeedContentViewModel extends BaseViewModel {
 
     private final EventViewHandler eventViewHandler = new EventViewHandler();
     private final OrganizationViewHandler organizationViewHandler = new OrganizationViewHandler();

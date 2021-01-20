@@ -1,13 +1,14 @@
 package com.omada.junctionadmin.data.handler;
 
 import com.omada.junctionadmin.R;
+import com.omada.junctionadmin.data.BaseDataHandler;
 import com.omada.junctionadmin.data.models.external.InterestModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class AppDataHandler {
+public class AppDataHandler extends BaseDataHandler {
 
     public List<InterestModel> getInterestsList(){
 

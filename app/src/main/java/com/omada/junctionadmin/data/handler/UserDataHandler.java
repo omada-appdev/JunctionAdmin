@@ -16,6 +16,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.omada.junctionadmin.data.BaseDataHandler;
 import com.omada.junctionadmin.data.models.converter.OrganizationModelConverter;
 import com.omada.junctionadmin.data.models.external.BaseModel;
 import com.omada.junctionadmin.data.models.external.InterestModel;
@@ -29,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class UserDataHandler {
+public class UserDataHandler extends BaseDataHandler {
 
     public enum AuthStatus {
 
@@ -214,10 +215,12 @@ public class UserDataHandler {
                     .get()
                     .addOnSuccessListener(documentSnapshot -> {
 
+                        OrganizationModelRemoteDB modelRemoteDB = documentSnapshot.toObject(OrganizationModelRemoteDB.class);
+                        if(modelRemoteDB != null) {
+                            modelRemoteDB.setId(documentSnapshot.getId());
+                        }
                         signedInUser = new MutableOrganizationModel(
-                                organizationModelConverter.convertRemoteDBToExternalModel(
-                                        documentSnapshot.toObject(OrganizationModelRemoteDB.class)
-                                )
+                                organizationModelConverter.convertRemoteDBToExternalModel(modelRemoteDB)
                         );
 
                         authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.CURRENT_USER_LOGIN_SUCCESS));

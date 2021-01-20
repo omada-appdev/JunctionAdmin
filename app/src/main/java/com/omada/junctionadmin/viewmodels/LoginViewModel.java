@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class LoginViewModel extends ViewModel {
+public class LoginViewModel extends BaseViewModel {
 
     private final static int MAX_INTERESTS = 5;
 

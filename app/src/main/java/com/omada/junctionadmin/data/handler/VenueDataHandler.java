@@ -10,6 +10,8 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
+import com.omada.junctionadmin.data.BaseDataHandler;
+import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.models.converter.BookingModelConverter;
 import com.omada.junctionadmin.data.models.converter.VenueModelConverter;
 import com.omada.junctionadmin.data.models.external.BookingModel;
@@ -27,12 +29,13 @@ import java.util.Date;
 import java.util.List;
 
 
-public class VenueDataHandler {
+public class VenueDataHandler extends BaseDataHandler {
 
     private final VenueModelConverter venueModelConverter = new VenueModelConverter();
     private final BookingModelConverter bookingModelConverter = new BookingModelConverter();
 
-    public LiveData<LiveEvent<List<VenueModel>>> getAllVenues(String instituteID) {
+    public LiveData<LiveEvent<List<VenueModel>>> getAllVenues(
+            DataRepository.DataRepositoryAccessIdentifier identifier, String instituteID) {
 
         MutableLiveData<LiveEvent<List<VenueModel>>> venueModelsLiveData = new MutableLiveData<>();
 
@@ -60,7 +63,8 @@ public class VenueDataHandler {
 
     }
 
-    public LiveData<LiveEvent<List<BookingModel>>> getVenueBookingsOn(Date date, String venueId) {
+    public LiveData<LiveEvent<List<BookingModel>>> getVenueBookingsOn(
+            DataRepository.DataRepositoryAccessIdentifier identifier, Date date, String venueId) {
 
         MutableLiveData<LiveEvent<List<BookingModel>>> venueBookingsLiveData = new MutableLiveData<>();
 

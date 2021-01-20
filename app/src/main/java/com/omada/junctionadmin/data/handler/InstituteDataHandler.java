@@ -6,12 +6,13 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.omada.junctionadmin.data.BaseDataHandler;
 import com.omada.junctionadmin.data.models.converter.InstituteModelConverter;
 import com.omada.junctionadmin.data.models.external.InstituteModel;
 import com.omada.junctionadmin.data.models.internal.remote.InstituteModelRemoteDB;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
-public class InstituteDataHandler {
+public class InstituteDataHandler extends BaseDataHandler {
 
     private final InstituteModelConverter instituteModelConverter = new InstituteModelConverter();
 

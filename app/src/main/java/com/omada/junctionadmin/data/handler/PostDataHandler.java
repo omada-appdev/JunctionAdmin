@@ -11,6 +11,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
+import com.omada.junctionadmin.data.BaseDataHandler;
 import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.models.converter.ArticleModelConverter;
 import com.omada.junctionadmin.data.models.converter.EventModelConverter;
@@ -29,16 +30,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class PostDataHandler {
+public class PostDataHandler extends BaseDataHandler {
 
-    //loaded_functionName_notifier
-    public MutableLiveData<LiveEvent<List<PostModel>>> loadedInstituteHighlightsNotifier = new MutableLiveData<>();
-    public MutableLiveData<LiveEvent<List<PostModel>>> loadedOrganizationHighlightsNotifier = new MutableLiveData<>();
-    public MutableLiveData<LiveEvent<List<PostModel>>> loadedAllInstitutePostsNotifier = new MutableLiveData<>();
-    public MutableLiveData<LiveEvent<List<PostModel>>> loadedAllOrganizationPostsNotifier = new MutableLiveData<>();
+    private MutableLiveData<LiveEvent<List<PostModel>>> loadedInstituteHighlightsNotifier = new MutableLiveData<>();
+    private MutableLiveData<LiveEvent<List<PostModel>>> loadedOrganizationHighlightsNotifier = new MutableLiveData<>();
+    private MutableLiveData<LiveEvent<List<PostModel>>> loadedAllInstitutePostsNotifier = new MutableLiveData<>();
+    private MutableLiveData<LiveEvent<List<PostModel>>> loadedAllOrganizationPostsNotifier = new MutableLiveData<>();
 
 
-    public LiveData<LiveEvent<List<PostModel>>> getOrganizationHighlights(String organizationID){
+    public LiveData<LiveEvent<List<PostModel>>> getOrganizationHighlights(
+            DataRepository.DataRepositoryAccessIdentifier accessIdentifier, String organizationID){
 
         MutableLiveData<LiveEvent<List<PostModel>>> loadedOrganizationHighlights = new MutableLiveData<>();
 
@@ -70,12 +71,21 @@ public class PostDataHandler {
         return loadedOrganizationHighlights;
     }
 
-    public void getInstituteHighlights(String instituteID){
+    public void getInstituteHighlights(
+            DataRepository.DataRepositoryAccessIdentifier identifier){
+
+
+        String instituteId = DataRepository
+                .getInstance()
+                .getUserDataHandler()
+                .getCurrentUserModel()
+                .getInstitute();
+
 
         FirebaseFirestore
                 .getInstance()
                 .collection("posts")
-                .whereEqualTo("creatorCache.institute", instituteID)
+                .whereEqualTo("creatorCache.institute", instituteId)
                 .whereEqualTo("instituteHighlight", true)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -100,13 +110,21 @@ public class PostDataHandler {
 
     }
 
-    public void getAllInstitutePosts(String  instituteID){
-        //set into a common attribute
+    public void getAllInstitutePosts(
+            DataRepository.DataRepositoryAccessIdentifier identifier){
+
+
+        String instituteId = DataRepository
+                .getInstance()
+                .getUserDataHandler()
+                .getCurrentUserModel()
+                .getInstitute();
+
 
         FirebaseFirestore
                 .getInstance()
                 .collection("posts")
-                .whereEqualTo("creatorCache.institute", instituteID)
+                .whereEqualTo("creatorCache.institute", instituteId)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
 
@@ -129,8 +147,8 @@ public class PostDataHandler {
 
     }
 
-    public void getAllOrganizationPosts(String organizationID){
-        //set into a common attribute
+    public void getAllOrganizationPosts(
+            DataRepository.DataRepositoryAccessIdentifier identifier, String organizationID){
 
         FirebaseFirestore
                 .getInstance()
@@ -158,7 +176,8 @@ public class PostDataHandler {
 
     }
 
-    public LiveData<LiveEvent<List<PostModel>>> getShowcasePosts(String showcaseId) {
+    public LiveData<LiveEvent<List<PostModel>>> getShowcasePosts(
+            DataRepository.DataRepositoryAccessIdentifier identifier, String showcaseId) {
 
         MutableLiveData<LiveEvent<List<PostModel>>> loadedShowcasePostsLiveData = new MutableLiveData<>();
 
@@ -290,7 +309,8 @@ public class PostDataHandler {
 
     }
 
-    public LiveData<LiveEvent<List<RegistrationModel>>> getEventRegistrations(String eventId){
+    public LiveData<LiveEvent<List<RegistrationModel>>> getEventRegistrations(
+            DataRepository.DataRepositoryAccessIdentifier identifier, String eventId){
 
         MutableLiveData<LiveEvent<List<RegistrationModel>>> registrationsLiveData = new MutableLiveData<>();
 
@@ -320,8 +340,8 @@ public class PostDataHandler {
         return registrationsLiveData;
     }
 
-    public void updateOrganizationHighlights(String organizationId){
-
+    public void updateOrganizationHighlights(String organizationId, List<String> _added, List<String> _removed) {
+        // TODO
     }
 
     public LiveData<LiveEvent<Boolean>> updateOrganizationShowcase (String showcaseId, List<String> _added, List<String> _removed) {
@@ -362,6 +382,22 @@ public class PostDataHandler {
 
         return resultLiveData;
 
+    }
+
+    public MutableLiveData<LiveEvent<List<PostModel>>> getLoadedInstituteHighlightsNotifier() {
+        return loadedInstituteHighlightsNotifier;
+    }
+
+    public MutableLiveData<LiveEvent<List<PostModel>>> getLoadedAllInstitutePostsNotifier() {
+        return loadedAllInstitutePostsNotifier;
+    }
+
+    public MutableLiveData<LiveEvent<List<PostModel>>> getLoadedOrganizationHighlightsNotifier() {
+        return loadedOrganizationHighlightsNotifier;
+    }
+
+    public MutableLiveData<LiveEvent<List<PostModel>>> getLoadedAllOrganizationPostsNotifier() {
+        return loadedAllOrganizationPostsNotifier;
     }
 
     /*

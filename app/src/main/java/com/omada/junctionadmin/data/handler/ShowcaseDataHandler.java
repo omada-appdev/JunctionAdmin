@@ -7,6 +7,8 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.omada.junctionadmin.data.BaseDataHandler;
+import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.models.converter.ShowcaseModelConverter;
 import com.omada.junctionadmin.data.models.external.ShowcaseModel;
 import com.omada.junctionadmin.data.models.internal.remote.ShowcaseModelRemoteDB;
@@ -15,11 +17,12 @@ import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ShowcaseDataHandler {
+public class ShowcaseDataHandler extends BaseDataHandler {
 
     private final ShowcaseModelConverter showcaseModelConverter = new ShowcaseModelConverter();
 
-    public LiveData<LiveEvent<List<ShowcaseModel>>> getOrganizationShowcases(String organizationID) {
+    public LiveData<LiveEvent<List<ShowcaseModel>>> getOrganizationShowcases(
+            DataRepository.DataRepositoryAccessIdentifier identifier, String organizationID) {
 
         MutableLiveData<LiveEvent<List<ShowcaseModel>>> showcaseModelLiveData = new MutableLiveData<>();
 
@@ -47,5 +50,9 @@ public class ShowcaseDataHandler {
                 });
 
         return showcaseModelLiveData;
+    }
+
+    public void editShowcase(ShowcaseModel showcaseModel) {
+        // TODO
     }
 }

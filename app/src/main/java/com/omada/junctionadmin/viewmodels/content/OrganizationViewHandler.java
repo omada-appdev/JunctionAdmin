@@ -13,6 +13,11 @@ public class OrganizationViewHandler {
 
     private final MutableLiveData<LiveEvent<OrganizationModel>> organizationModelDetailsTrigger = new MutableLiveData<>();
     private final MutableLiveData<LiveEvent<ShowcaseModel>> organizationShowcaseDetailsTrigger = new MutableLiveData<>();
+    private final MutableLiveData<LiveEvent<String>> organizationDetailsTrigger = new MutableLiveData<>();
+
+    public void goToOrganization(String organizationID){
+        organizationDetailsTrigger.setValue(new LiveEvent<>(organizationID));
+    }
 
     public void goToOrganization(@Nonnull OrganizationModel organizationModel){
         organizationModelDetailsTrigger.setValue(new LiveEvent<>(organizationModel));
@@ -20,6 +25,10 @@ public class OrganizationViewHandler {
 
     public void goToOrganizationShowcase(ShowcaseModel showcaseModel){
         organizationShowcaseDetailsTrigger.setValue(new LiveEvent<>(showcaseModel));
+    }
+
+    public LiveData<LiveEvent<String>> getOrganizationDetailsTrigger() {
+        return organizationDetailsTrigger;
     }
 
     public LiveData<LiveEvent<OrganizationModel>> getOrganizationModelDetailsTrigger() {

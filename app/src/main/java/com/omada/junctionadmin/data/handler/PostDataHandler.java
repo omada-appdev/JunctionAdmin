@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.common.api.Batch;
+import com.google.common.collect.ImmutableList;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -340,11 +341,8 @@ public class PostDataHandler extends BaseDataHandler {
         return registrationsLiveData;
     }
 
-    public void updateOrganizationHighlights(String organizationId, List<String> _added, List<String> _removed) {
-        // TODO
-    }
-
-    public LiveData<LiveEvent<Boolean>> updateOrganizationShowcase (String showcaseId, List<String> _added, List<String> _removed) {
+    // Will fail if any id does not exist so make sure the ids exist through the viewModel
+    public LiveData<LiveEvent<Boolean>> updateOrganizationHighlights(String organizationId, ImmutableList<String> added, ImmutableList<String> removed) {
 
         MutableLiveData<LiveEvent<Boolean>> resultLiveData = new MutableLiveData<>();
 
@@ -352,8 +350,41 @@ public class PostDataHandler extends BaseDataHandler {
                 .getInstance()
                 .batch();
 
-        List<String> added = new ArrayList<>(_added);
-        List<String> removed = new ArrayList<>(_removed);
+        for(String add : added) {
+            DocumentReference documentReference = FirebaseFirestore
+                    .getInstance()
+                    .collection("posts")
+                    .document(add);
+            batch.update(documentReference, "organizationHighlight", true);
+        }
+
+        for(String remove : removed) {
+            DocumentReference documentReference = FirebaseFirestore
+                    .getInstance()
+                    .collection("posts")
+                    .document(remove);
+            batch.update(documentReference, "organizationHighlight", false);
+        }
+
+        batch.commit()
+                .addOnSuccessListener(aVoid -> {
+                    resultLiveData.setValue(new LiveEvent<>(true));
+                })
+                .addOnFailureListener(e -> {
+                    resultLiveData.setValue(new LiveEvent<>(false));
+                    Log.e("Posts", "Failed to update organization highlights");
+                });
+
+        return resultLiveData;
+    }
+
+    public LiveData<LiveEvent<Boolean>> updateOrganizationShowcase (String showcaseId, ImmutableList<String> added, ImmutableList<String> removed) {
+
+        MutableLiveData<LiveEvent<Boolean>> resultLiveData = new MutableLiveData<>();
+
+        WriteBatch batch = FirebaseFirestore
+                .getInstance()
+                .batch();
 
         for(String id : added){
             DocumentReference reference = FirebaseFirestore

@@ -6,11 +6,15 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.omada.junctionadmin.data.BaseDataHandler;
+import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.models.converter.InstituteModelConverter;
 import com.omada.junctionadmin.data.models.external.InstituteModel;
 import com.omada.junctionadmin.data.models.internal.remote.InstituteModelRemoteDB;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
+
+import java.util.Map;
 
 public class InstituteDataHandler extends BaseDataHandler {
 
@@ -47,5 +51,31 @@ public class InstituteDataHandler extends BaseDataHandler {
 
         return instituteModelLiveData;
 
+    }
+
+    public LiveData<LiveEvent<Boolean>> updateInstituteDetails(InstituteModel changedInstituteModel) {
+
+        MutableLiveData<LiveEvent<Boolean>> resultLiveData = new MutableLiveData<>();
+
+        String instituteId = DataRepository
+                .getInstance()
+                .getUserDataHandler()
+                .getCurrentUserModel()
+                .getInstitute();
+
+        FirebaseFirestore
+                .getInstance()
+                .collection("institutes")
+                .document(instituteId)
+                .set(instituteModelConverter.convertExternalToRemoteDBModel(changedInstituteModel), SetOptions.merge())
+                .addOnSuccessListener(aVoid -> {
+                    resultLiveData.setValue(new LiveEvent<>(true));
+                })
+                .addOnFailureListener(e -> {
+                    resultLiveData.setValue(new LiveEvent<>(false));
+                    Log.e("Institute", "Error updating institute details");
+                });
+
+        return resultLiveData;
     }
 }

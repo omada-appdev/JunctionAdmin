@@ -191,7 +191,7 @@ public class UserDataHandler extends BaseDataHandler {
     public void getCurrentUserDetails(){
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if(user != null && user.getUid() != null && !user.getUid().equals("")) {
+        if(user != null && !user.getUid().equals("")) {
             authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.CURRENT_USER_SUCCESS));
             getUserDetailsFromRemote(user.getUid());
         }

@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.omada.junctionadmin.data.BaseDataHandler;
 import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.models.converter.ShowcaseModelConverter;
@@ -52,7 +53,24 @@ public class ShowcaseDataHandler extends BaseDataHandler {
         return showcaseModelLiveData;
     }
 
-    public void editShowcase(ShowcaseModel showcaseModel) {
-        // TODO
+    public LiveData<LiveEvent<Boolean>> updateShowcase(ShowcaseModel showcaseModel) {
+
+        MutableLiveData<LiveEvent<Boolean>> resultLiveData = new MutableLiveData<>();
+
+        FirebaseFirestore
+                .getInstance()
+                .collection("showcases")
+                .document(showcaseModel.getId())
+                .set(showcaseModelConverter.convertExternalToRemoteDBModel(showcaseModel), SetOptions.merge())
+                .addOnSuccessListener(aVoid -> {
+                    resultLiveData.setValue(new LiveEvent<>(true));
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Showcases", "Failed updating showcase data");
+                    e.printStackTrace();
+                    resultLiveData.setValue(new LiveEvent<>(false));
+                });
+
+        return resultLiveData;
     }
 }

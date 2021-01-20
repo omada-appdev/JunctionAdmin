@@ -82,13 +82,13 @@ public class InterestsFragment extends Fragment {
         loginViewModel.getDataValidationAction().observe(getViewLifecycleOwner(),
                 dataValidationInformationLiveEvent -> {
 
-                    if(dataValidationInformationLiveEvent.getData() == null){
+                    if(dataValidationInformationLiveEvent == null){
                         return;
                     }
 
                     DataValidator.DataValidationInformation dataValidationInformation = dataValidationInformationLiveEvent.getDataOnceAndReset();
 
-                    if(dataValidationInformation.getValidationPoint() != DataValidator.DataValidationPoint.VALIDATION_POINT_INTERESTS){
+                    if(dataValidationInformation == null || dataValidationInformation.getValidationPoint() != DataValidator.DataValidationPoint.VALIDATION_POINT_INTERESTS){
                         return;
                     }
                     switch (dataValidationInformation.getDataValidationResult()){

@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.omada.junctionadmin.R;
+import com.omada.junctionadmin.data.handler.UserDataHandler;
 import com.omada.junctionadmin.databinding.LoginDetailsFragmentLayoutBinding;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.utils.transform.TransformUtilities;
@@ -61,11 +62,14 @@ public class DetailsFragment extends Fragment {
                 .getDataValidationAction()
                 .observe(getViewLifecycleOwner(), dataValidationInformationLiveEvent -> {
 
-                    if(dataValidationInformationLiveEvent.getData() == null){
+                    if(dataValidationInformationLiveEvent == null) {
                         return;
                     }
 
                     DataValidator.DataValidationInformation dataValidationInformation = dataValidationInformationLiveEvent.getDataOnceAndReset();
+                    if(dataValidationInformation == null){
+                        return;
+                    }
 
                     switch (dataValidationInformation.getValidationPoint()){
                         case VALIDATION_POINT_EMAIL:
@@ -118,14 +122,21 @@ public class DetailsFragment extends Fragment {
                 .getAuthResultAction()
                 .observe(getViewLifecycleOwner(), authStatusLiveEvent -> {
 
-                    if(authStatusLiveEvent.getData() == null){
+                    if(authStatusLiveEvent == null){
                         return;
                     }
-                    switch (authStatusLiveEvent.getData()){
+
+                    UserDataHandler.AuthStatus authStatus = authStatusLiveEvent.getDataOnceAndReset();
+                    if(authStatus == null){
+                        return;
+                    }
+                    switch (authStatus){
                         case SIGNUP_FAILURE:
                         case ADD_EXTRA_DETAILS_FAILURE:
                             Toast.makeText(requireContext(), "Please try again", Toast.LENGTH_LONG).show();
                             binding.nextButton.setEnabled(true);
+                            break;
+                        default:
                             break;
                     }
                 });

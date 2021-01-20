@@ -19,12 +19,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class OrganizationProfileViewModel extends BaseViewModel {
-    private String organizationID;
 
-    private OrganizationModel organizationModel;
+    protected String organizationID;
 
-    private final MediatorLiveData<List<PostModel>> loadedOrganizationHighlights = new MediatorLiveData<>();
-    private final MediatorLiveData<List<ShowcaseModel>> loadedOrganizationShowcases = new MediatorLiveData<>();
+    protected OrganizationModel organizationModel;
+
+    protected final MediatorLiveData<List<PostModel>> loadedOrganizationHighlights = new MediatorLiveData<>();
+    protected final MediatorLiveData<List<ShowcaseModel>> loadedOrganizationShowcases = new MediatorLiveData<>();
 
     public void setOrganizationID(String organizationID) {
         this.organizationID = organizationID;
@@ -74,7 +75,7 @@ public class OrganizationProfileViewModel extends BaseViewModel {
 
                     // Multiple calls or faulty pagination implementations might result in data contention
                     synchronized (this) {
-                        if (postModelsLiveEvent != null && postModelsLiveEvent.getData() != null) {
+                        if (postModelsLiveEvent != null) {
                             List<PostModel> postModels = postModelsLiveEvent.getDataOnceAndReset();
                             if (postModels != null) {
 
@@ -112,7 +113,7 @@ public class OrganizationProfileViewModel extends BaseViewModel {
 
                     // Multiple calls or faulty pagination implementations might result in data contention
                     synchronized (this) {
-                        if (showcaseModelsLiveEvent != null && showcaseModelsLiveEvent.getData() != null) {
+                        if (showcaseModelsLiveEvent != null) {
                             List<ShowcaseModel> showcaseModels = showcaseModelsLiveEvent.getDataOnceAndReset();
                             if (showcaseModels != null) {
 

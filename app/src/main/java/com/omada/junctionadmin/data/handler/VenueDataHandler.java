@@ -34,6 +34,9 @@ public class VenueDataHandler extends BaseDataHandler {
     private final VenueModelConverter venueModelConverter = new VenueModelConverter();
     private final BookingModelConverter bookingModelConverter = new BookingModelConverter();
 
+    // Gets all venues possible for registering an event
+    // TODO a more efficient query that orders venues by number of bookings they have on a given day
+
     public LiveData<LiveEvent<List<VenueModel>>> getAllVenues(
             DataRepository.DataRepositoryAccessIdentifier identifier, String instituteID) {
 
@@ -48,7 +51,12 @@ public class VenueDataHandler extends BaseDataHandler {
 
                     List<VenueModel> venueModels = new ArrayList<>();
                     for(DocumentSnapshot snapshot : queryDocumentSnapshots){
-                        VenueModel model = venueModelConverter.convertRemoteDBToExternalModel(snapshot.toObject(VenueModelRemoteDB.class));
+                        VenueModelRemoteDB modelRemoteDB = snapshot.toObject(VenueModelRemoteDB.class);
+                        if(modelRemoteDB == null) {
+                            continue;
+                        }
+                        modelRemoteDB.setId(snapshot.getId());
+                        VenueModel model = venueModelConverter.convertRemoteDBToExternalModel(modelRemoteDB);
                         venueModels.add(model);
                     }
 
@@ -63,6 +71,7 @@ public class VenueDataHandler extends BaseDataHandler {
 
     }
 
+    // Gets all bookings between the start and end of a given day
     public LiveData<LiveEvent<List<BookingModel>>> getVenueBookingsOn(
             DataRepository.DataRepositoryAccessIdentifier identifier, Date date, String venueId) {
 
@@ -95,6 +104,9 @@ public class VenueDataHandler extends BaseDataHandler {
                     for(DocumentSnapshot documentSnapshot: queryDocumentSnapshots) {
 
                         BookingModelRemoteDB modelRemoteDB = documentSnapshot.toObject(BookingModelRemoteDB.class);
+                        if (modelRemoteDB == null) {
+                            continue;
+                        }
                         modelRemoteDB.setId(documentSnapshot.getId());
                         bookingModels.add(
                                 bookingModelConverter.convertRemoteDBToExternalModel(modelRemoteDB)

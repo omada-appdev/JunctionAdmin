@@ -24,6 +24,8 @@ public class RegistrationModelConverter extends BaseConverter<RegistrationModel,
         registrationModel.setUserMail(remoteModel.getUserMail());
         registrationModel.setUserPhone(remoteModel.getUserPhone());
 
+        registrationModel.setResponses(registrationModel.getResponses());
+
         return registrationModel;
     }
 
@@ -37,6 +39,8 @@ public class RegistrationModelConverter extends BaseConverter<RegistrationModel,
         model.setUserInstitute(externalModel.getUserInstitute());
         model.setUserMail(externalModel.getUserMail());
         model.setUserPhone(externalModel.getUserPhone());
+
+        model.setResponses(externalModel.getResponses());
 
         return model;
 

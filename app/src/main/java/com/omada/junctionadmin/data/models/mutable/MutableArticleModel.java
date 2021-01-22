@@ -3,6 +3,9 @@ package com.omada.junctionadmin.data.models.mutable;
 import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.external.ArticleModel;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 public class MutableArticleModel extends ArticleModel {
 
     public void setTitle(String title) {
@@ -19,6 +22,10 @@ public class MutableArticleModel extends ArticleModel {
 
     public void setAuthor(String author) {
         this.author = author;
+    }
+
+    public void setTags(ArrayList<String> tags) {
+        this.tags = tags;
     }
 
     public void setCreatorName(String creatorName) {
@@ -41,7 +48,7 @@ public class MutableArticleModel extends ArticleModel {
         this.image = image;
     }
 
-    public void setTimeCreated(Timestamp timeCreated){
+    public void setTimeCreated(Date timeCreated){
         this.timeCreated = timeCreated;
     }
 }

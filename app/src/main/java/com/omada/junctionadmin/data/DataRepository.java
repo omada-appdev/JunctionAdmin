@@ -42,7 +42,7 @@ public class DataRepository {
         //class constructor init firestore and local db etc here if required
     }
 
-    public static DataRepository getInstance() {
+    public static synchronized DataRepository getInstance() {
         if (dataRepository == null) {
             dataRepository = new DataRepository();
         }
@@ -104,6 +104,7 @@ public class DataRepository {
         return new DataRepositoryHandlerIdentifier(
                 StringUtilities.randomAlphabetGenerator(6)
         );
+
     }
 
 
@@ -187,6 +188,19 @@ public class DataRepository {
             }
 
             handlerData.put(key, value);
+        }
+
+        public synchronized Object getHandlerData(DataRepositoryHandlerIdentifier handlerIdentifier, String key) {
+
+            Map<String, Object> handlerData = accessorData.get(handlerIdentifier);
+
+            if(handlerData == null) {
+                handlerData = new HashMap<>();
+                accessorData.put(handlerIdentifier, handlerData);
+                return null;
+            }
+
+            return handlerData.get(key);
         }
     }
 

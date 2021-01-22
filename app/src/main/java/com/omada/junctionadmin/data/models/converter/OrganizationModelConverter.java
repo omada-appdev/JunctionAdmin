@@ -27,7 +27,7 @@ public class OrganizationModelConverter extends BaseConverter <OrganizationModel
         model.setMail(remoteModel.getMail());
         model.setName(remoteModel.getName());
         model.setPhone(remoteModel.getPhone());
-        model.setProfilePhoto(remoteModel.getProfilePhoto());
+        model.setProfilePhoto(remoteModel.getProfilePicture());
 
         return model;
 
@@ -46,7 +46,7 @@ public class OrganizationModelConverter extends BaseConverter <OrganizationModel
         model.setName(externalModel.getName());
         model.setMail(externalModel.getMail());
         model.setPhone(externalModel.getPhone());
-        model.setProfilePhoto(externalModel.getProfilePhoto());
+        model.setProfilePicture(externalModel.getProfilePicture());
 
         model.setInterests(externalModel.getInterests());
         model.setAttendedUsersNumber(externalModel.getAttendedUsersNumber());

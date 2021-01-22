@@ -2,6 +2,9 @@ package com.omada.junctionadmin.data.models.external;
 
 import com.google.firebase.Timestamp;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 public abstract class PostModel extends BaseModel {
 
     protected String type;
@@ -9,13 +12,15 @@ public abstract class PostModel extends BaseModel {
     protected String title;
     protected String image;
 
-    protected Timestamp timeCreated;
+    protected Date timeCreated;
 
     protected String creator;
     protected String creatorName;
     protected String creatorProfilePicture;
     protected String creatorMail;
     protected String creatorPhone;
+
+    protected ArrayList<String> tags;
 
     public String getType() {
         return type;
@@ -29,7 +34,7 @@ public abstract class PostModel extends BaseModel {
         return image;
     }
 
-    public Timestamp getTimeCreated() {
+    public Date getTimeCreated() {
         return timeCreated;
     }
 
@@ -51,5 +56,9 @@ public abstract class PostModel extends BaseModel {
 
     public String getCreatorProfilePicture() {
         return creatorProfilePicture;
+    }
+
+    public ArrayList<String> getTags() {
+        return tags;
     }
 }

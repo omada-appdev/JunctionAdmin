@@ -1,9 +1,6 @@
 package com.omada.junctionadmin.data.models.internal.remote;
 
-import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
-import com.omada.junctionadmin.data.models.external.BaseModel;
-import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.internal.BaseModelInternal;
 
 import java.util.List;
@@ -12,7 +9,7 @@ public class OrganizationModelRemoteDB extends BaseModelInternal {
 
     private String name;
 
-    private String profilePhoto;
+    private String profilePicture;
 
     private Integer attendedUsersNumber;
     private Integer heldEventsNumber;
@@ -72,8 +69,8 @@ public class OrganizationModelRemoteDB extends BaseModelInternal {
     }
 
     @PropertyName("profilePicture")
-    public String getProfilePhoto() {
-        return profilePhoto;
+    public String getProfilePicture() {
+        return profilePicture;
     }
 
 
@@ -119,7 +116,7 @@ public class OrganizationModelRemoteDB extends BaseModelInternal {
     }
 
     @PropertyName("profilePicture")
-    public void setProfilePhoto(String profilePhoto) {
-        this.profilePhoto = profilePhoto;
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 }

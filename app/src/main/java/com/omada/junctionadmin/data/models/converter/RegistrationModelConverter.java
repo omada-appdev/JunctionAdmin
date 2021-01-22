@@ -2,6 +2,7 @@ package com.omada.junctionadmin.data.models.converter;
 
 import com.omada.junctionadmin.data.models.external.RegistrationModel;
 import com.omada.junctionadmin.data.models.internal.remote.RegistrationModelRemoteDB;
+import com.omada.junctionadmin.data.models.mutable.MutableRegistrationModel;
 
 import java.util.Map;
 
@@ -14,12 +15,31 @@ public class RegistrationModelConverter extends BaseConverter<RegistrationModel,
 
     @Override
     public RegistrationModel convertRemoteDBToExternalModel(RegistrationModelRemoteDB remoteModel) {
-        return null;
+
+        MutableRegistrationModel registrationModel = new MutableRegistrationModel();
+
+        registrationModel.setUser(remoteModel.getUser());
+        registrationModel.setUserProfilePicture(remoteModel.getUserProfilePicture());
+        registrationModel.setUserInstitute(remoteModel.getUserInstitute());
+        registrationModel.setUserMail(remoteModel.getUserMail());
+        registrationModel.setUserPhone(remoteModel.getUserPhone());
+
+        return registrationModel;
     }
 
     @Override
     public RegistrationModelRemoteDB convertExternalToRemoteDBModel(RegistrationModel externalModel) {
-        return null;
+
+        RegistrationModelRemoteDB model = new RegistrationModelRemoteDB();
+
+        model.setUser(externalModel.getUser());
+        model.setUserProfilePicture(externalModel.getUserProfilePicture());
+        model.setUserInstitute(externalModel.getUserInstitute());
+        model.setUserMail(externalModel.getUserMail());
+        model.setUserPhone(externalModel.getUserPhone());
+
+        return model;
+
     }
 
     @Override

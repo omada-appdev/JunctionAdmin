@@ -1,5 +1,6 @@
 package com.omada.junctionadmin.data.models.converter;
 
+import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.external.ArticleModel;
 import com.omada.junctionadmin.data.models.internal.remote.ArticleModelRemoteDB;
 import com.omada.junctionadmin.data.models.mutable.MutableArticleModel;
@@ -29,7 +30,8 @@ public class ArticleModelConverter extends BaseConverter <ArticleModel, ArticleM
         model.setCreatorProfilePicture(remoteModel.getCreatorCache().get("profilePicture"));
         model.setAuthor(remoteModel.getAuthor());
         model.setImage(remoteModel.getImage());
-        model.setTimeCreated(remoteModel.getTimeCreated());
+        model.setTimeCreated(remoteModel.getTimeCreated().toDate());
+        model.setTags(remoteModel.getTags());
 
         return model;
     }
@@ -44,7 +46,7 @@ public class ArticleModelConverter extends BaseConverter <ArticleModel, ArticleM
         modelRemoteDB.setImage(externalModel.getImage());
         modelRemoteDB.setTitle(externalModel.getTitle());
         modelRemoteDB.setText(externalModel.getText());
-        modelRemoteDB.setTimeCreated(externalModel.getTimeCreated());
+        modelRemoteDB.setTimeCreated(new Timestamp(externalModel.getTimeCreated()));
 
         Map<String, String> creatorCache = new HashMap<>();
         creatorCache.put("name", externalModel.getCreatorName());
@@ -52,6 +54,8 @@ public class ArticleModelConverter extends BaseConverter <ArticleModel, ArticleM
         creatorCache.put("mail", externalModel.getCreatorMail());
         creatorCache.put("profilePicture", externalModel.getCreatorProfilePicture());
         modelRemoteDB.setCreatorCache(creatorCache);
+
+        modelRemoteDB.setTags(externalModel.getTags());
 
         return modelRemoteDB;
     }

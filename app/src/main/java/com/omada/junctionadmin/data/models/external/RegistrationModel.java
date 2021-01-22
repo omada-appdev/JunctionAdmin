@@ -4,23 +4,22 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import com.google.firebase.Timestamp;
-
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Map;
 
 public class RegistrationModel extends BaseModel implements Parcelable {
 
-    private String userMail;
-    private String userPhone;
-    private String userInstitute;
-    private String user;
-    private Timestamp timeCreated;
+    protected String userMail;
+    protected String userPhone;
+    protected String userInstitute;
+    protected String user;
+    protected Date timeCreated;
+    protected String userProfilePicture;
 
-    private Map<String, Map<String, Map <String, String>>> responses;
+    protected Map<String, Map<String, Map <String, String>>> responses;
 
     protected RegistrationModel(){
-        
     }
 
     protected RegistrationModel(Parcel in) {
@@ -29,7 +28,7 @@ public class RegistrationModel extends BaseModel implements Parcelable {
         userPhone = in.readString();
         userInstitute = in.readString();
         user = in.readString();
-        timeCreated = in.readParcelable(Timestamp.class.getClassLoader());
+        timeCreated = new Date(in.readLong());
         try {
             responses = (Map<String, Map<String, Map<String, String>>>)in.readSerializable();
         }
@@ -37,6 +36,34 @@ public class RegistrationModel extends BaseModel implements Parcelable {
             Log.e("RegistrationModel", "Error parcelling registration");
             e.printStackTrace();
         }
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public String getUserProfilePicture() {
+        return userProfilePicture;
+    }
+
+    public String getUserInstitute() {
+        return userInstitute;
+    }
+
+    public String getUserMail() {
+        return userMail;
+    }
+
+    public String getUserPhone() {
+        return userPhone;
+    }
+
+    public Date getTimeCreated() {
+        return timeCreated;
+    }
+
+    public Map<String, Map<String, Map<String, String>>> getResponses() {
+        return responses;
     }
 
     public static final Creator<RegistrationModel> CREATOR = new Creator<RegistrationModel>() {
@@ -63,7 +90,7 @@ public class RegistrationModel extends BaseModel implements Parcelable {
         dest.writeString(userPhone);
         dest.writeString(userInstitute);
         dest.writeString(user);
-        dest.writeParcelable(timeCreated, flags);
+        dest.writeLong(timeCreated.getTime());
         dest.writeSerializable((Serializable)responses);
     }
 }

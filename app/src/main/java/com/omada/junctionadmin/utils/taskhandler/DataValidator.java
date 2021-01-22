@@ -2,6 +2,7 @@ package com.omada.junctionadmin.utils.taskhandler;
 
 import com.omada.junctionadmin.utils.transform.TransformUtilities;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 public class DataValidator {
@@ -13,6 +14,10 @@ public class DataValidator {
             "[a-zA-Z ]*";
 
 
+
+    public void validateEventTimings(Date startTime, Date endTime) {
+
+    }
 
     public void validateName(String name, OnValidationCompleteListener listener){
         listener.onValidationComplete(validateName(name));
@@ -85,34 +90,6 @@ public class DataValidator {
         }
     }
 
-    public void validateGender(String gender, OnValidationCompleteListener listener){
-        listener.onValidationComplete(validateGender(gender));
-    }
-
-    public DataValidationInformation validateGender(String gender){
-
-        if(gender == null){
-            return new DataValidationInformation(
-                    DataValidationPoint.VALIDATION_POINT_GENDER,
-                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
-            );
-        }
-
-        gender = gender.trim().toUpperCase();
-
-        if(!gender.equals("MALE") && !gender.equals("FEMALE") && !gender.equals("OTHER")){
-            return new DataValidationInformation(
-                    DataValidationPoint.VALIDATION_POINT_GENDER,
-                    DataValidationResult.VALIDATION_RESULT_ILLEGAL_FORMAT
-            );
-        }
-        else{
-            return new DataValidationInformation(
-                    DataValidationPoint.VALIDATION_POINT_GENDER,
-                    DataValidationResult.VALIDATION_RESULT_VALID
-            );
-        }
-    }
 
     public void validateInstitute(String institute, OnValidationCompleteListener listener){
         listener.onValidationComplete(validateInstitute(institute));
@@ -186,12 +163,19 @@ public class DataValidator {
 
         VALIDATION_POINT_NAME,
         VALIDATION_POINT_EMAIL,
-        VALIDATION_POINT_GENDER,
         VALIDATION_POINT_DATE_OF_BIRTH,
         VALIDATION_POINT_INSTITUTE,
         VALIDATION_POINT_PASSWORD,
         VALIDATION_POINT_INTERESTS,
 
+        VALIDATION_POINT_EVENT_TIMINGS,
+        VALIDATION_POINT_EVENT_DESC,
+        VALIDATION_POINT_EVENT_TITLE,
+
+        VALIDATION_POINT_ARTICLE_TITLE,
+        VALIDATION_POINT_ARTICLE_AUTHOR,
+
+        VALIDATION_POINT_TAGS
     }
 
     public enum DataValidationResult {

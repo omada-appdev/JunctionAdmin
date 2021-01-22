@@ -6,6 +6,7 @@ import com.google.firebase.firestore.PropertyName;
 import com.omada.junctionadmin.data.models.external.BaseModel;
 import com.omada.junctionadmin.data.models.internal.BaseModelInternal;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public class ArticleModelRemoteDB extends BaseModelInternal {
@@ -22,6 +23,8 @@ public class ArticleModelRemoteDB extends BaseModelInternal {
     private Map<String, String> creatorCache;
 
     private String image;
+
+    private ArrayList<String> tags;
 
     public ArticleModelRemoteDB(){
         super();
@@ -104,5 +107,15 @@ public class ArticleModelRemoteDB extends BaseModelInternal {
     @PropertyName("type")
     public String getType() {
         return type;
+    }
+
+    @PropertyName("tags")
+    public ArrayList<String> getTags() {
+        return tags;
+    }
+
+    @PropertyName("tags")
+    public void setTags(ArrayList<String> tags) {
+        this.tags = tags;
     }
 }

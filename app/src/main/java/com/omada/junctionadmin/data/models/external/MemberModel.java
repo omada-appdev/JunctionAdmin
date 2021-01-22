@@ -6,13 +6,15 @@ import android.os.Parcelable;
 import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.internal.remote.MemberModelRemoteDB;
 
+import java.util.Date;
+
 public class MemberModel extends BaseModel {
 
     protected String user;
     protected String name;
     protected String photo;
 
-    protected Timestamp dateJoined;
+    protected Date dateJoined;
 
     protected String position;
 
@@ -24,7 +26,7 @@ public class MemberModel extends BaseModel {
         user = in.readString();
         name = in.readString();
         photo = in.readString();
-        dateJoined = in.readParcelable(Timestamp.class.getClassLoader());
+        dateJoined = new Date(in.readLong());
         position = in.readString();
     }
 
@@ -52,7 +54,7 @@ public class MemberModel extends BaseModel {
         return photo;
     }
 
-    public Timestamp getDateJoined() {
+    public Date getDateJoined() {
         return dateJoined;
     }
 
@@ -72,7 +74,7 @@ public class MemberModel extends BaseModel {
         dest.writeString(user);
         dest.writeString(name);
         dest.writeString(photo);
-        dest.writeParcelable(dateJoined, flags);
+        dest.writeLong(dateJoined.getTime());
         dest.writeString(position);
     }
 }

@@ -8,6 +8,9 @@ import com.google.firebase.Timestamp;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -68,5 +71,13 @@ public class TransformUtilities {
         builder.append(calendar.get(Calendar.YEAR));
 
         return builder.toString();
+    }
+
+    public static Date utcDateFromLocalDateTime(LocalDateTime dateTime) {
+        return Date.from(dateTime.toInstant(ZoneOffset.UTC));
+    }
+
+    public static LocalDateTime utcLocalDateTimeFromDate(Date date) {
+        return LocalDateTime.from(date.toInstant().atZone(ZoneId.of("UTC")));
     }
 }

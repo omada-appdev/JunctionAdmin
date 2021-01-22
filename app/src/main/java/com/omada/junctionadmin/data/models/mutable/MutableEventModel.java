@@ -4,6 +4,7 @@ import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.external.EventModel;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
@@ -30,15 +31,15 @@ public class MutableEventModel extends EventModel {
         this.status = status;
     }
 
-    public void setStartTime(Timestamp startTime) {
+    public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
 
-    public void setEndTime(Timestamp endTime) {
+    public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
 
-    public void setTimeCreated(Timestamp timeCreated){
+    public void setTimeCreated(Date timeCreated){
         this.timeCreated = timeCreated;
     }
 

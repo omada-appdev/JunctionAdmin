@@ -1,5 +1,6 @@
 package com.omada.junctionadmin.data.models.converter;
 
+import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.external.EventModel;
 import com.omada.junctionadmin.data.models.internal.remote.EventModelRemoteDB;
 import com.omada.junctionadmin.data.models.mutable.MutableEventModel;
@@ -34,9 +35,9 @@ public class EventModelConverter extends BaseConverter <EventModel, EventModelRe
         model.setForm(remoteModel.getForm());
 
         model.setStatus(remoteModel.getStatus());
-        model.setStartTime(remoteModel.getStartTime());
-        model.setEndTime(remoteModel.getEndTime());
-        model.setTimeCreated(remoteModel.getTimeCreated());
+        model.setStartTime(remoteModel.getStartTime().toDate());
+        model.setEndTime(remoteModel.getEndTime().toDate());
+        model.setTimeCreated(remoteModel.getTimeCreated().toDate());
 
         model.setVenue(remoteModel.getVenue());
         model.setVenueName(remoteModel.getVenueCache().get("name"));
@@ -72,9 +73,9 @@ public class EventModelConverter extends BaseConverter <EventModel, EventModelRe
         model.setForm(externalModel.getForm());
 
         model.setStatus(externalModel.getStatus());
-        model.setStartTime(externalModel.getStartTime());
-        model.setEndTime(externalModel.getEndTime());
-        model.setTimeCreated(externalModel.getTimeCreated());
+        model.setStartTime(new Timestamp(externalModel.getStartTime()));
+        model.setEndTime(new Timestamp(externalModel.getEndTime()));
+        model.setTimeCreated(new Timestamp(externalModel.getTimeCreated()));
 
         model.setVenue(externalModel.getVenue());
 

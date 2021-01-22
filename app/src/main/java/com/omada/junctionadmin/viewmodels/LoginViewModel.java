@@ -5,11 +5,9 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
-import androidx.lifecycle.ViewModel;
 
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.MaterialDatePicker;
-import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.handler.UserDataHandler;
 import com.omada.junctionadmin.data.models.external.InterestModel;
@@ -17,7 +15,6 @@ import com.omada.junctionadmin.data.models.mutable.MutableOrganizationModel;
 import com.omada.junctionadmin.ui.login.LoginActivity;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
-import com.omada.junctionadmin.utils.transform.TransformUtilities;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -25,13 +22,13 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+
 public class LoginViewModel extends BaseViewModel {
 
     private final static int MAX_INTERESTS = 5;
 
     //action fields (setting values triggers events)
     private final LiveData<LiveEvent<UserDataHandler.AuthStatus>> authResultAction;
-    private final MutableLiveData<LiveEvent<DataValidator.DataValidationInformation>> dataValidationAction = new MutableLiveData<>();
     private final MutableLiveData<LiveEvent<LoginActivity.FragmentIdentifier>> fragmentChangeAction = new MutableLiveData<>();
     private final MutableLiveData<LiveEvent<Boolean>> goToFeedAction = new MutableLiveData<>();
     private final MutableLiveData<LiveEvent<String>> toastMessageAction = new MutableLiveData<>();
@@ -46,9 +43,6 @@ public class LoginViewModel extends BaseViewModel {
     private final List<InterestModel> allInterests = new ArrayList<>();
 
     private String profilePicture;
-
-    //process fields (keep track of state)
-    private final DataValidator dataValidator = new DataValidator();
 
     public LoginViewModel() {
 
@@ -156,7 +150,7 @@ public class LoginViewModel extends BaseViewModel {
     Called after user clicks on button to reset password. The email ID of the user is reflected onto
     email live data. It is set to null when forgotPassword() is called
      */
-    public void resetPassword(){
+    public void resetPassword() {
 
         //TODO add code to send password reset link
     }
@@ -287,10 +281,6 @@ public class LoginViewModel extends BaseViewModel {
 
     public LiveData<LiveEvent<String>> getToastMessageAction(){
         return toastMessageAction;
-    }
-
-    public LiveData<LiveEvent<DataValidator.DataValidationInformation>> getDataValidationAction() {
-        return dataValidationAction;
     }
 
     public List<InterestModel> getInterestsListSection(){

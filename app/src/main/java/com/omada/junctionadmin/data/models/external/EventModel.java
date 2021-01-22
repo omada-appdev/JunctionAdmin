@@ -21,15 +21,13 @@ public class EventModel extends PostModel {
     protected Map<String, Map<String, Map<String, String>>> form;
 
     protected String status;
-    protected Timestamp startTime;
-    protected Timestamp endTime;
+    protected Date startTime;
+    protected Date endTime;
 
     protected String venue;
     protected String venueName;
     protected String venueAddress;
     protected String venueInstitute;
-
-    protected ArrayList<String> tags;
 
     protected EventModel() {
     }
@@ -46,13 +44,14 @@ public class EventModel extends PostModel {
         creatorProfilePicture = in.readString();
         image = in.readString();
         status = in.readString();
-        startTime = in.readParcelable(Timestamp.class.getClassLoader());
-        endTime = in.readParcelable(Timestamp.class.getClassLoader());
+        startTime = new Date(in.readLong());
+        endTime = new Date(in.readLong());
         venue = in.readString();
         venueName = in.readString();
         venueAddress = in.readString();
         venueInstitute = in.readString();
         tags = in.createStringArrayList();
+        timeCreated = new Date(in.readLong());
     }
 
     public static final Creator<EventModel> CREATOR = new Creator<EventModel>() {
@@ -79,20 +78,16 @@ public class EventModel extends PostModel {
         return status;
     }
 
-    public Timestamp getStartTime() {
+    public Date getStartTime() {
         return startTime;
     }
 
-    public Timestamp getEndTime() {
+    public Date getEndTime() {
         return endTime;
     }
 
     public String getVenue() {
         return venue;
-    }
-
-    public ArrayList<String> getTags() {
-        return tags;
     }
 
     public String getVenueName() {
@@ -124,12 +119,13 @@ public class EventModel extends PostModel {
         dest.writeString(creatorProfilePicture);
         dest.writeString(image);
         dest.writeString(status);
-        dest.writeParcelable(startTime, flags);
-        dest.writeParcelable(endTime, flags);
+        dest.writeLong(startTime.getTime());
+        dest.writeLong(endTime.getTime());
         dest.writeString(venue);
         dest.writeString(venueName);
         dest.writeString(venueAddress);
         dest.writeString(venueInstitute);
         dest.writeStringList(tags);
+        dest.writeLong(timeCreated.getTime());
     }
 }

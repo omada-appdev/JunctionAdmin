@@ -19,10 +19,8 @@ import com.omada.junctionadmin.data.models.external.EventModel;
 import com.omada.junctionadmin.data.models.external.VenueModel;
 import com.omada.junctionadmin.data.models.internal.remote.BookingModelRemoteDB;
 import com.omada.junctionadmin.data.models.internal.remote.VenueModelRemoteDB;
-import com.omada.junctionadmin.data.models.mutable.MutableBookingModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;

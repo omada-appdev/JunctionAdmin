@@ -2,10 +2,7 @@ package com.omada.junctionadmin.viewmodels;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
 
-import com.google.common.collect.ImmutableList;
 import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.models.external.BookingModel;
 import com.omada.junctionadmin.data.models.external.InstituteModel;
@@ -14,6 +11,8 @@ import com.omada.junctionadmin.data.models.external.PostModel;
 import com.omada.junctionadmin.data.models.external.VenueModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -81,7 +80,7 @@ public class InstituteViewModel extends BaseViewModel {
 
     }
 
-    public LiveData<LiveEvent<List<BookingModel>>> getBookings(@Nonnull String venue, @Nonnull Date date){
+    public LiveData<LiveEvent<List<BookingModel>>> getBookings(@Nonnull String venue, @Nonnull LocalDateTime date){
 
         String instituteId = DataRepository.getInstance()
                 .getUserDataHandler()
@@ -90,7 +89,7 @@ public class InstituteViewModel extends BaseViewModel {
 
         return DataRepository.getInstance()
                 .getVenueDataHandler()
-                .getVenueBookingsOn(getDataRepositoryAccessIdentifier(), date, venue);
+                .getVenueBookingsOn(getDataRepositoryAccessIdentifier(), Date.from(date.toInstant(ZoneOffset.UTC)), venue);
 
     }
 

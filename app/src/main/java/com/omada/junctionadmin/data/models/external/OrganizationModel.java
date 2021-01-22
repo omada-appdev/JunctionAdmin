@@ -1,10 +1,6 @@
 package com.omada.junctionadmin.data.models.external;
 
 import android.os.Parcel;
-import android.os.Parcelable;
-
-import com.omada.junctionadmin.data.models.internal.remote.OrganizationModelRemoteDB;
-import com.omada.junctionadmin.data.models.mutable.MutableOrganizationModel;
 
 import java.util.List;
 
@@ -12,7 +8,7 @@ public class OrganizationModel extends BaseModel {
 
     protected String name;
 
-    protected String profilePhoto;
+    protected String profilePicture;
 
     protected Integer attendedUsersNumber;
     protected Integer heldEventsNumber;
@@ -37,7 +33,7 @@ public class OrganizationModel extends BaseModel {
         name = externalModel.getName();
         mail = externalModel.getMail();
         phone = externalModel.getPhone();
-        profilePhoto = externalModel.getProfilePhoto();
+        profilePicture = externalModel.getProfilePicture();
 
         interests = externalModel.getInterests();
         attendedUsersNumber = externalModel.getAttendedUsersNumber();
@@ -48,7 +44,7 @@ public class OrganizationModel extends BaseModel {
     protected OrganizationModel(Parcel in) {
         id = in.readString();
         name = in.readString();
-        profilePhoto = in.readString();
+        profilePicture = in.readString();
         if (in.readByte() == 0) {
             attendedUsersNumber = null;
         } else {
@@ -110,8 +106,8 @@ public class OrganizationModel extends BaseModel {
         return type;
     }
 
-    public String getProfilePhoto() {
-        return profilePhoto;
+    public String getProfilePicture() {
+        return profilePicture;
     }
 
     @Override
@@ -123,7 +119,7 @@ public class OrganizationModel extends BaseModel {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(id);
         dest.writeString(name);
-        dest.writeString(profilePhoto);
+        dest.writeString(profilePicture);
         if (attendedUsersNumber == null) {
             dest.writeByte((byte) 0);
         } else {

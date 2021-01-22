@@ -77,11 +77,6 @@ public class DetailsFragment extends Fragment {
                                 binding.emailLayout.setError("Invalid email");
                             }
                             break;
-                        case VALIDATION_POINT_GENDER:
-                            if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
-                                binding.genderLayout.setError("Invalid gender");
-                            }
-                            break;
                         case VALIDATION_POINT_PASSWORD:
                             if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                                 binding.passwordLayout.setError("Invalid password");

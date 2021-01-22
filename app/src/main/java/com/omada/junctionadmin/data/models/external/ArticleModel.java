@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.internal.remote.ArticleModelRemoteDB;
 
+import java.util.Date;
 import java.util.Map;
 
 public class ArticleModel extends PostModel {
@@ -27,6 +28,8 @@ public class ArticleModel extends PostModel {
         creatorProfilePicture = in.readString();
         creatorMail = in.readString();
         image = in.readString();
+        tags = in.createStringArrayList();
+        timeCreated = new Date(in.readLong());
     }
 
     public static final Creator<ArticleModel> CREATOR = new Creator<ArticleModel>() {
@@ -66,5 +69,7 @@ public class ArticleModel extends PostModel {
         dest.writeString(creatorProfilePicture);
         dest.writeString(creatorMail);
         dest.writeString(image);
+        dest.writeStringList(tags);
+        dest.writeLong(timeCreated.getTime());
     }
 }

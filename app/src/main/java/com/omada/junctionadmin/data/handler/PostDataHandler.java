@@ -215,6 +215,8 @@ public class PostDataHandler extends BaseDataHandler {
     and given here. This does not break the M V V M pattern because the repository should not take care
     of this possibly complicated validation
      */
+    // TODO changesInPostModel must be made immutable
+
     public LiveData<LiveEvent<Boolean>> updatePost(String postId, Map<String, Object> changesInPostModel){
 
         MutableLiveData<LiveEvent<Boolean>> resultLiveData = new MutableLiveData<>();
@@ -483,7 +485,5 @@ public class PostDataHandler extends BaseDataHandler {
         modelRemoteDB.setId(snapshot.getId());
         return registrationModelConverter.convertRemoteDBToExternalModel(modelRemoteDB);
     }
-
-
 
 }

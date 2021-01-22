@@ -18,7 +18,7 @@ public class MutableOrganizationModel extends OrganizationModel {
     }
 
     public void setProfilePhoto(String profilePhoto) {
-        this.profilePhoto = profilePhoto;
+        this.profilePicture = profilePhoto;
     }
 
     public void setAttendedUsersNumber(Integer attendedUsersNumber) {

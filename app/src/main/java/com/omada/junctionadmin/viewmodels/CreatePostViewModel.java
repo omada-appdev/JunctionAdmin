@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
+import com.google.common.collect.ImmutableList;
 import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.external.VenueModel;
@@ -16,6 +17,7 @@ import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 
@@ -24,41 +26,53 @@ public class CreatePostViewModel extends BaseViewModel {
     private final EventCreator eventCreator = new EventCreator();
     private final ArticleCreator articleCreator = new ArticleCreator();
 
-    public LiveData<LiveEvent<Boolean>> createEvent(EventCreator eventCreator) {
-
-        // TODO validate data
-        MutableLiveData<LiveEvent<Boolean>> preCreationResult = new MutableLiveData<>();
+    public LiveData<LiveEvent<Boolean>> createEvent() {
 
         OrganizationModel organizationModel = DataRepository
                 .getInstance()
                 .getUserDataHandler()
                 .getCurrentUserModel();
 
+        // TODO validate data
+        MutableLiveData<LiveEvent<Boolean>> validityResult = new MutableLiveData<>();
+
+
         MutableEventModel eventModel = new MutableEventModel();
 
-        eventModel.setCreator(organizationModel.getId());
-        eventModel.setCreatorName(organizationModel.getName());
-        eventModel.setCreatorMail(organizationModel.getMail());
-        eventModel.setCreatorPhone(organizationModel.getPhone());
-        eventModel.setCreatorProfilePicture(organizationModel.getProfilePicture());
+        synchronized (eventCreator) {
+            eventModel.setCreator(organizationModel.getId());
+            eventModel.setCreatorName(organizationModel.getName());
+            eventModel.setCreatorMail(organizationModel.getMail());
+            eventModel.setCreatorPhone(organizationModel.getPhone());
+            eventModel.setCreatorProfilePicture(organizationModel.getProfilePicture());
 
-        eventModel.setDescription(eventCreator.description.getValue());
-        eventModel.setTitle(eventCreator.title.getValue());
-        eventModel.setStartTime(TransformUtilities.utcDateFromLocalDateTime(
-                eventCreator.startTime.getValue())
-        );
-        eventModel.setEndTime(TransformUtilities.utcDateFromLocalDateTime(
-                eventCreator.endTime.getValue())
-        );
+            eventModel.setDescription(eventCreator.description.getValue());
+            eventModel.setTitle(eventCreator.title.getValue());
+            eventModel.setStartTime(TransformUtilities.utcDateFromLocalDateTime(
+                    eventCreator.startTime.getValue())
+            );
+            eventModel.setEndTime(TransformUtilities.utcDateFromLocalDateTime(
+                    eventCreator.endTime.getValue())
+            );
 
-        VenueModel venueModel = eventCreator.getVenueModel();
-        eventModel.setVenue(venueModel.getId());
-        eventModel.setVenueName(venueModel.getName());
-        eventModel.setVenueAddress(venueModel.getAddress());
-        eventModel.setVenueInstitute(venueModel.getInstitute());
+            VenueModel venueModel = eventCreator.getVenueModel();
+            eventModel.setVenue(venueModel.getId());
+            eventModel.setVenueName(venueModel.getName());
+            eventModel.setVenueAddress(venueModel.getAddress());
+            eventModel.setVenueInstitute(venueModel.getInstitute());
 
-        eventModel.setForm(eventCreator.getForm());
-        eventModel.setTags(eventCreator.getTags());
+            eventModel.setForm(eventCreator.getForm());
+            eventModel.setTags(eventCreator.getTags());
+        }
+
+        boolean valid = true;
+
+        // TODO validate
+
+        if(!valid){
+            validityResult.setValue(new LiveEvent<>(false));
+            return validityResult;
+        }
 
         return Transformations.map(
                 DataRepository
@@ -77,31 +91,44 @@ public class CreatePostViewModel extends BaseViewModel {
         );
     }
 
-    public LiveData<LiveEvent<Boolean>> createArticle(ArticleCreator articleCreator) {
+    public LiveData<LiveEvent<Boolean>> createArticle() {
 
-        // TODO validate data
-        MutableLiveData<LiveEvent<Boolean>> preCreationResult = new MutableLiveData<>();
 
         OrganizationModel organizationModel = DataRepository
                 .getInstance()
                 .getUserDataHandler()
                 .getCurrentUserModel();
 
+
+        // TODO validate data
+        MutableLiveData<LiveEvent<Boolean>> validityResult = new MutableLiveData<>();
+
         MutableArticleModel articleModel = new MutableArticleModel();
-        // TODO extract data from creator into articleModel
 
-        articleModel.setCreator(organizationModel.getId());
-        articleModel.setCreatorName(organizationModel.getName());
-        articleModel.setCreatorMail(organizationModel.getMail());
-        articleModel.setCreatorPhone(organizationModel.getPhone());
-        articleModel.setCreatorProfilePicture(organizationModel.getProfilePicture());
+        // accessing and setting atomically
+        synchronized (articleCreator) {
+            articleModel.setCreator(organizationModel.getId());
+            articleModel.setCreatorName(organizationModel.getName());
+            articleModel.setCreatorMail(organizationModel.getMail());
+            articleModel.setCreatorPhone(organizationModel.getPhone());
+            articleModel.setCreatorProfilePicture(organizationModel.getProfilePicture());
 
-        articleModel.setText(articleCreator.text.getValue());
-        articleModel.setTitle(articleCreator.title.getValue());
-        articleModel.setImage(articleCreator.image.getValue());
-        articleModel.setAuthor(articleCreator.author.getValue());
+            articleModel.setText(articleCreator.text.getValue());
+            articleModel.setTitle(articleCreator.title.getValue());
+            articleModel.setImage(articleCreator.image.getValue());
+            articleModel.setAuthor(articleCreator.author.getValue());
 
-        articleModel.setTags(articleCreator.getTags());
+            articleModel.setTags(articleCreator.getTags());
+        }
+
+        boolean valid = true;
+
+        // TODO validate
+
+        if(!valid){
+            validityResult.setValue(new LiveEvent<>(false));
+            return validityResult;
+        }
 
         return Transformations.map(
                 DataRepository
@@ -149,7 +176,7 @@ public class CreatePostViewModel extends BaseViewModel {
         public final MutableLiveData<LocalDateTime> endTime = new MutableLiveData<>();
 
         private VenueModel venueModel;
-        private ArrayList<String> tags;
+        private ImmutableList<String> tags;
         private Map <String, Map <String, Map<String, String>>> form;
 
         public VenueModel getVenueModel() {
@@ -160,17 +187,12 @@ public class CreatePostViewModel extends BaseViewModel {
             this.venueModel = venueModel;
         }
 
-        /*
-        Private access because timeCreated should not be accessed from outside this
-        class or tampered with
-         */
-
-        public ArrayList<String> getTags() {
+        public ImmutableList<String> getTags() {
             return tags;
         }
 
-        public void setTags(ArrayList<String> tags) {
-            this.tags = tags;
+        public void setTags(List<String> tags) {
+            this.tags = ImmutableList.copyOf(tags);
         }
 
         public Map<String, Map<String, Map<String, String>>> getForm() {
@@ -199,7 +221,7 @@ public class CreatePostViewModel extends BaseViewModel {
             if (resetVenueModel) {
                 venueModel = null;
             }
-            tags.clear();
+
         }
     }
 
@@ -210,16 +232,16 @@ public class CreatePostViewModel extends BaseViewModel {
         public final MutableLiveData<String> author = new MutableLiveData<>();
         public final MutableLiveData<String> image = new MutableLiveData<>();
 
-        private ArrayList<String> tags;
+        private ImmutableList<String> tags;
 
         private ArticleCreator() {
         }
 
-        public void setTags(ArrayList<String> tags) {
-            this.tags = tags;
+        public void setTags(List<String> tags) {
+            this.tags = ImmutableList.copyOf(tags);
         }
 
-        public ArrayList<String> getTags() {
+        public ImmutableList<String> getTags() {
             return tags;
         }
 
@@ -230,7 +252,6 @@ public class CreatePostViewModel extends BaseViewModel {
             image.setValue(null);
             author.setValue(null);
 
-            tags.clear();
         }
     }
 

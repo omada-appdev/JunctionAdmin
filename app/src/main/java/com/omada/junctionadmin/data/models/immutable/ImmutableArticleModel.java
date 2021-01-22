@@ -1,4 +1,7 @@
 package com.omada.junctionadmin.data.models.immutable;
 
-public class ImmutableArticleModel {
+import com.omada.junctionadmin.data.models.external.ArticleModel;
+
+public class ImmutableArticleModel extends ArticleModel {
+
 }

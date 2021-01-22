@@ -1,5 +1,6 @@
 package com.omada.junctionadmin.data.models.mutable;
 
+import com.google.common.collect.ImmutableList;
 import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.external.ArticleModel;
 
@@ -24,7 +25,7 @@ public class MutableArticleModel extends ArticleModel {
         this.author = author;
     }
 
-    public void setTags(ArrayList<String> tags) {
+    public void setTags(ImmutableList<String> tags) {
         this.tags = tags;
     }
 

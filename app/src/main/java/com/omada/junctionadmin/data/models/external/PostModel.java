@@ -1,5 +1,6 @@
 package com.omada.junctionadmin.data.models.external;
 
+import com.google.common.collect.ImmutableList;
 import com.google.firebase.Timestamp;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ public abstract class PostModel extends BaseModel {
     protected String creatorMail;
     protected String creatorPhone;
 
-    protected ArrayList<String> tags;
+    protected ImmutableList<String> tags;
 
     public String getType() {
         return type;
@@ -58,7 +59,7 @@ public abstract class PostModel extends BaseModel {
         return creatorProfilePicture;
     }
 
-    public ArrayList<String> getTags() {
+    public ImmutableList<String> getTags() {
         return tags;
     }
 }

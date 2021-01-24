@@ -1,10 +1,12 @@
 package com.omada.junctionadmin.data.models.converter;
 
+import com.google.common.collect.ImmutableList;
 import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.external.ArticleModel;
 import com.omada.junctionadmin.data.models.internal.remote.ArticleModelRemoteDB;
 import com.omada.junctionadmin.data.models.mutable.MutableArticleModel;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,7 +33,7 @@ public class ArticleModelConverter extends BaseConverter <ArticleModel, ArticleM
         model.setAuthor(remoteModel.getAuthor());
         model.setImage(remoteModel.getImage());
         model.setTimeCreated(remoteModel.getTimeCreated().toDate());
-        model.setTags(remoteModel.getTags());
+        model.setTags(ImmutableList.copyOf(remoteModel.getTags()));
 
         return model;
     }

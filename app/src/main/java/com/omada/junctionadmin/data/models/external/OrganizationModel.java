@@ -2,6 +2,7 @@ package com.omada.junctionadmin.data.models.external;
 
 import android.os.Parcel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class OrganizationModel extends BaseModel {
@@ -35,7 +36,7 @@ public class OrganizationModel extends BaseModel {
         phone = externalModel.getPhone();
         profilePicture = externalModel.getProfilePicture();
 
-        interests = externalModel.getInterests();
+        interests = new ArrayList<>(externalModel.getInterests());
         attendedUsersNumber = externalModel.getAttendedUsersNumber();
         heldEventsNumber = externalModel.getHeldEventsNumber();
 

@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import com.google.common.collect.ImmutableList;
 import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.internal.remote.EventModelRemoteDB;
 
@@ -50,7 +51,7 @@ public class EventModel extends PostModel {
         venueName = in.readString();
         venueAddress = in.readString();
         venueInstitute = in.readString();
-        tags = in.createStringArrayList();
+        tags = ImmutableList.copyOf(in.createStringArrayList());
         timeCreated = new Date(in.readLong());
     }
 

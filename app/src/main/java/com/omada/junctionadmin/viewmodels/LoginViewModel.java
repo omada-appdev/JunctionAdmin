@@ -157,7 +157,8 @@ public class LoginViewModel extends BaseViewModel {
 
     public void detailsEntryDone(){
 
-        //TODO add code to verify email and go to home only if email is verified
+        // TODO add code to verify email and go to home only if email is verified
+        // TODO make entire code agnostic to synchronicity of the validator implementation
 
         MutableOrganizationModel userModel = new MutableOrganizationModel();
         AtomicBoolean anyDetailsEntryInvalid = new AtomicBoolean(false);
@@ -283,7 +284,7 @@ public class LoginViewModel extends BaseViewModel {
         return toastMessageAction;
     }
 
-    public List<InterestModel> getInterestsListSection(){
+    public List<InterestModel> getInterestsList(){
         if(allInterests.size()>0){
             return allInterests;
         }

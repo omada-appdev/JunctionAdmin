@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Predicate;
 
 
 public class VenueDataHandler extends BaseDataHandler {
@@ -121,7 +122,8 @@ public class VenueDataHandler extends BaseDataHandler {
 
     }
 
-    // package private because EventDataHandler needs access to this method
+    // package private because EventDataHandler needs access to this method but preferably
+    // no other packages should be able to access it
     void createNewBooking(BookingModel bookingModel, WriteBatch batch) {
 
         DocumentReference docRef = FirebaseFirestore
@@ -132,7 +134,7 @@ public class VenueDataHandler extends BaseDataHandler {
                 .document();
 
         batch.set(docRef, bookingModelConverter.convertExternalToRemoteDBModel(bookingModel));
-
+        
     }
 
 }

@@ -2,9 +2,14 @@ package com.omada.junctionadmin.data.handler;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.omada.junctionadmin.data.BaseDataHandler;
@@ -14,6 +19,7 @@ import com.omada.junctionadmin.data.models.external.InstituteModel;
 import com.omada.junctionadmin.data.models.internal.remote.InstituteModelRemoteDB;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class InstituteDataHandler extends BaseDataHandler {
@@ -33,10 +39,9 @@ public class InstituteDataHandler extends BaseDataHandler {
 
                     InstituteModelRemoteDB modelRemoteDB = snapshot.toObject(InstituteModelRemoteDB.class);
 
-                    if(modelRemoteDB == null) {
+                    if (modelRemoteDB == null) {
                         instituteModelLiveData.setValue(null);
-                    }
-                    else {
+                    } else {
                         modelRemoteDB.setId(snapshot.getId());
                         instituteModelLiveData.setValue(new LiveEvent<>(
                                 instituteModelConverter.convertRemoteDBToExternalModel(modelRemoteDB)
@@ -75,6 +80,42 @@ public class InstituteDataHandler extends BaseDataHandler {
                     resultLiveData.setValue(new LiveEvent<>(false));
                     Log.e("Institute", "Error updating institute details");
                 });
+
+        return resultLiveData;
+    }
+
+    public LiveData<LiveEvent<Boolean>> checkInstituteCodeValidity(String code) {
+
+        MutableLiveData<LiveEvent<Boolean>> resultLiveData = new MutableLiveData<>();
+
+        if (code != null) {
+
+            FirebaseDatabase
+                    .getInstance()
+                    .getReference()
+                    .child("instituteHandles")
+                    .child(code)
+                    .addValueEventListener(new ValueEventListener() {
+
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (!snapshot.exists()) {
+                                resultLiveData.setValue(new LiveEvent<>(false));
+                            } else {
+                                resultLiveData.setValue(new LiveEvent<>(true));
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            resultLiveData.setValue(new LiveEvent<>(false));
+                            Log.e("Institute", "Error checking institute code validity");
+                        }
+                    });
+        }
+        else {
+            resultLiveData.setValue(new LiveEvent<>(false));
+        }
 
         return resultLiveData;
     }

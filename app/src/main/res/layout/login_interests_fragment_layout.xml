@@ -69,7 +69,8 @@
                 android:layout_gravity="bottom|end"
                 android:text="Next"
                 android:layout_marginBottom="24dp"
-                android:layout_marginEnd="24dp" />
+                android:layout_marginEnd="24dp"
+                android:onClick="@{()->viewModel.interestsSelectionDone(listSection.getSelectedItems())}"/>
 
         </LinearLayout>
 

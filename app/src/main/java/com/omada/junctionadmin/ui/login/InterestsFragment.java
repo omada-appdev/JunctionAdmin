@@ -26,7 +26,7 @@ public class InterestsFragment extends Fragment {
     private MultiViewAdapter adapter;
 
     private ListSection<InterestModel> interestListSection;
-    private LoginViewModel loginViewModel = new ViewModelProvider(requireActivity()).get(LoginViewModel.class);
+    private LoginViewModel loginViewModel;
     private LoginInterestsFragmentLayoutBinding binding;
 
     public static InterestsFragment newInstance() {
@@ -42,15 +42,16 @@ public class InterestsFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        loginViewModel = new ViewModelProvider(requireActivity()).get(LoginViewModel.class);
+
         interestListSection = new ListSection<>();
-        interestListSection.set(loginViewModel.getInterestsListSection());
+        interestListSection.set(loginViewModel.getInterestsList());
         interestListSection.clearSelections();
 
         adapter = new MultiViewAdapter();
         adapter.setSpanCount(2);
         adapter.registerItemBinders(new InterestThumbnailBinder());
         adapter.addSection(interestListSection);
-
     }
 
     @Nullable

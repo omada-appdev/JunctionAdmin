@@ -1,10 +1,12 @@
 package com.omada.junctionadmin.data.models.converter;
 
+import com.google.common.collect.ImmutableList;
 import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.external.EventModel;
 import com.omada.junctionadmin.data.models.internal.remote.EventModelRemoteDB;
 import com.omada.junctionadmin.data.models.mutable.MutableEventModel;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,7 +46,7 @@ public class EventModelConverter extends BaseConverter <EventModel, EventModelRe
         model.setVenueAddress(remoteModel.getVenueCache().get("address"));
         model.setVenueInstitute(remoteModel.getVenueCache().get("institute"));
 
-        model.setTags(remoteModel.getTags());
+        model.setTags(ImmutableList.copyOf(remoteModel.getTags()));
 
         return model;
     }

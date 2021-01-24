@@ -7,6 +7,7 @@ import com.omada.junctionadmin.data.models.external.BaseModel;
 import com.omada.junctionadmin.data.models.internal.BaseModelInternal;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class ArticleModelRemoteDB extends BaseModelInternal {
@@ -24,7 +25,7 @@ public class ArticleModelRemoteDB extends BaseModelInternal {
 
     private String image;
 
-    private ArrayList<String> tags;
+    private List<String> tags;
 
     public ArticleModelRemoteDB(){
         super();
@@ -110,12 +111,12 @@ public class ArticleModelRemoteDB extends BaseModelInternal {
     }
 
     @PropertyName("tags")
-    public ArrayList<String> getTags() {
+    public List<String> getTags() {
         return tags;
     }
 
     @PropertyName("tags")
-    public void setTags(ArrayList<String> tags) {
+    public void setTags(List<String> tags) {
         this.tags = tags;
     }
 }

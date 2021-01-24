@@ -82,11 +82,6 @@ public class DetailsFragment extends Fragment {
                                 binding.passwordLayout.setError("Invalid password");
                             }
                             break;
-                        case VALIDATION_POINT_DATE_OF_BIRTH:
-                            if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
-                                binding.dateOfBirthLayout.setError("Please ensure formatting");
-                            }
-                            break;
                         case VALIDATION_POINT_NAME:
                             if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                                 binding.nameLayout.setError("Invalid name");
@@ -94,7 +89,7 @@ public class DetailsFragment extends Fragment {
                             break;
                         case VALIDATION_POINT_INSTITUTE:
                             if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
-                                binding.emailLayout.setError("Invalid institute");
+                                binding.instituteLayout.setError("Invalid institute");
                             }
                             break;
                         case VALIDATION_POINT_INTERESTS:
@@ -139,9 +134,7 @@ public class DetailsFragment extends Fragment {
         binding.nextButton.setOnClickListener(v->{
 
             binding.emailLayout.setError("");
-            binding.genderLayout.setError("");
             binding.passwordLayout.setError("");
-            binding.dateOfBirthLayout.setError("");
             binding.nameLayout.setError("");
             binding.getViewModel().detailsEntryDone();
         });
@@ -191,46 +184,6 @@ public class DetailsFragment extends Fragment {
             }
         });
 
-        binding.dateOfBirthInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                binding.dateOfBirthLayout.setErrorEnabled(false);
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-
-        binding.genderInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                binding.genderLayout.setErrorEnabled(false);
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-
-        String[] GENDERS = new String[] {"Male", "Female", "Other"};
-
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(
-                        getContext(),
-                        R.layout.drop_down_menu_layout,
-                        GENDERS);
-
-        binding.genderInput.setAdapter(adapter);
-
         binding.passwordInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -243,28 +196,6 @@ public class DetailsFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-            }
-        });
-
-        binding.dateOfBirthLayout.setEndIconOnClickListener(v -> {
-
-            MaterialDatePicker.Builder<?> builder = binding.getViewModel().setupDateSelectorBuilder();
-            CalendarConstraints.Builder constraintsBuilder = binding.getViewModel().setupConstraintsBuilder();
-            builder.setTheme(R.style.ThemeOverlay_MaterialComponents_MaterialCalendar);
-            builder.setTitleText("Your Date of Birth");
-
-            try {
-                builder.setCalendarConstraints(constraintsBuilder.build());
-                MaterialDatePicker<?> picker = builder.build();
-
-                picker.addOnPositiveButtonClickListener(selection -> binding.dateOfBirthInput.setText(
-                        TransformUtilities.convertMillisecondsToDDMMYYYY((Long)selection, "/")
-                ));
-
-                picker.show(getChildFragmentManager(), picker.toString());
-            }
-            catch (Exception e){
-                Log.e("CALENDAR", "error");
             }
         });
 

@@ -3,6 +3,7 @@ package com.omada.junctionadmin.data.models.external;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.common.collect.ImmutableList;
 import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.internal.remote.ArticleModelRemoteDB;
 
@@ -28,7 +29,7 @@ public class ArticleModel extends PostModel {
         creatorProfilePicture = in.readString();
         creatorMail = in.readString();
         image = in.readString();
-        tags = in.createStringArrayList();
+        tags = ImmutableList.copyOf(in.createStringArrayList());
         timeCreated = new Date(in.readLong());
     }
 

@@ -9,6 +9,7 @@ import com.omada.junctionadmin.data.models.internal.BaseModelInternal;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class EventModelRemoteDB extends BaseModelInternal {
@@ -33,7 +34,7 @@ public class EventModelRemoteDB extends BaseModelInternal {
     private String venue;
     private Map<String, String> venueCache;
 
-    private ArrayList<String> tags;
+    private List<String> tags;
 
     public EventModelRemoteDB(String id){
         super(id);
@@ -98,7 +99,7 @@ public class EventModelRemoteDB extends BaseModelInternal {
     }
 
     @PropertyName("tags")
-    public ArrayList<String> getTags() {
+    public List<String> getTags() {
         return tags;
     }
 
@@ -165,7 +166,7 @@ public class EventModelRemoteDB extends BaseModelInternal {
     }
 
     @PropertyName("tags")
-    public void setTags(ArrayList<String> tags) {
+    public void setTags(List<String> tags) {
         this.tags = tags;
     }
 

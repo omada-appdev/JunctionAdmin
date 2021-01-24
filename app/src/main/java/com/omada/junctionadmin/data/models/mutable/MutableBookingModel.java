@@ -79,9 +79,9 @@ public class MutableBookingModel extends BookingModel {
         mutableBookingModel.setVenueInstitute(eventModel.getVenueInstitute());
         mutableBookingModel.setEvent(eventModel.getId());
         mutableBookingModel.setEventName(eventModel.getTitle());
-        mutableBookingModel.setTimeCreated(eventModel.getTimeCreated());
-        mutableBookingModel.setStartTime(eventModel.getStartTime());
-        mutableBookingModel.setEndTime(eventModel.getEndTime());
+        mutableBookingModel.setTimeCreated(new Timestamp(eventModel.getTimeCreated()));
+        mutableBookingModel.setStartTime(new Timestamp(eventModel.getStartTime()));
+        mutableBookingModel.setEndTime(new Timestamp(eventModel.getEndTime()));
         mutableBookingModel.setCreator(eventModel.getCreator());
         mutableBookingModel.setCreatorName(eventModel.getCreatorName());
         mutableBookingModel.setCreatorProfilePicture(eventModel.getCreatorProfilePicture());

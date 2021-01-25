@@ -1,5 +1,7 @@
 package com.omada.junctionadmin.utils.taskhandler;
 
+import android.net.Uri;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
@@ -44,6 +46,8 @@ public class DataValidator {
         VALIDATION_POINT_INSTITUTE,
         VALIDATION_POINT_PASSWORD,
         VALIDATION_POINT_INTERESTS,
+
+        VALIDATION_POINT_PROFILE_PICTURE,
 
         VALIDATION_POINT_EVENT_TIMINGS,
         VALIDATION_POINT_EVENT_DESC,
@@ -105,7 +109,13 @@ public class DataValidator {
         listener.onValidationComplete(validatePassword(password));
     }
 
-
+    /*
+      STUB
+     */
+    // TODO add validation when needed
+    public void validateProfilePicture (Uri uri, OnValidationCompleteListener listener) {
+        listener.onValidationComplete(validateProfilePicture(uri));
+    }
 
     private DataValidationInformation validateName(String name) {
 
@@ -175,14 +185,7 @@ public class DataValidator {
                     DataValidationResult.VALIDATION_RESULT_INVALID
             )));
         }
-        else {
-            return new MutableLiveData<>(new LiveEvent<>(new DataValidationInformation(
-                    DataValidationPoint.VALIDATION_POINT_INSTITUTE,
-                    DataValidationResult.VALIDATION_RESULT_VALID
-            )));
-        }
 
-        /*
         return Transformations.map(
                 DataRepository
                         .getInstance()
@@ -204,7 +207,20 @@ public class DataValidator {
                     }
                 }
         );
-         */
+    }
+
+    private DataValidationInformation validateProfilePicture(Uri uri) {
+        if (uri == null) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_PROFILE_PICTURE,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        } else {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_PROFILE_PICTURE,
+                    DataValidationResult.VALIDATION_RESULT_VALID
+            );
+        }
     }
 
     private DataValidationInformation validateDateOfBirth(String dateOfBirth) {

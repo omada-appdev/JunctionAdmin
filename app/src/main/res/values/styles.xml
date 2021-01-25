@@ -28,7 +28,7 @@
         <item name="cornerSize">8dp</item>
     </style>
 
-    <style name="Widget.AppTheme.CircleShapeAppearance" parent="ShapeAppearance.MaterialComponents.MediumComponent">
+    <style name="Widget.AppTheme.CircleShapeAppearance" parent="">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">50%</item>
     </style>

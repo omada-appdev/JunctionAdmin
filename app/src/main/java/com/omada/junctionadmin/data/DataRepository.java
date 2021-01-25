@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import com.omada.junctionadmin.data.handler.AppDataHandler;
 import com.omada.junctionadmin.data.handler.ArticleDataHandler;
 import com.omada.junctionadmin.data.handler.EventDataHandler;
+import com.omada.junctionadmin.data.handler.ImageUploadHandler;
 import com.omada.junctionadmin.data.handler.InstituteDataHandler;
 import com.omada.junctionadmin.data.handler.OrganizationDataHandler;
 import com.omada.junctionadmin.data.handler.PostDataHandler;
@@ -33,6 +34,7 @@ public class DataRepository {
     private final PostDataHandler postDataHandler = new PostDataHandler();
     private final VenueDataHandler venueDataHandler = new VenueDataHandler();
     private final InstituteDataHandler instituteDataHandler = new InstituteDataHandler();
+    private final ImageUploadHandler imageUploadHandler = new ImageUploadHandler();
 
     //this is only for events
     private final EventDataHandler eventDataHandler = new EventDataHandler();
@@ -105,6 +107,10 @@ public class DataRepository {
                 StringUtilities.randomAlphabetGenerator(6)
         );
 
+    }
+
+    public ImageUploadHandler getImageUploadHandler() {
+        return imageUploadHandler;
     }
 
 

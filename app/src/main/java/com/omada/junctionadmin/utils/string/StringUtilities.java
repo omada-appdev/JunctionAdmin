@@ -2,7 +2,12 @@ package com.omada.junctionadmin.utils.string;
 
 import java.util.Random;
 
-public class StringUtilities {
+public final class StringUtilities {
+
+    private StringUtilities(){
+        // Non-instantiable in any context
+        throw new UnsupportedOperationException();
+    }
 
     public static String randomStringGenerator(int size, boolean includeLetters,
                                                boolean includeNumbers, String specialCharacters){

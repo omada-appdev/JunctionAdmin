@@ -42,6 +42,7 @@ public class SplashActivity extends AppCompatActivity {
                         startActivity(i);
                         finish();
                         break;
+                    case LOGIN_FAILURE:
                     case CURRENT_USER_FAILURE:
                     case CURRENT_USER_LOGIN_FAILURE:
                         i = new Intent(this, LoginActivity.class);

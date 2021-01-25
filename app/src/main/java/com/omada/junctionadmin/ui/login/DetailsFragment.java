@@ -1,7 +1,16 @@
 package com.omada.junctionadmin.ui.login;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -10,24 +19,60 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.loader.content.CursorLoader;
 
+import com.google.android.gms.common.util.IOUtils;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.imageview.ShapeableImageView;
+import com.google.firebase.storage.FirebaseStorage;
 import com.omada.junctionadmin.R;
+import com.omada.junctionadmin.application.JunctionAdminApplication;
+import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.handler.UserDataHandler;
 import com.omada.junctionadmin.databinding.LoginDetailsFragmentLayoutBinding;
+import com.omada.junctionadmin.utils.image.ImageUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.utils.transform.TransformUtilities;
 import com.omada.junctionadmin.viewmodels.LoginViewModel;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.StandardCopyOption;
+
+import me.shouheng.utils.UtilsApp;
+import me.shouheng.utils.store.FileUtils;
+import me.shouheng.utils.store.PathUtils;
+
 public class DetailsFragment extends Fragment {
+
+    // Some arbitrary identifier
+    private static final int REQUEST_CODE_PROFILE_PICTURE_CHOOSER = 4;
+
+    private final ActivityResultLauncher<String> storagePermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    startFilePicker();
+                }
+            });
+
+
     private LoginDetailsFragmentLayoutBinding binding;
 
     public static DetailsFragment newInstance() {
@@ -92,11 +137,16 @@ public class DetailsFragment extends Fragment {
                                 binding.instituteLayout.setError("Invalid institute");
                             }
                             break;
+                        case VALIDATION_POINT_PROFILE_PICTURE:
+                            if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                                binding.profilePictureImage.setStrokeColor(ColorStateList.valueOf(getResources().getColor(R.color.design_default_color_error, requireActivity().getTheme())));
+                                binding.profilePictureImage.setStrokeWidth(5);
+                            }
+                            break;
                         case VALIDATION_POINT_INTERESTS:
                             break;
                         case VALIDATION_POINT_ALL:
                             if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID){
-                                binding.nextButton.setEnabled(false);
 
                                 InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                                 imm.hideSoftInputFromWindow(binding.nextButton.getWindowToken(), 0);
@@ -130,6 +180,22 @@ public class DetailsFragment extends Fragment {
                             break;
                     }
                 });
+
+        binding.profilePictureImage.setOnClickListener(v -> {
+
+            ((ShapeableImageView)v).setStrokeColor(null);
+
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                    PackageManager.PERMISSION_GRANTED) {
+                startFilePicker();
+            }
+            else {
+                storagePermissionLauncher.launch(
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
+
+        });
 
         binding.nextButton.setOnClickListener(v->{
 
@@ -201,4 +267,73 @@ public class DetailsFragment extends Fragment {
 
     }
 
+    private void startFilePicker() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CODE_PROFILE_PICTURE_CHOOSER);
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+
+        if(data == null) {
+            return;
+        }
+
+        if( requestCode == REQUEST_CODE_PROFILE_PICTURE_CHOOSER) {
+            Uri selectedImage = data.getData();
+
+            Bitmap bitmap = null;
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), selectedImage);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            Log.e("Details", "Compressing image... " + bitmap.getWidth() + "  " + bitmap.getHeight());
+            ImageUtilities
+                    .scaleToProfilePictureGetBitmap(requireActivity(), bitmap)
+                    .observe(getViewLifecycleOwner(), bitmapLiveEvent -> {
+                        if(bitmapLiveEvent != null){
+                            Bitmap picture = bitmapLiveEvent.getDataOnceAndReset();
+                            if(picture != null) {
+                                binding.profilePictureImage.setColorFilter(getResources().getColor(R.color.transparent, requireActivity().getTheme()));
+                                binding.profilePictureImage.setImageBitmap(picture);
+                            }
+                            else {
+                                // Handle null case
+                            }
+                        }
+                        else{
+                            Log.e("Details", "Error ");
+                        }
+                    });
+
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), selectedImage);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            ImageUtilities
+                    .scaleToProfilePictureGetFile(requireActivity(), bitmap)
+                    .observe(getViewLifecycleOwner(), fileLiveEvent -> {
+                        if(fileLiveEvent != null){
+                            File file = fileLiveEvent.getDataOnceAndReset();
+                            if(file != null) {
+                                binding.getViewModel().profilePicture.setValue(Uri.fromFile(file));
+                            }
+                            else {
+                                // Handle null case
+                            }
+                        }
+                        else{
+                            Log.e("Details", "Error ");
+                        }
+                    });
+
+        }
+    }
 }

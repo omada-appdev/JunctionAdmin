@@ -27,7 +27,7 @@ public class OrganizationModelConverter extends BaseConverter <OrganizationModel
         model.setMail(remoteModel.getMail());
         model.setName(remoteModel.getName());
         model.setPhone(remoteModel.getPhone());
-        model.setProfilePhoto(remoteModel.getProfilePicture());
+        model.setProfilePicture(remoteModel.getProfilePicture());
 
         return model;
 

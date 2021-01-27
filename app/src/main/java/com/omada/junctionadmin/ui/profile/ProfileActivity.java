@@ -2,6 +2,7 @@ package com.omada.junctionadmin.ui.profile;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,7 +20,7 @@ import com.omada.junctionadmin.viewmodels.UserProfileViewModel;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    UserProfileViewModel userProfileViewModel;
+    private UserProfileViewModel userProfileViewModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -73,22 +74,60 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void setupTriggers(){
 
-        userProfileViewModel.getSignOutTrigger()
+        userProfileViewModel.getAuthStatusTrigger()
                 .observe(this, authStatusLiveEvent -> {
 
                     if(authStatusLiveEvent != null){
-
                         UserDataHandler.AuthStatus authStatus = authStatusLiveEvent.getDataOnceAndReset();
-                        if(authStatus == UserDataHandler.AuthStatus.USER_SIGNED_OUT) {
-                            Intent i = new Intent(this, LoginActivity.class);
-                            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                            startActivity(i);
-                            finish();
+                        if(authStatus == null) {
+                            return;
+                        }
+                        switch (authStatus) {
+                            case USER_SIGNED_OUT:
+                                Intent i = new Intent(this, LoginActivity.class);
+                                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(i);
+                                finish();
+                                break;
+                            case UPDATE_USER_DETAILS_SUCCESS:
+                                Toast.makeText(this, "Updated details successfully", Toast.LENGTH_SHORT).show();
+                                getSupportFragmentManager().popBackStack();
+                                break;
+                            case CURRENT_USER_FAILURE:
+                                Toast.makeText(this, "Please try again", Toast.LENGTH_LONG).show();
+                                break;
+                            default:
+                                break;
                         }
 
                     }
                 });
+
+        userProfileViewModel.getEditDetailsTrigger()
+                .observe(this, booleanLiveEvent -> {
+
+                    if(booleanLiveEvent == null) {
+                        return;
+                    }
+                    boolean trigger = booleanLiveEvent.getDataOnceAndReset();
+                    if(trigger) {
+
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.more_content_placeholder, new ProfileEditDetailsFragment())
+                                .addToBackStack(null)
+                                .commit();
+
+                    } else {
+
+                    }
+                });
+    }
+
+    @Override
+    public void onBackPressed() {
+        userProfileViewModel.resetUpdater();
+        super.onBackPressed();
     }
 
     @Override

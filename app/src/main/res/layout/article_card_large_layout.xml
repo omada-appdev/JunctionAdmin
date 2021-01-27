@@ -24,7 +24,7 @@
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/organizer_profile_image"
-            remoteImageUrl="@{articleModel.creatorProfilePicture}"
+            remoteImageGs="@{articleModel.creatorProfilePicture}"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:layout_marginStart="4dp"
@@ -87,7 +87,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/organizer_profile_image"
             app:layout_constraintVertical_chainStyle="packed"
-            app:remoteImageUrl="@{articleModel.image}"
+            app:remoteImageGs="@{articleModel.image}"
             app:shapeAppearanceOverlay="@style/Widget.AppTheme.ThumbnailShapeAppearance" />
 
         <ImageButton

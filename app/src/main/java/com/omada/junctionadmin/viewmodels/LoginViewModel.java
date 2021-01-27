@@ -259,10 +259,6 @@ public class LoginViewModel extends BaseViewModel {
 
     }
 
-    private void notifyValidity(DataValidator.DataValidationInformation dataValidationInformation){
-        dataValidationAction.setValue(new LiveEvent<>(dataValidationInformation));
-    }
-
     public void interestsSelectionDone(List<InterestModel> interestListSection){
 
         if(interestListSection == null){

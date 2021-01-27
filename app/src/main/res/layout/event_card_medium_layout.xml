@@ -82,7 +82,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/organizer_profile_image"
                 app:layout_constraintVertical_chainStyle="packed"
-                app:remoteImageUrl="@{eventModel.image}"/>
+                app:remoteImageGs="@{eventModel.image}"/>
 
             <ImageButton
                 android:id="@+id/more_details_button"

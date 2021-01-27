@@ -55,6 +55,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.StandardCopyOption;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import me.shouheng.utils.UtilsApp;
 import me.shouheng.utils.store.FileUtils;
@@ -64,6 +65,7 @@ public class DetailsFragment extends Fragment {
 
     // Some arbitrary identifier
     private static final int REQUEST_CODE_PROFILE_PICTURE_CHOOSER = 4;
+    private final AtomicBoolean compressingImage = new AtomicBoolean(false);
 
     private final ActivityResultLauncher<String> storagePermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -71,7 +73,6 @@ public class DetailsFragment extends Fragment {
                     startFilePicker();
                 }
             });
-
 
     private LoginDetailsFragmentLayoutBinding binding;
 
@@ -149,8 +150,8 @@ public class DetailsFragment extends Fragment {
                             if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID){
 
                                 InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                                imm.hideSoftInputFromWindow(binding.nextButton.getWindowToken(), 0);
-                                binding.nextButton.setEnabled(false);
+                                imm.hideSoftInputFromWindow(binding.doneButton.getWindowToken(), 0);
+                                binding.doneButton.setEnabled(false);
 
                             }
                             break;
@@ -174,7 +175,7 @@ public class DetailsFragment extends Fragment {
                         case SIGNUP_FAILURE:
                         case ADD_EXTRA_DETAILS_FAILURE:
                             Toast.makeText(requireContext(), "Please try again", Toast.LENGTH_LONG).show();
-                            binding.nextButton.setEnabled(true);
+                            binding.doneButton.setEnabled(true);
                             break;
                         default:
                             break;
@@ -183,8 +184,12 @@ public class DetailsFragment extends Fragment {
 
         binding.profilePictureImage.setOnClickListener(v -> {
 
-            ((ShapeableImageView)v).setStrokeColor(null);
+            if(compressingImage.get()){
+                Toast.makeText(requireContext(), "Please wait", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
+            ((ShapeableImageView)v).setStrokeColor(null);
             if (ContextCompat.checkSelfPermission(
                     requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
@@ -197,7 +202,7 @@ public class DetailsFragment extends Fragment {
 
         });
 
-        binding.nextButton.setOnClickListener(v->{
+        binding.doneButton.setOnClickListener(v->{
 
             binding.emailLayout.setError("");
             binding.passwordLayout.setError("");
@@ -283,6 +288,8 @@ public class DetailsFragment extends Fragment {
         }
 
         if( requestCode == REQUEST_CODE_PROFILE_PICTURE_CHOOSER) {
+
+            compressingImage.set(true);
             Uri selectedImage = data.getData();
 
             Bitmap bitmap = null;
@@ -317,9 +324,11 @@ public class DetailsFragment extends Fragment {
                 e.printStackTrace();
             }
 
+
             ImageUtilities
                     .scaleToProfilePictureGetFile(requireActivity(), bitmap)
                     .observe(getViewLifecycleOwner(), fileLiveEvent -> {
+                        compressingImage.set(false);
                         if(fileLiveEvent != null){
                             File file = fileLiveEvent.getDataOnceAndReset();
                             if(file != null) {

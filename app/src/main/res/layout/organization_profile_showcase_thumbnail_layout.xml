@@ -25,7 +25,7 @@
             android:layout_height="match_parent"
             app:shapeAppearanceOverlay="@style/Widget.AppTheme.ThumbnailShapeAppearance"
             android:background="@color/colorAccent"
-            remoteImageUrl="@{showcaseModel.photo}"
+            remoteImageGs="@{showcaseModel.photo}"
             android:scaleType="centerCrop" />
 
         <com.google.android.material.textview.MaterialTextView

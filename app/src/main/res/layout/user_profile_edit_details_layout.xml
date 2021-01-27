@@ -1,14 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
-
 <layout>
 
     <data>
         <variable
-            name="newProfilePicture"
-            type="java.net.URI" />
-        <variable
             name="viewModel"
-            type="com.omada.junctionadmin.viewmodels.LoginViewModel" />
+            type="com.omada.junctionadmin.viewmodels.UserProfileViewModel" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -16,23 +11,24 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_height="match_parent"
-        android:layout_width="match_parent">
+        android:layout_width="match_parent"
+        android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
-                app:title="Personal Details"
+                app:title="Edit Profile"
                 app:layout_scrollFlags="noScroll"/>
 
         </com.google.android.material.appbar.AppBarLayout>
-
         <ScrollView
             android:id="@+id/login_details_scroll"
             android:layout_width="match_parent"
@@ -59,34 +55,15 @@
                     android:layout_gravity="center"
                     android:layout_margin="24dp"
                     android:padding="8dp"
-                    android:src="@drawable/ic_person_profile"
-                    app:tint="@color/grey"
                     android:background="@color/white"
                     android:scaleType="centerCrop"
                     app:shapeAppearanceOverlay="@style/Widget.AppTheme.CircleShapeAppearance"
-                    android:elevation="8dp"/>
+                    android:elevation="8dp"
+                    remoteImageHttp="@{viewModel.organizationDetails.profilePicture}"/>
 
                 <Space
                     android:layout_width="match_parent"
                     android:layout_height="32dp"/>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/email_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Your email address"
-                    android:layout_margin="8dp"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:layout_height="wrap_content"
-                        android:layout_width="match_parent"
-                        android:id="@+id/email_input"
-                        android:inputType="textEmailAddress"
-                        android:background="@color/transparent"
-                        android:text="@={viewModel.email}"/>
-
-                </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/name_layout"
@@ -102,7 +79,7 @@
                         android:id="@+id/name_input"
                         android:inputType="textPersonName"
                         android:background="@color/transparent"
-                        android:text="@={viewModel.name}"/>
+                        android:text="@={viewModel.organizationUpdater.name}"/>
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -120,30 +97,7 @@
                         android:id="@+id/institute_input"
                         android:inputType="textPostalAddress"
                         android:background="@color/transparent"
-                        android:text="@={viewModel.institute}"/>
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <Space
-                    android:layout_width="match_parent"
-                    android:layout_height="32dp"/>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/password_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Strong password"
-                    app:passwordToggleEnabled="true"
-                    android:layout_margin="8dp"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:layout_height="wrap_content"
-                        android:layout_width="match_parent"
-                        android:id="@+id/password_input"
-                        android:inputType="textPassword"
-                        android:background="@color/transparent"
-                        android:text="@={viewModel.password}"/>
-
+                        android:text="@={viewModel.organizationUpdater.institute}"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
@@ -156,8 +110,8 @@
             android:layout_gravity="bottom|end"
             android:text="done"
             android:layout_margin="24dp"
-            app:layout_anchorGravity="bottom|end"
-            android:onClick="@{() -> viewModel.detailsEntryDone()}"/>
+            app:layout_anchorGravity="bottom|end"/>
+
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

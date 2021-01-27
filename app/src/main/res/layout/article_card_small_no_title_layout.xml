@@ -38,7 +38,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_chainStyle="packed"
-                app:remoteImageUrl="@{articleModel.image}"/>
+                app:remoteImageGs="@{articleModel.image}"/>
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/article_title_text"

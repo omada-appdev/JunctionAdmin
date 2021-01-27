@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.GravityCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.appbar.AppBarLayout;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.databinding.UserProfileFragmentLayoutBinding;
+import com.omada.junctionadmin.ui.uicomponents.CustomBindings;
 import com.omada.junctionadmin.viewmodels.UserProfileViewModel;
 
 public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetChangedListener {
@@ -45,6 +47,14 @@ public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetCh
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        binding.getViewModel().getUserUpdateAction()
+                .observe(getViewLifecycleOwner(), organizationModel -> {
+                    if(organizationModel == null) {
+                        return;
+                    }
+                    CustomBindings.loadImageUrl(binding.userProfileImage, organizationModel.getProfilePicture());
+                });
+
         binding.userProfileUpcomingEventsRecyclerView.setLayoutManager(
                 new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false)
         );
@@ -52,6 +62,24 @@ public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetCh
         binding.userProfileAchievementsRecyclerView.setLayoutManager(
                 new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false)
         );
+
+        binding.toolbar.setNavigationOnClickListener(v -> {
+            binding.drawerLayout.openDrawer(binding.navigationView, true);
+        });
+
+        binding.navigationView.setNavigationItemSelectedListener(item -> {
+
+            switch (item.getItemId()){
+                case R.id.sign_out_button:
+                    binding.getViewModel().signOutUser();
+                    break;
+                default:
+                    break;
+            }
+            item.setChecked(true);
+            binding.drawerLayout.closeDrawers();
+            return true;
+        });
 
         binding.appbar.addOnOffsetChangedListener(this);
 
@@ -61,12 +89,10 @@ public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetCh
     public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
 
         if (-verticalOffset >= binding.profileDetails.getHeight()) {
-            binding.userProfileToolbar.setTitle("Your Profile");
-            binding.userProfileToolbar.setAlpha(1);
+            binding.toolbar.setTitle("Your Profile");
         }
         else {
-            binding.userProfileToolbar.setTitle("");
-            binding.userProfileToolbar.setAlpha(0);
+            binding.toolbar.setTitle("");
         }
     }
 }

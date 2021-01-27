@@ -37,4 +37,8 @@ public abstract class BaseViewModel extends ViewModel {
     public LiveData<LiveEvent<DataValidator.DataValidationInformation>> getDataValidationAction() {
         return dataValidationAction;
     }
+
+    protected void notifyValidity(DataValidator.DataValidationInformation dataValidationInformation){
+        dataValidationAction.setValue(new LiveEvent<>(dataValidationInformation));
+    }
 }

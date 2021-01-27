@@ -8,6 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
 
         <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
 
         <item name="materialCardViewStyle">@style/Widget.AppTheme.GlobalCardStyle</item>
 

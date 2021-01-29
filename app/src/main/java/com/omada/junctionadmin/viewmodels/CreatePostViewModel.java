@@ -56,9 +56,19 @@ public class CreatePostViewModel extends BaseViewModel {
 
     private final MutableLiveData<LiveEvent<Boolean>> createEventTrigger = new MutableLiveData<>();
     private final MutableLiveData<LiveEvent<Boolean>> createArticleTrigger = new MutableLiveData<>();
+    private final MutableLiveData<LiveEvent<Boolean>> createBookingTrigger = new MutableLiveData<>();
+    private final MutableLiveData<LiveEvent<Boolean>> createFormTrigger = new MutableLiveData<>();
 
     public CreatePostViewModel() {
         initCalendar();
+    }
+
+    public void goToCreateBooking() {
+        createBookingTrigger.setValue(new LiveEvent<>(true));
+    }
+
+    public void goToCreateForm() {
+        createFormTrigger.setValue(new LiveEvent<>(true));
     }
 
     public void goToCreateEvent() {
@@ -67,6 +77,15 @@ public class CreatePostViewModel extends BaseViewModel {
 
     public void goToCreateArticle() {
         createArticleTrigger.setValue(new LiveEvent<>(true));
+    }
+
+
+    public LiveData<LiveEvent<Boolean>> getCreateBookingTrigger() {
+        return createBookingTrigger;
+    }
+
+    public LiveData<LiveEvent<Boolean>> getCreateFormTrigger() {
+        return createFormTrigger;
     }
 
     public LiveData<LiveEvent<Boolean>> getCreateEventTrigger() {

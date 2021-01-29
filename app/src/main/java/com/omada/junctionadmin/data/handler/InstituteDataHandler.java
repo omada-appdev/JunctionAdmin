@@ -97,7 +97,7 @@ public class InstituteDataHandler extends BaseDataHandler {
                     .getReference()
                     .child("instituteHandles")
                     .child(code)
-                    .addValueEventListener(new ValueEventListener() {
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
 
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -140,7 +140,7 @@ public class InstituteDataHandler extends BaseDataHandler {
                     .getReference()
                     .child("instituteHandles")
                     .child(handle)
-                    .addValueEventListener(new ValueEventListener() {
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
 
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -181,7 +181,7 @@ public class InstituteDataHandler extends BaseDataHandler {
                     .getReference()
                     .child("instituteIds")
                     .child(id)
-                    .addValueEventListener(new ValueEventListener() {
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
 
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {

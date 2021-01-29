@@ -1,4 +1,6 @@
 package com.omada.junctionadmin.ui.form;
 
-public class CreateFormFragment {
+import androidx.fragment.app.Fragment;
+
+public class CreateFormFragment extends Fragment {
 }

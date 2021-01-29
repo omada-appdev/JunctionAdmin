@@ -80,19 +80,6 @@ public class InstituteViewModel extends BaseViewModel {
 
     }
 
-    public LiveData<LiveEvent<List<BookingModel>>> getBookings(@Nonnull String venue, @Nonnull LocalDateTime date){
-
-        String instituteId = DataRepository.getInstance()
-                .getUserDataHandler()
-                .getCurrentUserModel()
-                .getInstitute();
-
-        return DataRepository.getInstance()
-                .getVenueDataHandler()
-                .getVenueBookingsOn(getDataRepositoryAccessIdentifier(), Date.from(date.toInstant(ZoneOffset.UTC)), venue);
-
-    }
-
     public void loadInstituteHighlights() {
         DataRepository
                 .getInstance()

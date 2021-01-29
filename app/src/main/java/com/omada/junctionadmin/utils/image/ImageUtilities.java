@@ -38,13 +38,12 @@ public final class ImageUtilities {
     // returns bitmap if success, returns null if failure
 
     public static LiveData<LiveEvent<Bitmap>> scaleToProfilePictureGetBitmap(Context context, Bitmap bitmap) {
-        // TODO integrate the third party compressor library
 
         MutableLiveData<LiveEvent<Bitmap>> bitmapLiveData = new MutableLiveData<>();
 
         Compress.Companion
                 .with(context, cropToSquare(bitmap))
-                .setQuality(60)
+                .setQuality(100)
                 .setTargetDir(PathUtils.getExternalPicturesPath())
                 .setCompressListener(new CompressListener() {
                     @Override
@@ -103,7 +102,7 @@ public final class ImageUtilities {
 
         Compress.Companion
                 .with(context, cropToSquare(bitmap))
-                .setQuality(60)
+                .setQuality(100)
                 .setTargetDir(PathUtils.getExternalPicturesPath())
                 .setCompressListener(new CompressListener() {
                     @Override

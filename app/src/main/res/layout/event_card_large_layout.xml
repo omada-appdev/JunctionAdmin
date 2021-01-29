@@ -107,7 +107,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/event_poster_image"
-                app:srcCompat="@drawable/ic_right_24dp"/>
+                app:srcCompat="@drawable/ic_right_arrow_key"/>
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/peek_card"

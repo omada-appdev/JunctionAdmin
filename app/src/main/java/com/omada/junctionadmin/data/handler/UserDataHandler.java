@@ -13,6 +13,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.UploadTask;
 import com.omada.junctionadmin.BuildConfig;
@@ -330,6 +331,27 @@ public class UserDataHandler extends BaseDataHandler {
         return signedInUserNotifier;
     }
 
+    public void incrementHeldEventsNumber() {
+
+        String id = DataRepository.getInstance()
+                .getUserDataHandler()
+                .getCurrentUserModel()
+                .getId();
+
+        FirebaseFirestore
+                .getInstance()
+                .collection("organizations")
+                .document(id)
+                .update("heldEventsNumber", FieldValue.increment(1))
+                .addOnSuccessListener(aVoid -> {
+                    signedInUser.setHeldEventsNumber(signedInUser.getHeldEventsNumber() + 1);
+                    signedInUserNotifier.setValue(new LiveEvent<>(getCurrentUserModel()));
+                    Log.e("Organization", "Events increment success");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Organization", "Events increment failure");
+                });
+    }
 
     public static final class MutableUserOrganizationModel extends MutableOrganizationModel {
 

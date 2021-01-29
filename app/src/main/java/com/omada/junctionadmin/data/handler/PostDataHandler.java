@@ -265,7 +265,10 @@ public class PostDataHandler extends BaseDataHandler {
             eventModel.setId(generatedId);
             data = eventModelConverter.convertExternalToRemoteDBModel(eventModel);
 
-            // Creating a new booking in the write batch
+            /*
+             Creating a new booking in the write batch
+             fixme not checking the success of database operation might have bad consequences
+            */
             DataRepository
                     .getInstance()
                     .getVenueDataHandler()
@@ -306,6 +309,11 @@ public class PostDataHandler extends BaseDataHandler {
                                 .addOnSuccessListener(aVoid -> {
                                     resultLiveData.setValue(new LiveEvent<>(true));
                                     Log.e("Post", "Create post success");
+
+                                    DataRepository
+                                            .getInstance()
+                                            .getUserDataHandler()
+                                            .incrementHeldEventsNumber();
                                 })
                                 .addOnFailureListener(e -> {
                                     resultLiveData.setValue(new LiveEvent<>(false));

@@ -154,9 +154,9 @@
                             android:text="Events"
                             android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintLeft_toLeftOf="@id/user_attended_users_number_text"
-                            app:layout_constraintRight_toRightOf="@id/user_attended_users_number_text"
-                            app:layout_constraintTop_toBottomOf="@id/user_attended_users_number_text" />
+                            app:layout_constraintLeft_toLeftOf="@id/user_held_events_number_text"
+                            app:layout_constraintRight_toRightOf="@id/user_held_events_number_text"
+                            app:layout_constraintTop_toBottomOf="@id/user_held_events_number_text" />
 
                         <com.google.android.material.textview.MaterialTextView
                             android:id="@+id/user_attended_users_number_text"
@@ -177,9 +177,9 @@
                             android:text="Participants"
                             android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
                             app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintLeft_toLeftOf="@id/user_held_events_number_text"
-                            app:layout_constraintRight_toRightOf="@id/user_held_events_number_text"
-                            app:layout_constraintTop_toBottomOf="@id/user_held_events_number_text" />
+                            app:layout_constraintLeft_toLeftOf="@id/user_attended_users_number_text"
+                            app:layout_constraintRight_toRightOf="@id/user_attended_users_number_text"
+                            app:layout_constraintTop_toBottomOf="@id/user_attended_users_number_text" />
 
 
                     </androidx.constraintlayout.widget.ConstraintLayout>

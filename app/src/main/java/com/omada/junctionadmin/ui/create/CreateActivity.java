@@ -14,10 +14,12 @@ import com.google.android.material.button.MaterialButton;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.ui.article.ArticleCreateFragment;
 import com.omada.junctionadmin.ui.event.EventCreateFragment;
+import com.omada.junctionadmin.ui.form.CreateFormFragment;
 import com.omada.junctionadmin.ui.institute.InstituteActivity;
 import com.omada.junctionadmin.ui.metrics.MetricsActivity;
 import com.omada.junctionadmin.ui.profile.ProfileActivity;
 import com.omada.junctionadmin.ui.profile.ProfileFragment;
+import com.omada.junctionadmin.ui.venue.BookVenueFragment;
 import com.omada.junctionadmin.viewmodels.CreatePostViewModel;
 import com.omada.junctionadmin.viewmodels.InstituteViewModel;
 
@@ -75,6 +77,40 @@ public class CreateActivity extends AppCompatActivity {
                         .addToBackStack(null)
                         .commit();
             }
+        });
+
+        createPostViewModel.getCreateBookingTrigger().observe(this, booleanLiveEvent -> {
+
+            if(booleanLiveEvent == null) {
+                return;
+            }
+
+            Boolean result = booleanLiveEvent.getDataOnceAndReset();
+            if(result != null && result) {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.create_content_placeholder, new BookVenueFragment())
+                        .addToBackStack(null)
+                        .commit();
+            }
+
+        });
+
+        createPostViewModel.getCreateFormTrigger().observe(this, booleanLiveEvent -> {
+
+            if(booleanLiveEvent == null) {
+                return;
+            }
+
+            Boolean result = booleanLiveEvent.getDataOnceAndReset();
+            if(result != null && result) {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.create_content_placeholder, new CreateFormFragment())
+                        .addToBackStack(null)
+                        .commit();
+            }
+
         });
     }
 

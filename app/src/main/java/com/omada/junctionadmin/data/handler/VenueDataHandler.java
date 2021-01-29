@@ -1,11 +1,18 @@
 package com.omada.junctionadmin.data.handler;
 
 import android.util.Log;
+import android.util.Pair;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -15,17 +22,22 @@ import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.models.converter.BookingModelConverter;
 import com.omada.junctionadmin.data.models.converter.VenueModelConverter;
 import com.omada.junctionadmin.data.models.external.BookingModel;
-import com.omada.junctionadmin.data.models.external.EventModel;
 import com.omada.junctionadmin.data.models.external.VenueModel;
 import com.omada.junctionadmin.data.models.internal.remote.BookingModelRemoteDB;
 import com.omada.junctionadmin.data.models.internal.remote.VenueModelRemoteDB;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.Map;
 
 
 public class VenueDataHandler extends BaseDataHandler {
@@ -71,51 +83,41 @@ public class VenueDataHandler extends BaseDataHandler {
     }
 
     // Gets all bookings between the start and end of a given day
-    public LiveData<LiveEvent<List<BookingModel>>> getVenueBookingsOn(
+    public LiveData<LiveEvent<List<Pair<LocalTime, LocalTime>>>> getVenueBookingsOn(
             DataRepository.DataRepositoryAccessIdentifier identifier, Date date, String venueId) {
 
-        MutableLiveData<LiveEvent<List<BookingModel>>> venueBookingsLiveData = new MutableLiveData<>();
+        MutableLiveData<LiveEvent<List<Pair<LocalTime, LocalTime>>>> venueBookingsLiveData = new MutableLiveData<>();
 
-        Calendar calendar = Calendar.getInstance();
-
-        calendar.setTime(date);
-
-        calendar.set(Calendar.HOUR, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        Timestamp lowerBoundDate = new Timestamp(calendar.getTime());
-
-        calendar.roll(Calendar.DATE, 1);
-        Timestamp upperBoundDate = new Timestamp(calendar.getTime());
-
-        FirebaseFirestore
+        FirebaseDatabase
                 .getInstance()
-                .collection("geography")
-                .document(venueId)
-                .collection("bookings")
-                .whereLessThan("startTime", upperBoundDate)
-                .whereGreaterThan("startTime", lowerBoundDate)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-
-                    List<BookingModel> bookingModels = new ArrayList<>();
-
-                    for(DocumentSnapshot documentSnapshot: queryDocumentSnapshots) {
-
-                        BookingModelRemoteDB modelRemoteDB = documentSnapshot.toObject(BookingModelRemoteDB.class);
-                        if (modelRemoteDB == null) {
-                            continue;
+                .getReference()
+                .child("bookings")
+                .child(venueId)
+                .child(LocalDate.from(date.toInstant()).format(DateTimeFormatter.ISO_DATE))
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if(snapshot == null){
+                            return;
                         }
-                        modelRemoteDB.setId(documentSnapshot.getId());
-                        bookingModels.add(
-                                bookingModelConverter.convertRemoteDBToExternalModel(modelRemoteDB)
-                        );
+                        List<Pair<LocalTime, LocalTime>> bookingsList = new ArrayList<>();
+                        for (DataSnapshot child : snapshot.getChildren()) {
+
+                            Long startTime = (Long) child.child("startTime").getValue();
+                            Long endTime = (Long) child.child("endTime").getValue();
+
+                            bookingsList.add(new Pair<>(
+                                    LocalTime.from(Instant.ofEpochSecond(startTime)),
+                                    LocalTime.from(Instant.ofEpochSecond(endTime))
+                            ));
+                        }
+                        venueBookingsLiveData.setValue(new LiveEvent<>(bookingsList));
                     }
-                    venueBookingsLiveData.setValue(new LiveEvent<>(bookingModels));
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("Venue", "Failed to retrieve venue bookings on given date");
-                    venueBookingsLiveData.setValue(null);
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e("Booking", "Error creating booking in realtime database");
+                        venueBookingsLiveData.setValue(new LiveEvent<>(null));
+                    }
                 });
 
         return venueBookingsLiveData;
@@ -124,7 +126,7 @@ public class VenueDataHandler extends BaseDataHandler {
 
     // package private because EventDataHandler needs access to this method but preferably
     // no other packages should be able to access it
-    void createNewBooking(BookingModel bookingModel, WriteBatch batch) {
+    Task<Void> createNewBooking(BookingModel bookingModel, WriteBatch batch) {
 
         DocumentReference docRef = FirebaseFirestore
                 .getInstance()
@@ -134,7 +136,24 @@ public class VenueDataHandler extends BaseDataHandler {
                 .document();
 
         batch.set(docRef, bookingModelConverter.convertExternalToRemoteDBModel(bookingModel));
-        
+
+        LocalDate date =
+                bookingModel.getStartTime().toDate().toInstant().atZone(ZoneId.of("UTC")).toLocalDate();
+
+        Map<String, Long> bookingData = new HashMap<>();
+        bookingData.put("startTime", bookingModel.getStartTime().toDate().toInstant().getEpochSecond());
+        bookingData.put("endTime", bookingModel.getEndTime().toDate().toInstant().getEpochSecond());
+
+        // Writing booking into JSON database for fast and cheap querying
+        return FirebaseDatabase
+                .getInstance()
+                .getReference()
+                .child("bookings")
+                .child(bookingModel.getVenue())
+                .child(date.format(DateTimeFormatter.ISO_DATE))
+                .push()
+                .setValue(bookingData);
+
     }
 
 }

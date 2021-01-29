@@ -45,6 +45,11 @@ public class MutableArticleModel extends ArticleModel {
         this.creatorMail = creatorMail;
     }
 
+    public void setCreatorInstitute(String institute) {
+        this.creatorInstitute = institute;
+    }
+
+
     public void setImage(String image) {
         this.image = image;
     }

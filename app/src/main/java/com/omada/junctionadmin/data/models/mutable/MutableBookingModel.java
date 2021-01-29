@@ -79,7 +79,10 @@ public class MutableBookingModel extends BookingModel {
         mutableBookingModel.setVenueInstitute(eventModel.getVenueInstitute());
         mutableBookingModel.setEvent(eventModel.getId());
         mutableBookingModel.setEventName(eventModel.getTitle());
-        mutableBookingModel.setTimeCreated(new Timestamp(eventModel.getTimeCreated()));
+
+        // TODO ServerTimestamp
+        //mutableBookingModel.setTimeCreated(new Timestamp(eventModel.getTimeCreated()));
+
         mutableBookingModel.setStartTime(new Timestamp(eventModel.getStartTime()));
         mutableBookingModel.setEndTime(new Timestamp(eventModel.getEndTime()));
         mutableBookingModel.setCreator(eventModel.getCreator());

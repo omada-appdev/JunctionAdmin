@@ -10,7 +10,6 @@ import androidx.lifecycle.Transformations;
 import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.utils.transform.TransformUtilities;
 
-import java.sql.Timestamp;
 import java.util.Date;
 
 
@@ -29,6 +28,9 @@ import java.util.Date;
 public class DataValidator {
 
 
+    public static final int EVENT_DESCRIPTION_MAX_SIZE = 100;
+    public static final int EVENT_TITLE_MAX_SIZE = 30;
+    public static final int EVENT_TITLE_MIN_SIZE = 5;
     private static final String EMAIL_VERIFICATION_REGEX =
             "^([_a-zA-Z0-9-]+(\\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*(\\.[a-zA-Z]{1,6}))?$";
 
@@ -43,15 +45,17 @@ public class DataValidator {
         VALIDATION_POINT_NAME,
         VALIDATION_POINT_EMAIL,
         VALIDATION_POINT_DATE_OF_BIRTH,
-        VALIDATION_POINT_INSTITUTE,
+        VALIDATION_POINT_INSTITUTE_HANDLE,
         VALIDATION_POINT_PASSWORD,
         VALIDATION_POINT_INTERESTS,
 
         VALIDATION_POINT_PROFILE_PICTURE,
+        VALIDATION_POINT_IMAGE,
+
+        VALIDATION_POINT_EVENT_TITLE,
+        VALIDATION_POINT_EVENT_DESCRIPTION,
 
         VALIDATION_POINT_EVENT_TIMINGS,
-        VALIDATION_POINT_EVENT_DESC,
-        VALIDATION_POINT_EVENT_TITLE,
 
         VALIDATION_POINT_ARTICLE_TITLE,
         VALIDATION_POINT_ARTICLE_AUTHOR,
@@ -109,6 +113,14 @@ public class DataValidator {
         listener.onValidationComplete(validatePassword(password));
     }
 
+    public void validateEventTitle(String title, OnValidationCompleteListener listener) {
+        listener.onValidationComplete(validateEventTitle(title));
+    }
+
+    public void validateEventDescription(String description, OnValidationCompleteListener listener) {
+        listener.onValidationComplete(validateEventDescription(description));
+    }
+
     /*
       STUB
      */
@@ -116,6 +128,12 @@ public class DataValidator {
     public void validateProfilePicture (Uri uri, OnValidationCompleteListener listener) {
         listener.onValidationComplete(validateProfilePicture(uri));
     }
+
+    public void validateImage (Uri uri, OnValidationCompleteListener listener) {
+        listener.onValidationComplete(validateImage(uri));
+    }
+
+
 
     private DataValidationInformation validateName(String name) {
 
@@ -181,7 +199,7 @@ public class DataValidator {
 
         if(institute == null || institute.equals("")){
             return new MutableLiveData<>(new LiveEvent<>(new DataValidationInformation(
-                    DataValidationPoint.VALIDATION_POINT_INSTITUTE,
+                    DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
                     DataValidationResult.VALIDATION_RESULT_INVALID
             )));
         }
@@ -196,12 +214,12 @@ public class DataValidator {
                     Boolean result = input.getDataOnceAndReset();
                     if (result != null && result) {
                         return new LiveEvent<>(new DataValidationInformation(
-                                DataValidationPoint.VALIDATION_POINT_INSTITUTE,
+                                DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
                                 DataValidationResult.VALIDATION_RESULT_VALID
                         ));
                     } else {
                         return new LiveEvent<>(new DataValidationInformation(
-                                DataValidationPoint.VALIDATION_POINT_INSTITUTE,
+                                DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
                                 DataValidationResult.VALIDATION_RESULT_INVALID
                         ));
                     }
@@ -218,6 +236,72 @@ public class DataValidator {
         } else {
             return new DataValidationInformation(
                     DataValidationPoint.VALIDATION_POINT_PROFILE_PICTURE,
+                    DataValidationResult.VALIDATION_RESULT_VALID
+            );
+        }
+    }
+
+    private DataValidationInformation validateEventDescription(String description) {
+
+        if(description == null || description.equals("")) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EVENT_DESCRIPTION,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        }
+        else if (description.length() > EVENT_DESCRIPTION_MAX_SIZE) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EVENT_DESCRIPTION,
+                    DataValidationResult.VALIDATION_RESULT_OVERFLOW
+            );
+        }
+        else {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EVENT_DESCRIPTION,
+                    DataValidationResult.VALIDATION_RESULT_VALID
+            );
+        }
+
+    }
+
+    private DataValidationInformation validateEventTitle(String title) {
+
+        if(title == null || title.equals("")) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EVENT_TITLE,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        }
+        else if (title.length() > EVENT_TITLE_MAX_SIZE) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EVENT_TITLE,
+                    DataValidationResult.VALIDATION_RESULT_OVERFLOW
+            );
+        }
+        else if (title.length() < EVENT_TITLE_MIN_SIZE) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EVENT_TITLE,
+                    DataValidationResult.VALIDATION_RESULT_UNDERFLOW
+            );
+        }
+        else {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EVENT_TITLE,
+                    DataValidationResult.VALIDATION_RESULT_VALID
+            );
+        }
+
+    }
+
+    private DataValidationInformation validateImage(Uri uri) {
+        if (uri == null) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_IMAGE,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        } else {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_IMAGE,
                     DataValidationResult.VALIDATION_RESULT_VALID
             );
         }

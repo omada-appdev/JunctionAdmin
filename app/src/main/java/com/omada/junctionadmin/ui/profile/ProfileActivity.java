@@ -25,14 +25,14 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.more_activity_layout);
+        setContentView(R.layout.profile_activity_layout);
 
         userProfileViewModel = new ViewModelProvider(this).get(UserProfileViewModel.class);
 
         if(savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.more_content_placeholder, new ProfileFragment())
+                    .replace(R.id.profile_content_placeholder, new ProfileFragment())
                     .commit();
         }
 
@@ -42,7 +42,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void setupBottomNavigation(){
 
-        BottomNavigationView bottomMenu = findViewById(R.id.more_bottom_navigation);
+        BottomNavigationView bottomMenu = findViewById(R.id.bottom_navigation);
         bottomMenu.getMenu().findItem(R.id.profile_button).setChecked(true);
         bottomMenu.setOnNavigationItemSelectedListener(item -> {
 
@@ -114,7 +114,7 @@ public class ProfileActivity extends AppCompatActivity {
 
                         getSupportFragmentManager()
                                 .beginTransaction()
-                                .replace(R.id.more_content_placeholder, new ProfileEditDetailsFragment())
+                                .replace(R.id.profile_content_placeholder, new ProfileEditDetailsFragment())
                                 .addToBackStack(null)
                                 .commit();
 
@@ -133,7 +133,7 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        BottomNavigationView bottomMenu = findViewById(R.id.more_bottom_navigation);
+        BottomNavigationView bottomMenu = findViewById(R.id.bottom_navigation);
         bottomMenu.getMenu().findItem(R.id.profile_button).setChecked(true);
     }
 

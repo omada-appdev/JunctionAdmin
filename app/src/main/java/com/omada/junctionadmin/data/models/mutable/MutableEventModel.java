@@ -84,4 +84,8 @@ public class MutableEventModel extends EventModel {
         this.creatorMail = creatorMail;
     }
 
+    public void setCreatorInstitute(String institute) {
+        this.creatorInstitute = institute;
+    }
+
 }

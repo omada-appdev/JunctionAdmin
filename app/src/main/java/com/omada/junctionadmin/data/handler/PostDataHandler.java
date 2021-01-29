@@ -1,5 +1,6 @@
 package com.omada.junctionadmin.data.handler;
 
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -24,7 +25,9 @@ import com.omada.junctionadmin.data.models.external.RegistrationModel;
 import com.omada.junctionadmin.data.models.internal.remote.ArticleModelRemoteDB;
 import com.omada.junctionadmin.data.models.internal.remote.EventModelRemoteDB;
 import com.omada.junctionadmin.data.models.internal.remote.RegistrationModelRemoteDB;
+import com.omada.junctionadmin.data.models.mutable.MutableArticleModel;
 import com.omada.junctionadmin.data.models.mutable.MutableBookingModel;
+import com.omada.junctionadmin.data.models.mutable.MutableEventModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.util.ArrayList;
@@ -241,22 +244,26 @@ public class PostDataHandler extends BaseDataHandler {
 
         MutableLiveData<LiveEvent<Boolean>> resultLiveData = new MutableLiveData<>();
 
+        // creating batch to write booking and upload event in same batch
         WriteBatch batch = FirebaseFirestore.getInstance().batch();
 
         // Generate a new random Id to correlate booking and event
-        String randomId = FirebaseFirestore.getInstance()
+        String generatedId = FirebaseFirestore.getInstance()
                 .collection("posts").document().getId();
 
 
+        Uri imagePath = null;
         Object data = null;
         Class<? extends PostModel> postClass = postModel.getClass();
 
-        if (EventModel.class.equals(postClass)) {
+        if (EventCreatorModel.class.equals(postClass)) {
 
-            EventModel eventModel = (EventModel) postModel;
+            EventCreatorModel eventModel = (EventCreatorModel) postModel;
+            imagePath = eventModel.getImagePath();
+
+            // id needed for creating booking
+            eventModel.setId(generatedId);
             data = eventModelConverter.convertExternalToRemoteDBModel(eventModel);
-
-            eventModel.setId(randomId);
 
             // Creating a new booking in the write batch
             DataRepository
@@ -264,8 +271,14 @@ public class PostDataHandler extends BaseDataHandler {
                     .getVenueDataHandler()
                     .createNewBooking(MutableBookingModel.fromEventModel(eventModel), batch);
         }
-        else if (ArticleModel.class.equals(postClass)) {
+        else if (ArticleCreatorModel.class.equals(postClass)) {
+            imagePath = ((ArticleCreatorModel)postModel).getImagePath();
             data = articleModelConverter.convertExternalToRemoteDBModel((ArticleModel) postModel);
+        }
+        else {
+            throw new UnsupportedOperationException(
+                    "Attempt to upload a post object that does not extend the required classes. Please ensure your post model extends ArticleCreatorModel or EventCreatorModel"
+            );
         }
 
         if(data == null){
@@ -273,23 +286,51 @@ public class PostDataHandler extends BaseDataHandler {
             return resultLiveData;
         }
 
-        DocumentReference eventDocRef = FirebaseFirestore.getInstance()
+        DocumentReference postDocRef = FirebaseFirestore.getInstance()
                 .collection("posts")
-                .document(randomId);
+                .document(generatedId);
 
-        batch.set(eventDocRef, data);
+        // for lambda
+        Object finalData = data;
+        DataRepository.getInstance()
+                .getImageUploadHandler()
+                .uploadPostImage(imagePath, generatedId, postModel.getCreator())
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()) {
 
-        batch.commit()
-                .addOnSuccessListener(aVoid -> {
-                    resultLiveData.setValue(new LiveEvent<>(true));
-                })
-                .addOnFailureListener(e -> {
-                    resultLiveData.setValue(new LiveEvent<>(false));
-                    Log.e("Post", "Error creating post");
+                        String path = task.getResult().getMetadata().getReference().toString();
+
+                        setImagePath(finalData, path);
+                        batch.set(postDocRef, finalData);
+                        batch.commit()
+                                .addOnSuccessListener(aVoid -> {
+                                    resultLiveData.setValue(new LiveEvent<>(true));
+                                    Log.e("Post", "Create post success");
+                                })
+                                .addOnFailureListener(e -> {
+                                    resultLiveData.setValue(new LiveEvent<>(false));
+                                    Log.e("Post", "Error creating post");
+                                });
+                    }
+                    else {
+                        resultLiveData.setValue(new LiveEvent<>(false));
+                        Log.e("Post", "Error uploading post image");
+                    }
+
                 });
 
         return resultLiveData;
 
+    }
+
+    private void setImagePath(Object data, String image) {
+        if(data instanceof EventModelRemoteDB) {
+            ((EventModelRemoteDB)data).setImage(image);
+        } else if (data instanceof ArticleModelRemoteDB) {
+            ((ArticleModelRemoteDB)data).setImage(image);
+        } else {
+            throw new UnsupportedOperationException("Provided object does not meet requirements for being a post");
+        }
     }
 
     public LiveData<LiveEvent<Boolean>> deletePost(String postID){
@@ -486,4 +527,29 @@ public class PostDataHandler extends BaseDataHandler {
         return registrationModelConverter.convertRemoteDBToExternalModel(modelRemoteDB);
     }
 
+    public static class EventCreatorModel extends MutableEventModel {
+
+        private Uri imagePath;
+
+        public Uri getImagePath() {
+            return imagePath;
+        }
+
+        public void setImagePath(Uri imagePath) {
+            this.imagePath = imagePath;
+        }
+    }
+
+    public static class ArticleCreatorModel extends MutableArticleModel {
+
+        private Uri imagePath;
+
+        public Uri getImagePath() {
+            return imagePath;
+        }
+
+        public void setImagePath(Uri imagePath) {
+            this.imagePath = imagePath;
+        }
+    }
 }

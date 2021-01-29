@@ -9,6 +9,7 @@
 
         <item name="android:windowDisablePreview">true</item>
         <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
 
         <item name="materialCardViewStyle">@style/Widget.AppTheme.GlobalCardStyle</item>
 
@@ -16,6 +17,11 @@
 
     <style name="Theme.AppTheme.SplashScreenTheme" parent="Theme.AppTheme">
         <item name="android:windowBackground">@drawable/some_image</item>
+    </style>
+
+    <style name="TextAppearance.AppTheme.BoldBody" parent="TextAppearance.MaterialComponents.Body1">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">18sp</item>
     </style>
 
     <style name="Widget.AppTheme.GlobalCardStyle" parent="Widget.MaterialComponents.CardView">

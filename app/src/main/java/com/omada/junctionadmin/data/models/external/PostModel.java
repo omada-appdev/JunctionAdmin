@@ -20,8 +20,9 @@ public abstract class PostModel extends BaseModel {
     protected String creatorProfilePicture;
     protected String creatorMail;
     protected String creatorPhone;
+    protected String creatorInstitute;
 
-    protected ImmutableList<String> tags;
+    protected ImmutableList<String> tags = ImmutableList.copyOf(new ArrayList<>());
 
     public String getType() {
         return type;
@@ -57,6 +58,10 @@ public abstract class PostModel extends BaseModel {
 
     public String getCreatorProfilePicture() {
         return creatorProfilePicture;
+    }
+
+    public String getCreatorInstitute() {
+        return creatorInstitute;
     }
 
     public ImmutableList<String> getTags() {

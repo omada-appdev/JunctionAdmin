@@ -2,9 +2,6 @@ package com.omada.junctionadmin.data.handler;
 
 import android.net.Uri;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -13,8 +10,26 @@ import com.omada.junctionadmin.data.BaseDataHandler;
 
 public class ImageUploadHandler extends BaseDataHandler {
 
+    public enum ImageUrlScheme {
+        IMAGE_URL_GS,
+        IMAGE_URL_HTTP
+    }
+
     public void uploadImage(String uri) {
 
+    }
+
+    public UploadTask uploadPostImage(Uri path, String postId, String uid) {
+
+        StorageReference reference = FirebaseStorage
+                .getInstance()
+                .getReference()
+                .child("organizationFiles")
+                .child(uid)
+                .child("posts")
+                .child(postId);
+
+        return reference.putFile(path);
     }
 
     public Task<Uri> uploadProfilePictureWithTask(Uri path, String uid) {

@@ -1,6 +1,7 @@
 package com.omada.junctionadmin.viewmodels;
 
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -10,6 +11,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.omada.junctionadmin.data.DataRepository;
+import com.omada.junctionadmin.data.handler.InstituteDataHandler;
 import com.omada.junctionadmin.data.handler.UserDataHandler;
 import com.omada.junctionadmin.data.models.external.ArticleModel;
 import com.omada.junctionadmin.data.models.external.EventModel;
@@ -231,23 +233,69 @@ public class UserProfileViewModel extends BaseViewModel {
         if(organizationUpdater.newProfilePicture.getValue() != null) {
             userOrganizationModel.setProfilePicturePath(organizationUpdater.newProfilePicture.getValue());
         }
-        dataValidator.validateInstitute(organizationUpdater.institute.getValue(), dataValidationInformation -> {
-            if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
-                userOrganizationModel.setInstitute(
-                        organizationUpdater.institute.getValue()
-                );
+        dataValidator.validateInstitute(organizationUpdater.instituteHandle.getValue(), dataValidationInformation -> {
+
+            boolean reFetching = false;
+            if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID){
+                String id = InstituteDataHandler.getCachedInstituteId(organizationUpdater.instituteHandle.getValue());
+                if (id == null || id.equals("")) {
+
+                    reFetching = true;
+                    LiveData<LiveEvent<String>> reFetchedId = DataRepository
+                            .getInstance()
+                            .getInstituteDataHandler()
+                            .getInstituteId(organizationUpdater.instituteHandle.getValue());
+
+                    reFetchedId.observeForever(new Observer<LiveEvent<String>>() {
+                        @Override
+                        public void onChanged(LiveEvent<String> stringLiveEvent) {
+                            if(stringLiveEvent == null) {
+                                return;
+                            }
+                            String result = stringLiveEvent.getDataOnceAndReset();
+                            DataValidator.DataValidationInformation newValidationInformation;
+
+                            if(result != null && !result.equals("notFound")){
+                                userOrganizationModel.setInstitute(result);
+                                newValidationInformation = new DataValidator.DataValidationInformation(
+                                        DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                                        DataValidator.DataValidationResult.VALIDATION_RESULT_VALID
+                                );
+                            }
+                            else {
+                                newValidationInformation = new DataValidator.DataValidationInformation(
+                                        DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                                        DataValidator.DataValidationResult.VALIDATION_RESULT_INVALID
+                                );
+                            }
+
+                            validationAggregator.holdData(
+                                    DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                                    newValidationInformation
+                            );
+                            notifyValidity(newValidationInformation);
+                            reFetchedId.removeObserver(this);
+                        }});
+
+                } else {
+                    userOrganizationModel.setInstitute(id);
+                }
             }
-            validationAggregator.holdData(
-                    DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE,
-                    dataValidationInformation
-            );
-            notifyValidity(dataValidationInformation);
+            if(!reFetching) {
+                validationAggregator.holdData(
+                        DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                        dataValidationInformation
+                );
+                notifyValidity(dataValidationInformation);
+            }
         });
+
 
         dataValidator.validateName(organizationUpdater.name.getValue(), dataValidationInformation -> {
             if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                 userOrganizationModel.setName(
-                        organizationUpdater.name.getValue()                );
+                        organizationUpdater.name.getValue()
+                );
             }
             validationAggregator.holdData(
                     DataValidator.DataValidationPoint.VALIDATION_POINT_NAME,
@@ -310,8 +358,7 @@ public class UserProfileViewModel extends BaseViewModel {
     }
 
     public void resetUpdater() {
-        organizationUpdater.institute.setValue(organizationModel.getInstitute());
-        organizationUpdater.name.setValue(organizationModel.getName());
+        organizationUpdater.setValues(organizationModel);
     }
 
     public LiveData<OrganizationModel> getUserUpdateAction() {
@@ -323,7 +370,7 @@ public class UserProfileViewModel extends BaseViewModel {
         public final MutableLiveData<String> name = new MutableLiveData<>();
         public final MutableLiveData<String> phone = new MutableLiveData<>();
         public final MutableLiveData<Uri> newProfilePicture = new MutableLiveData<>();
-        public final MutableLiveData<String> institute = new MutableLiveData<>();
+        public final MutableLiveData<String> instituteHandle = new MutableLiveData<>();
         private String profilePicture;
 
         private OrganizationUpdater() {
@@ -332,7 +379,25 @@ public class UserProfileViewModel extends BaseViewModel {
         private void setValues(OrganizationModel model) {
             name.setValue(model.getName());
             phone.setValue(model.getPhone());
-            institute.setValue(model.getInstitute());
+
+            LiveData<LiveEvent<String>> handleLiveData = DataRepository.getInstance()
+                    .getInstituteDataHandler()
+                    .getInstituteHandle(model.getInstitute());
+
+            handleLiveData.observeForever(new Observer<LiveEvent<String>>() {
+                @Override
+                public void onChanged(LiveEvent<String> stringLiveEvent) {
+                    if (stringLiveEvent == null) {
+                        return;
+                    }
+                    String handle = stringLiveEvent.getDataOnceAndReset();
+                    if (handle == null || handle.equals("notFound")) {
+                        return;
+                    }
+                    instituteHandle.postValue(handle);
+                    handleLiveData.removeObserver(this);
+                }
+            });
             setProfilePicture(model.getProfilePicture());
         }
 
@@ -413,7 +478,7 @@ public class UserProfileViewModel extends BaseViewModel {
 
         static {
             allValidationPoints.add(DataValidator.DataValidationPoint.VALIDATION_POINT_NAME);
-            allValidationPoints.add(DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE);
+            allValidationPoints.add(DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE);
         }
 
         public ValidationAggregator(MediatorLiveData<DataValidator.DataValidationInformation> destination) {

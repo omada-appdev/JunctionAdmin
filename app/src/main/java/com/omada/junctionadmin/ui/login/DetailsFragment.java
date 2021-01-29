@@ -5,9 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -18,8 +16,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -29,37 +25,19 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.loader.content.CursorLoader;
 
-import com.google.android.gms.common.util.IOUtils;
-import com.google.android.material.datepicker.CalendarConstraints;
-import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.imageview.ShapeableImageView;
-import com.google.firebase.storage.FirebaseStorage;
 import com.omada.junctionadmin.R;
-import com.omada.junctionadmin.application.JunctionAdminApplication;
-import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.handler.UserDataHandler;
 import com.omada.junctionadmin.databinding.LoginDetailsFragmentLayoutBinding;
 import com.omada.junctionadmin.utils.image.ImageUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
-import com.omada.junctionadmin.utils.transform.TransformUtilities;
 import com.omada.junctionadmin.viewmodels.LoginViewModel;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.StandardCopyOption;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import me.shouheng.utils.UtilsApp;
-import me.shouheng.utils.store.FileUtils;
-import me.shouheng.utils.store.PathUtils;
 
 public class DetailsFragment extends Fragment {
 
@@ -133,7 +111,7 @@ public class DetailsFragment extends Fragment {
                                 binding.nameLayout.setError("Invalid name");
                             }
                             break;
-                        case VALIDATION_POINT_INSTITUTE:
+                        case VALIDATION_POINT_INSTITUTE_HANDLE:
                             if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                                 binding.instituteLayout.setError("Invalid institute");
                             }

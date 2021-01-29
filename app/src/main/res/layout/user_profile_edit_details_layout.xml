@@ -97,7 +97,7 @@
                         android:id="@+id/institute_input"
                         android:inputType="textPostalAddress"
                         android:background="@color/transparent"
-                        android:text="@={viewModel.organizationUpdater.institute}"/>
+                        android:text="@={viewModel.organizationUpdater.instituteHandle}"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>

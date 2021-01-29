@@ -24,7 +24,8 @@ import java.util.Map;
 
 public class InstituteDataHandler extends BaseDataHandler {
 
-    private final InstituteModelConverter instituteModelConverter = new InstituteModelConverter();
+    private static final Map<String, String> instituteHandleToIdCache = new HashMap<>();
+    private static final Map<String, String> instituteIdToHandleCache = new HashMap<>();
 
     public LiveData<LiveEvent<InstituteModel>> getInstituteDetails(String instituteID) {
 
@@ -57,6 +58,7 @@ public class InstituteDataHandler extends BaseDataHandler {
         return instituteModelLiveData;
 
     }
+    private final InstituteModelConverter instituteModelConverter = new InstituteModelConverter();
 
     public LiveData<LiveEvent<Boolean>> updateInstituteDetails(InstituteModel changedInstituteModel) {
 
@@ -99,10 +101,12 @@ public class InstituteDataHandler extends BaseDataHandler {
 
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (!snapshot.exists()) {
-                                resultLiveData.setValue(new LiveEvent<>(false));
-                            } else {
+                            if (snapshot.exists() && snapshot.getValue() instanceof String){
+                                instituteHandleToIdCache.put(snapshot.getKey(), (String) snapshot.getValue());
                                 resultLiveData.setValue(new LiveEvent<>(true));
+                            }
+                            else {
+                                resultLiveData.setValue(new LiveEvent<>(false));
                             }
                         }
 
@@ -118,5 +122,94 @@ public class InstituteDataHandler extends BaseDataHandler {
         }
 
         return resultLiveData;
+    }
+
+    public LiveData<LiveEvent<String>> getInstituteId(String handle) {
+
+        MutableLiveData<LiveEvent<String>> resultLiveData = new MutableLiveData<>();
+
+        if (handle == null){
+            resultLiveData.setValue(new LiveEvent<>("notFound"));
+        }
+        else if (instituteHandleToIdCache.get(handle) != null) {
+            resultLiveData.setValue(new LiveEvent<>(instituteIdToHandleCache.get(handle)));
+        }
+        else {
+            FirebaseDatabase
+                    .getInstance()
+                    .getReference()
+                    .child("instituteHandles")
+                    .child(handle)
+                    .addValueEventListener(new ValueEventListener() {
+
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (snapshot.exists() && snapshot.getValue() instanceof String){
+                                instituteHandleToIdCache.put(snapshot.getKey(), (String) snapshot.getValue());
+                                instituteIdToHandleCache.put((String)snapshot.getValue(), snapshot.getKey());
+                                resultLiveData.setValue(new LiveEvent<>((String) snapshot.getValue()));
+                            }
+                            else {
+                                resultLiveData.setValue(new LiveEvent<>("notFound"));
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            resultLiveData.setValue(new LiveEvent<>("notFound"));
+                            Log.e("Institute", "Error checking institute code validity");
+                        }
+                    });
+        }
+
+        return resultLiveData;
+    }
+
+    public LiveData<LiveEvent<String>> getInstituteHandle(String id) {
+
+        MutableLiveData<LiveEvent<String>> resultLiveData = new MutableLiveData<>();
+
+        if (id == null){
+            resultLiveData.setValue(new LiveEvent<>("notFound"));
+        }
+        else if (instituteIdToHandleCache.get(id) != null) {
+            resultLiveData.setValue(new LiveEvent<>(instituteIdToHandleCache.get(id)));
+        }
+        else {
+            FirebaseDatabase
+                    .getInstance()
+                    .getReference()
+                    .child("instituteIds")
+                    .child(id)
+                    .addValueEventListener(new ValueEventListener() {
+
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (snapshot.exists() && snapshot.getValue() instanceof String){
+                                instituteHandleToIdCache.put(snapshot.getKey(), (String) snapshot.getValue());
+                                instituteIdToHandleCache.put((String)snapshot.getValue(), snapshot.getKey());
+                                resultLiveData.setValue(new LiveEvent<>((String) snapshot.getValue()));
+                            }
+                            else {
+                                resultLiveData.setValue(new LiveEvent<>("notFound"));
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            resultLiveData.setValue(new LiveEvent<>("notFound"));
+                            Log.e("Institute", "Error checking institute code validity");
+                        }
+                    });
+        }
+        return resultLiveData;
+    }
+
+    public static String getCachedInstituteId(String handle) {
+        return instituteHandleToIdCache.get(handle);
+    }
+
+    public static String getCachedInstituteHandle(String id) {
+        return instituteIdToHandleCache.get(id);
     }
 }

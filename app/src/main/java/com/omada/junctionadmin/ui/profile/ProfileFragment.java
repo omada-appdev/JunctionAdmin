@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.GravityCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -15,10 +14,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
-import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.databinding.UserProfileFragmentLayoutBinding;
 import com.omada.junctionadmin.ui.uicomponents.CustomBindings;
 import com.omada.junctionadmin.viewmodels.UserProfileViewModel;
+
+import static com.omada.junctionadmin.R.*;
 
 public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetChangedListener {
 
@@ -33,7 +33,7 @@ public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetCh
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        UserProfileFragmentLayoutBinding binding = DataBindingUtil.inflate(inflater, R.layout.user_profile_fragment_layout, container, false);
+        UserProfileFragmentLayoutBinding binding = DataBindingUtil.inflate(inflater, layout.user_profile_fragment_layout, container, false);
         this.binding = binding;
 
         binding.setViewModel(
@@ -55,12 +55,8 @@ public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetCh
                     CustomBindings.loadImageUrl(binding.userProfileImage, organizationModel.getProfilePicture());
                 });
 
-        binding.userProfileUpcomingEventsRecyclerView.setLayoutManager(
-                new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false)
-        );
-
-        binding.userProfileAchievementsRecyclerView.setLayoutManager(
-                new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false)
+        binding.recyclerView.setLayoutManager(
+                new LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         );
 
         binding.toolbar.setNavigationOnClickListener(v -> {
@@ -69,14 +65,13 @@ public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetCh
 
         binding.navigationView.setNavigationItemSelectedListener(item -> {
 
-            switch (item.getItemId()){
-                case R.id.sign_out_button:
-                    binding.getViewModel().signOutUser();
-                    break;
-                default:
-                    break;
+            int itemId = item.getItemId();
+            if (itemId == id.institute_button) {
+            } else if (itemId == id.members_button) {
+            } else if (itemId == id.settings_button) {
+            } else if (itemId == id.feedback_button) {
+            } else {
             }
-            item.setChecked(true);
             binding.drawerLayout.closeDrawers();
             return true;
         });
@@ -85,13 +80,21 @@ public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetCh
 
     }
 
+    /*
+    All this mental gymnastics with a flag variable is because there is an infinite loop
+    somewhere and it is probably a bug in the Android SDK
+    TODO file an issue if non existent
+     */
+    private boolean titleSetFlag = false;
     @Override
     public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
 
-        if (-verticalOffset >= binding.profileDetails.getHeight()) {
+        if (!titleSetFlag && -verticalOffset >= binding.profileDetails.getHeight()) {
+            titleSetFlag = true;
             binding.toolbar.setTitle("Your Profile");
         }
-        else {
+        else if (titleSetFlag && -verticalOffset < binding.profileDetails.getHeight()) {
+            titleSetFlag = false;
             binding.toolbar.setTitle("");
         }
     }

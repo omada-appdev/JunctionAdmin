@@ -186,51 +186,29 @@
 
                 </com.google.android.material.appbar.AppBarLayout>
 
-                <androidx.core.widget.NestedScrollView
-                    android:id="@+id/user_profile_contents"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    app:layout_behavior=".ui.uicomponents.behaviors.CoordinatedChildBehaviour">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-                        <com.google.android.material.card.MaterialCardView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
-
-                            <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/user_profile_achievements_recycler_view"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"/>
-
-                        </com.google.android.material.card.MaterialCardView>
-
-                        <com.google.android.material.card.MaterialCardView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
-
-                            <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/user_profile_upcoming_events_recycler_view"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"/>
-
-                        </com.google.android.material.card.MaterialCardView>
-
-                    </LinearLayout>
-
-                </androidx.core.widget.NestedScrollView>
+                    app:layout_behavior=".ui.uicomponents.behaviors.CoordinatedChildBehaviour"/>
 
             </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
             <com.google.android.material.navigation.NavigationView
                 android:id="@+id/navigation_view"
-                android:layout_width="200dp"
+                android:layout_width="240dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="start"
-                app:menu="@menu/user_profile_drawer_menu"/>
+                app:menu="@menu/user_profile_drawer_menu">
+                <com.google.android.material.button.MaterialButton
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="sign out"
+                    android:backgroundTint="#A21122"
+                    android:layout_margin="8dp"
+                    android:layout_gravity="bottom"
+                    android:onClick="@{()->viewModel.signOutUser()}"/>
+            </com.google.android.material.navigation.NavigationView>
 
         </androidx.drawerlayout.widget.DrawerLayout>
     </RelativeLayout>

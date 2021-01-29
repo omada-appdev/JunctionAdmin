@@ -65,6 +65,7 @@ public class ProfileEditDetailsFragment extends Fragment {
         binding.setViewModel(
                 new ViewModelProvider(requireActivity()).get(UserProfileViewModel.class)
         );
+        binding.setLifecycleOwner(this);
 
         return binding.getRoot();
 
@@ -143,7 +144,7 @@ public class ProfileEditDetailsFragment extends Fragment {
                                     binding.nameLayout.setError("Invalid name");
                                 }
                                 break;
-                            case VALIDATION_POINT_INSTITUTE:
+                            case VALIDATION_POINT_INSTITUTE_HANDLE:
                                 if(dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                                     binding.instituteLayout.setError("Invalid institute");
                                 }

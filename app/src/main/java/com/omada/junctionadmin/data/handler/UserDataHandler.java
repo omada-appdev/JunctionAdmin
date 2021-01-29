@@ -120,7 +120,7 @@ public class UserDataHandler extends BaseDataHandler {
             DataRepository
                     .getInstance()
                     .getImageUploadHandler()
-                    .uploadProfilePictureWithTask(profilePicturePath, details.getId())
+                    .uploadProfilePictureWithTask(profilePicturePath, user.getUid())
                     .addOnCompleteListener(uri -> {
 
                         details.setProfilePicture(uri.getResult().toString());
@@ -294,6 +294,8 @@ public class UserDataHandler extends BaseDataHandler {
                 .update(updates)
                 .addOnSuccessListener(aVoid -> {
 
+                    Log.e("Update", "success");
+                    Log.e("Update", "institute " + updates.get("institute"));
                     Log.e("Update", "success");
                     signedInUser.setInstitute((String) updates.get("institute"));
                     signedInUser.setName((String) updates.get("name"));

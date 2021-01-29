@@ -30,6 +30,7 @@ public class ArticleModelConverter extends BaseConverter <ArticleModel, ArticleM
         model.setCreatorMail(remoteModel.getCreatorCache().get("profilePicture"));
         model.setCreatorPhone(remoteModel.getCreatorCache().get("profilePicture"));
         model.setCreatorProfilePicture(remoteModel.getCreatorCache().get("profilePicture"));
+        model.setCreatorInstitute(remoteModel.getCreatorCache().get("institute"));
         model.setAuthor(remoteModel.getAuthor());
         model.setImage(remoteModel.getImage());
         model.setTimeCreated(remoteModel.getTimeCreated().toDate());
@@ -55,6 +56,7 @@ public class ArticleModelConverter extends BaseConverter <ArticleModel, ArticleM
         creatorCache.put("phone", externalModel.getCreatorPhone());
         creatorCache.put("mail", externalModel.getCreatorMail());
         creatorCache.put("profilePicture", externalModel.getCreatorProfilePicture());
+        creatorCache.put("institute", externalModel.getCreatorInstitute());
         modelRemoteDB.setCreatorCache(creatorCache);
 
         modelRemoteDB.setTags(externalModel.getTags());

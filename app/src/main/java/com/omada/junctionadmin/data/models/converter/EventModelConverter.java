@@ -33,6 +33,7 @@ public class EventModelConverter extends BaseConverter <EventModel, EventModelRe
         model.setCreatorPhone(remoteModel.getCreatorCache().get("phone"));
         model.setCreatorProfilePicture(remoteModel.getCreatorCache().get("profilePicture"));
         model.setCreatorMail(remoteModel.getCreatorCache().get("mail"));
+        model.setCreatorInstitute(remoteModel.getCreatorCache().get("institute"));
 
         model.setForm(remoteModel.getForm());
 
@@ -69,7 +70,7 @@ public class EventModelConverter extends BaseConverter <EventModel, EventModelRe
         creatorCache.put("phone", externalModel.getCreatorPhone());
         creatorCache.put("mail", externalModel.getCreatorMail());
         creatorCache.put("profilePicture", externalModel.getCreatorProfilePicture());
-
+        creatorCache.put("institute", externalModel.getCreatorInstitute());
         model.setCreatorCache(creatorCache);
 
         model.setForm(externalModel.getForm());
@@ -77,7 +78,6 @@ public class EventModelConverter extends BaseConverter <EventModel, EventModelRe
         model.setStatus(externalModel.getStatus());
         model.setStartTime(new Timestamp(externalModel.getStartTime()));
         model.setEndTime(new Timestamp(externalModel.getEndTime()));
-        model.setTimeCreated(new Timestamp(externalModel.getTimeCreated()));
 
         model.setVenue(externalModel.getVenue());
 

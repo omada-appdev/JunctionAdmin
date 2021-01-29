@@ -36,7 +36,12 @@ public class OrganizationModel extends BaseModel {
         phone = externalModel.getPhone();
         profilePicture = externalModel.getProfilePicture();
 
-        interests = new ArrayList<>(externalModel.getInterests());
+        if(externalModel.getInterests() != null) {
+            interests = new ArrayList<>(externalModel.getInterests());
+        }
+        else {
+            interests = new ArrayList<>();
+        }
         attendedUsersNumber = externalModel.getAttendedUsersNumber();
         heldEventsNumber = externalModel.getHeldEventsNumber();
 

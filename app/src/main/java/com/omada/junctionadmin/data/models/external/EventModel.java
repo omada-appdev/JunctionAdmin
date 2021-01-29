@@ -43,6 +43,7 @@ public class EventModel extends PostModel {
         creatorPhone = in.readString();
         creatorMail = in.readString();
         creatorProfilePicture = in.readString();
+        creatorInstitute = in.readString();
         image = in.readString();
         status = in.readString();
         startTime = new Date(in.readLong());
@@ -118,6 +119,7 @@ public class EventModel extends PostModel {
         dest.writeString(creatorPhone);
         dest.writeString(creatorMail);
         dest.writeString(creatorProfilePicture);
+        dest.writeString(creatorInstitute);
         dest.writeString(image);
         dest.writeString(status);
         dest.writeLong(startTime.getTime());

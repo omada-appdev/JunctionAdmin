@@ -28,6 +28,7 @@ public class ArticleModel extends PostModel {
         creatorPhone = in.readString();
         creatorProfilePicture = in.readString();
         creatorMail = in.readString();
+        creatorInstitute = in.readString();
         image = in.readString();
         tags = ImmutableList.copyOf(in.createStringArrayList());
         timeCreated = new Date(in.readLong());
@@ -69,6 +70,7 @@ public class ArticleModel extends PostModel {
         dest.writeString(creatorPhone);
         dest.writeString(creatorProfilePicture);
         dest.writeString(creatorMail);
+        dest.writeString(creatorInstitute);
         dest.writeString(image);
         dest.writeStringList(tags);
         dest.writeLong(timeCreated.getTime());

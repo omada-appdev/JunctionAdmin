@@ -128,7 +128,7 @@ public class VenueDataHandler extends BaseDataHandler {
 
         DocumentReference docRef = FirebaseFirestore
                 .getInstance()
-                .collection("venues")
+                .collection("geography")
                 .document(bookingModel.getVenue())
                 .collection("bookings")
                 .document();

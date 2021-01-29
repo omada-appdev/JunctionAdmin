@@ -12,9 +12,9 @@ import androidx.lifecycle.Transformations;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.omada.junctionadmin.data.DataRepository;
+import com.omada.junctionadmin.data.handler.InstituteDataHandler;
 import com.omada.junctionadmin.data.handler.UserDataHandler;
 import com.omada.junctionadmin.data.models.external.InterestModel;
-import com.omada.junctionadmin.data.models.mutable.MutableOrganizationModel;
 import com.omada.junctionadmin.ui.login.LoginActivity;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.utils.taskhandler.LiveDataAggregator;
@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.omada.junctionadmin.data.DataRepository.getInstance;
 
 
 public class LoginViewModel extends BaseViewModel {
@@ -59,7 +61,7 @@ public class LoginViewModel extends BaseViewModel {
         initCalendar();
 
         authResultAction = Transformations.map(
-                DataRepository.getInstance().getUserDataHandler().getAuthResponseNotifier(),
+                getInstance().getUserDataHandler().getAuthResponseNotifier(),
                 authResponse -> {
 
                     UserDataHandler.AuthStatus receivedAuthResponse = authResponse.getDataOnceAndReset();
@@ -91,7 +93,7 @@ public class LoginViewModel extends BaseViewModel {
                             Log.e("DETAILS", "success");
                             //add code to tell user to verify mail
 
-                            DataRepository.getInstance()
+                            getInstance()
                                     .getUserDataHandler()
                                     .authenticateUser(email.getValue(), password.getValue());
                             break;
@@ -139,7 +141,7 @@ public class LoginViewModel extends BaseViewModel {
                     DataValidator.DataValidationPoint.VALIDATION_POINT_ALL,
                     DataValidator.DataValidationResult.VALIDATION_RESULT_VALID
             ));
-            DataRepository.getInstance()
+            getInstance()
                     .getUserDataHandler()
                     .authenticateUser(email.getValue().trim(), password.getValue().trim());
         }
@@ -164,11 +166,9 @@ public class LoginViewModel extends BaseViewModel {
     public void detailsEntryDone(){
 
         // TODO add code to verify email and go to home only if email is verified
-        // TODO make entire code agnostic to synchronicity of the validator implementation
 
         UserDataHandler.MutableUserOrganizationModel userModel = new UserDataHandler.MutableUserOrganizationModel();
         MediatorLiveData<DataValidator.DataValidationInformation> anyDetailsEntryInvalid = new MediatorLiveData<>();
-
         ValidationAggregator validationAggregator = new ValidationAggregator(anyDetailsEntryInvalid);
 
         dataValidator.validateProfilePicture(profilePicture.getValue(), dataValidationInformation -> {
@@ -185,16 +185,60 @@ public class LoginViewModel extends BaseViewModel {
         });
 
         dataValidator.validateInstitute(institute.getValue(), dataValidationInformation -> {
+
+            boolean reFetching = false;
             if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID){
-                userModel.setInstitute(
-                        institute.getValue()
-                );
+                String id = InstituteDataHandler.getCachedInstituteId(institute.getValue());
+                if (id == null || id.equals("")) {
+
+                    reFetching = true;
+                    LiveData<LiveEvent<String>> reFetchedId = DataRepository
+                            .getInstance()
+                            .getInstituteDataHandler()
+                            .getInstituteId(institute.getValue());
+
+                    reFetchedId.observeForever(new Observer<LiveEvent<String>>() {
+                        @Override
+                        public void onChanged(LiveEvent<String> stringLiveEvent) {
+                            if(stringLiveEvent == null) {
+                                return;
+                            }
+                            String result = stringLiveEvent.getDataOnceAndReset();
+                            DataValidator.DataValidationInformation newValidationInformation;
+
+                            if(result != null && !result.equals("notFound")){
+                                newValidationInformation = new DataValidator.DataValidationInformation(
+                                        DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                                        DataValidator.DataValidationResult.VALIDATION_RESULT_VALID
+                                );
+                            }
+                            else {
+                                newValidationInformation = new DataValidator.DataValidationInformation(
+                                        DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                                        DataValidator.DataValidationResult.VALIDATION_RESULT_INVALID
+                                );
+                            }
+
+                            validationAggregator.holdData(
+                                    DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                                    newValidationInformation
+                            );
+                            notifyValidity(newValidationInformation);
+
+                            reFetchedId.removeObserver(this);
+                        }});
+
+                } else {
+                    userModel.setInstitute(id);
+                }
             }
-            validationAggregator.holdData(
-                    DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE,
-                    dataValidationInformation
-            );
-            notifyValidity(dataValidationInformation);
+            if(!reFetching) {
+                validationAggregator.holdData(
+                        DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                        dataValidationInformation
+                );
+                notifyValidity(dataValidationInformation);
+            }
         });
 
         dataValidator.validateName(name.getValue(), dataValidationInformation -> {
@@ -247,7 +291,7 @@ public class LoginViewModel extends BaseViewModel {
                     if (dataValidationInformation.getValidationPoint() == DataValidator.DataValidationPoint.VALIDATION_POINT_ALL
                         && dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
 
-                        DataRepository.getInstance()
+                        getInstance()
                                 .getUserDataHandler()
                                 .createNewUserWithEmailAndPassword(email.getValue(), password.getValue(), userModel);
 
@@ -322,7 +366,7 @@ public class LoginViewModel extends BaseViewModel {
         if(allInterests.size()>0){
             return allInterests;
         }
-        return DataRepository.getInstance().getAppDataHandler().getInterestsList();
+        return getInstance().getAppDataHandler().getInterestsList();
     }
 
     private long endTime;
@@ -370,7 +414,7 @@ public class LoginViewModel extends BaseViewModel {
         static {
             allValidationPoints.add(DataValidator.DataValidationPoint.VALIDATION_POINT_NAME);
             allValidationPoints.add(DataValidator.DataValidationPoint.VALIDATION_POINT_EMAIL);
-            allValidationPoints.add(DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE);
+            allValidationPoints.add(DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE);
             allValidationPoints.add(DataValidator.DataValidationPoint.VALIDATION_POINT_PASSWORD);
             allValidationPoints.add(DataValidator.DataValidationPoint.VALIDATION_POINT_PROFILE_PICTURE);
         }

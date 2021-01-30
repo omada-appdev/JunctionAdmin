@@ -3,6 +3,7 @@ package com.omada.junctionadmin.data.models.internal.remote;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.PropertyName;
+import com.google.firebase.firestore.ServerTimestamp;
 import com.omada.junctionadmin.data.models.external.BaseModel;
 import com.omada.junctionadmin.data.models.internal.BaseModelInternal;
 
@@ -95,11 +96,13 @@ public class ArticleModelRemoteDB extends BaseModelInternal {
         this.creatorCache = creatorCache;
     }
 
+    @ServerTimestamp
     @PropertyName("timeCreated")
     public Timestamp getTimeCreated() {
         return timeCreated;
     }
 
+    @ServerTimestamp
     @PropertyName("timeCreated")
     public void setTimeCreated(Timestamp timeCreated) {
         this.timeCreated = timeCreated;

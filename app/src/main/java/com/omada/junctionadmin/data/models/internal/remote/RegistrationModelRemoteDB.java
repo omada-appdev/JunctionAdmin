@@ -2,6 +2,7 @@ package com.omada.junctionadmin.data.models.internal.remote;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.PropertyName;
+import com.google.firebase.firestore.ServerTimestamp;
 import com.omada.junctionadmin.data.models.internal.BaseModelInternal;
 
 import java.util.Date;
@@ -62,11 +63,13 @@ public class RegistrationModelRemoteDB extends BaseModelInternal {
         this.user = user;
     }
 
+    @ServerTimestamp
     @PropertyName("timeCreated")
     public Timestamp getTimeCreated() {
         return timeCreated;
     }
 
+    @ServerTimestamp
     @PropertyName("timeCreated")
     public void setTimeCreated(Timestamp timeCreated) {
         this.timeCreated = timeCreated;

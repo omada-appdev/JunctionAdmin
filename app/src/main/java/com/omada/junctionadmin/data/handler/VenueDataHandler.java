@@ -5,10 +5,10 @@ import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.Timestamp;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -23,17 +23,17 @@ import com.omada.junctionadmin.data.models.converter.BookingModelConverter;
 import com.omada.junctionadmin.data.models.converter.VenueModelConverter;
 import com.omada.junctionadmin.data.models.external.BookingModel;
 import com.omada.junctionadmin.data.models.external.VenueModel;
-import com.omada.junctionadmin.data.models.internal.remote.BookingModelRemoteDB;
 import com.omada.junctionadmin.data.models.internal.remote.VenueModelRemoteDB;
+import com.omada.junctionadmin.utils.taskhandler.LiveDataAggregator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -82,45 +82,59 @@ public class VenueDataHandler extends BaseDataHandler {
 
     }
 
-    // Gets all bookings between the start and end of a given day
-    public LiveData<LiveEvent<List<Pair<LocalTime, LocalTime>>>> getVenueBookingsOn(
+    // Gets all bookings on a given day and all bookings one day before and after it
+    public LiveData<LiveEvent<List<Pair<LocalDateTime, LocalDateTime>>>> getVenueBookingsOn(
             DataRepository.DataRepositoryAccessIdentifier identifier, Date date, String venueId) {
 
-        MutableLiveData<LiveEvent<List<Pair<LocalTime, LocalTime>>>> venueBookingsLiveData = new MutableLiveData<>();
+        MediatorLiveData<LiveEvent<List<Pair<LocalDateTime, LocalDateTime>>>> venueBookingsLiveData = new MediatorLiveData<>();
+        BookingsAggregator aggregator = new BookingsAggregator(venueBookingsLiveData);
+
+        LocalDate providedDate = date.toInstant().atZone(ZoneId.of("UTC")).toLocalDate();
+
+        LocalDate beforeDate = providedDate.minusDays(1);
+        LocalDate afterDate = providedDate.plusDays(1);
+
+        getVenueBookingsOn(BookingDayType.BOOKING_DAY_BEFORE, beforeDate, venueId, aggregator);
+        getVenueBookingsOn(BookingDayType.BOOKING_DAY_PROVIDED, providedDate, venueId, aggregator);
+        getVenueBookingsOn(BookingDayType.BOOKING_DAY_AFTER, afterDate, venueId, aggregator);
+
+        return venueBookingsLiveData;
+
+    }
+
+    private void getVenueBookingsOn(BookingDayType bookingDayType, LocalDate date, String venueId, BookingsAggregator aggregator) {
 
         FirebaseDatabase
                 .getInstance()
                 .getReference()
                 .child("bookings")
                 .child(venueId)
-                .child(LocalDate.from(date.toInstant()).format(DateTimeFormatter.ISO_DATE))
+                .child(date.format(DateTimeFormatter.ISO_DATE))
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if(snapshot == null){
                             return;
                         }
-                        List<Pair<LocalTime, LocalTime>> bookingsList = new ArrayList<>();
+                        List<Pair<LocalDateTime, LocalDateTime>> bookingsList = new ArrayList<>();
                         for (DataSnapshot child : snapshot.getChildren()) {
 
                             Long startTime = (Long) child.child("startTime").getValue();
                             Long endTime = (Long) child.child("endTime").getValue();
 
                             bookingsList.add(new Pair<>(
-                                    LocalTime.from(Instant.ofEpochSecond(startTime)),
-                                    LocalTime.from(Instant.ofEpochSecond(endTime))
+                                    LocalDateTime.from(Instant.ofEpochSecond(startTime)),
+                                    LocalDateTime.from(Instant.ofEpochSecond(endTime))
                             ));
                         }
-                        venueBookingsLiveData.setValue(new LiveEvent<>(bookingsList));
+                        aggregator.holdData(bookingDayType, bookingsList);
                     }
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        Log.e("Booking", "Error creating booking in realtime database");
-                        venueBookingsLiveData.setValue(new LiveEvent<>(null));
+                        Log.e("Booking", "Error reading booking for "
+                                + bookingDayType.name() + " from realtime database");
                     }
                 });
-
-        return venueBookingsLiveData;
 
     }
 
@@ -135,16 +149,17 @@ public class VenueDataHandler extends BaseDataHandler {
                 .collection("bookings")
                 .document();
 
-        batch.set(docRef, bookingModelConverter.convertExternalToRemoteDBModel(bookingModel));
-
         LocalDate date =
                 bookingModel.getStartTime().toDate().toInstant().atZone(ZoneId.of("UTC")).toLocalDate();
+
+        batch.set(docRef, bookingModelConverter.convertExternalToRemoteDBModel(bookingModel));
 
         Map<String, Long> bookingData = new HashMap<>();
         bookingData.put("startTime", bookingModel.getStartTime().toDate().toInstant().getEpochSecond());
         bookingData.put("endTime", bookingModel.getEndTime().toDate().toInstant().getEpochSecond());
 
         // Writing booking into JSON database for fast and cheap querying
+        // TODO add listeners to handle database failures
         return FirebaseDatabase
                 .getInstance()
                 .getReference()
@@ -155,5 +170,46 @@ public class VenueDataHandler extends BaseDataHandler {
                 .setValue(bookingData);
 
     }
+
+    private enum BookingDayType {
+        BOOKING_DAY_BEFORE,
+        BOOKING_DAY_PROVIDED,
+        BOOKING_DAY_AFTER
+    }
+
+    private static class BookingsAggregator extends LiveDataAggregator
+            <BookingDayType, List<Pair<LocalDateTime, LocalDateTime>>, LiveEvent<List<Pair<LocalDateTime, LocalDateTime>>>> {
+
+
+        public BookingsAggregator(MediatorLiveData<LiveEvent<List<Pair<LocalDateTime, LocalDateTime>>>> destination) {
+            super(destination);
+        }
+
+        @Override
+        protected List<Pair<LocalDateTime, LocalDateTime>> mergeWithExistingData(BookingDayType typeofData, List<Pair<LocalDateTime, LocalDateTime>> oldData, List<Pair<LocalDateTime, LocalDateTime>> newData) {
+            oldData.addAll(newData);
+            return oldData;
+        }
+
+        @Override
+        protected boolean checkDataForAggregability() {
+            return
+                    dataOnHold.get(BookingDayType.BOOKING_DAY_AFTER) != null &&
+                    dataOnHold.get(BookingDayType.BOOKING_DAY_PROVIDED) != null &&
+                    dataOnHold.get(BookingDayType.BOOKING_DAY_BEFORE) != null;
+        }
+
+        @Override
+        protected void aggregateData() {
+
+            List<Pair<LocalDateTime, LocalDateTime>> aggregatedBookings = new ArrayList<>();
+            aggregatedBookings.addAll(dataOnHold.get(BookingDayType.BOOKING_DAY_BEFORE));
+            aggregatedBookings.addAll(dataOnHold.get(BookingDayType.BOOKING_DAY_PROVIDED));
+            aggregatedBookings.addAll(dataOnHold.get(BookingDayType.BOOKING_DAY_AFTER));
+
+            destinationLiveData.setValue(new LiveEvent<>(aggregatedBookings));
+        }
+    }
+
 
 }

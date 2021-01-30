@@ -11,8 +11,13 @@ import com.omada.junctionadmin.data.models.external.VenueModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -63,8 +68,9 @@ public class BookingViewModel extends BaseViewModel {
 
     /*
     Take all bookings and return pairs of FREE time slots after performing some manipulation
+    CONVERT ALL TIMES TO LOCAL BECAUSE THEY ARE STORED AS UTC IN THE SERVER
      */
-    public LiveData<LiveEvent<List<Pair<LocalTime, LocalTime>>>> getBookings(@Nonnull String venue){
+    public LiveData<LiveEvent<List<Pair<LocalDateTime, LocalDateTime>>>> getBookings(@Nonnull String venue){
 
         return Transformations.map(
                 DataRepository.getInstance()
@@ -72,7 +78,56 @@ public class BookingViewModel extends BaseViewModel {
                 .getVenueBookingsOn(getDataRepositoryAccessIdentifier(),
                         Date.from(bookingDate.atStartOfDay().toInstant(ZoneOffset.UTC)), venue),
 
-                input -> input
+                input -> {
+
+                    if(input == null) {
+                        return null;
+                    }
+                    List<Pair<LocalDateTime, LocalDateTime>> bookingsList = input.getDataOnceAndReset();
+                    if(bookingsList != null) {
+
+                        List<Pair<LocalDateTime, LocalDateTime>> freeSlots = new ArrayList<>();
+
+                        if(bookingsList.size() == 0) {
+                            freeSlots.add(new Pair<>(
+                                    LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0, 0)),
+                                    LocalDateTime.of(LocalDate.now(), LocalTime.of(23, 59, 59))
+                            ));
+                            return new LiveEvent<>(freeSlots);
+                        } else if (bookingsList.size() == 1) {
+
+                            freeSlots.add(new Pair<>(
+                                    LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0, 0)),
+                                    bookingsList.get(0).first
+                            ));
+                            freeSlots.add(new Pair<>(
+                                    bookingsList.get(0).second,
+                                    LocalDateTime.of(LocalDate.now(), LocalTime.of(23, 59, 59))
+                            ));
+                            return new LiveEvent<>(freeSlots);
+                        }
+
+                        // Sort by startTime for easy splitting in a linear pass
+                        Collections.sort(bookingsList, (o1, o2) -> o1.first.compareTo(o2.first));
+                        LocalDateTime timeSweep =
+                                LocalDateTime.of(LocalDate.now(), LocalTime.of(23, 59, 59));
+
+                        for(Pair<LocalDateTime, LocalDateTime> occupied : bookingsList) {
+                            freeSlots.add(new Pair<>(
+                                    timeSweep,
+                                    occupied.first
+                            ));
+                            timeSweep = occupied.second;
+                        }
+                        freeSlots.add(new Pair<>(
+                                timeSweep,
+                                LocalDateTime.of(LocalDate.now(), LocalTime.of(23, 59, 59))
+                        ));
+
+                        return new LiveEvent<>(freeSlots);
+                    }
+                    return new LiveEvent<>(null);
+                }
         );
 
     }

@@ -172,8 +172,6 @@ public class EventModelRemoteDB extends BaseModelInternal {
         this.tags = tags;
     }
 
-    @ServerTimestamp
-    @PropertyName("timeCreated")
     public void setTimeCreated(Timestamp timeCreated) {
         this.timeCreated = timeCreated;
     }

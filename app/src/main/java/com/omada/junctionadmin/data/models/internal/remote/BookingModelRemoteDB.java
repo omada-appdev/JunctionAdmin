@@ -87,7 +87,6 @@ public class BookingModelRemoteDB extends BaseModelInternal {
         this.eventName = eventName;
     }
 
-    @ServerTimestamp
     @PropertyName("timeCreated")
     public void setTimeCreated(Timestamp timeCreated) {
         this.timeCreated = timeCreated;

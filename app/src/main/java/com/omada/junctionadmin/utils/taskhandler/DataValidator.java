@@ -1,11 +1,36 @@
 package com.omada.junctionadmin.utils.taskhandler;
 
+import android.net.Uri;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.Transformations;
+
+import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.utils.transform.TransformUtilities;
 
 import java.util.Date;
 
+
+/*
+*
+* NOTE
+* This class has all the code for data validation so use this class wherever required.
+* There are plans to convert it into a static singleton, seeing how this class has no state and all the methods
+* can be treated to be functional self enclosed entities
+*
+* Remember to always assume the validation completion listener is invoked asynchronously and not immediately. This is because sometimes
+* validation involves network calls and database queries.
+*
+* TODO make all methods static and use a builder for batch validation
+ */
 public class DataValidator {
 
+
+    public static final int EVENT_DESCRIPTION_MAX_SIZE = 100;
+    public static final int EVENT_TITLE_MAX_SIZE = 30;
+    public static final int EVENT_TITLE_MIN_SIZE = 5;
     private static final String EMAIL_VERIFICATION_REGEX =
             "^([_a-zA-Z0-9-]+(\\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*(\\.[a-zA-Z]{1,6}))?$";
 
@@ -13,185 +38,29 @@ public class DataValidator {
             "[a-zA-Z ]*";
 
 
-
-    public void validateName(String name, OnValidationCompleteListener listener){
-        listener.onValidationComplete(validateName(name));
-    }
-    
-    public DataValidationInformation validateName(String name){
-
-        if(name == null){
-            return new DataValidationInformation(
-                    DataValidationPoint.VALIDATION_POINT_NAME,
-                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
-            );
-        }
-
-        name = name.trim();
-
-        if(name.equals("")) {
-            return new DataValidationInformation(
-                    DataValidationPoint.VALIDATION_POINT_NAME,
-                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
-            );
-        }
-        else if(!name.matches(NAME_VERIFICATION_REGEX)){
-            return new DataValidationInformation(
-                    DataValidationPoint.VALIDATION_POINT_NAME,
-                    DataValidationResult.VALIDATION_RESULT_ILLEGAL_FORMAT
-            );
-        }
-        else{
-            return new DataValidationInformation(
-                    DataValidationPoint.VALIDATION_POINT_NAME,
-                    DataValidationResult.VALIDATION_RESULT_VALID
-            );
-        }
-
-    }
-
-    public void validateEmail(String email, OnValidationCompleteListener listener){
-        listener.onValidationComplete(validateEmail(email));
-    }
-
-    public DataValidationInformation validateEmail(String email){
-
-        if(email == null){
-            return new DataValidationInformation(
-                    DataValidationPoint.VALIDATION_POINT_EMAIL,
-                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
-            );
-        }
-
-        email = email.trim();
-
-        if(email.equals("")){
-            return new DataValidationInformation(
-                    DataValidationPoint.VALIDATION_POINT_EMAIL,
-                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
-            );
-        }
-        else if(!email.matches(EMAIL_VERIFICATION_REGEX)){
-            return new DataValidationInformation(
-                    DataValidationPoint.VALIDATION_POINT_EMAIL,
-                    DataValidationResult.VALIDATION_RESULT_ILLEGAL_FORMAT
-            );
-        }
-        else{
-            return new DataValidationInformation(
-                    DataValidationPoint.VALIDATION_POINT_EMAIL,
-                    DataValidationResult.VALIDATION_RESULT_VALID
-            );
-        }
-    }
-
-    public void validateGender(String gender, OnValidationCompleteListener listener){
-        listener.onValidationComplete(validateGender(gender));
-    }
-
-    public DataValidationInformation validateGender(String gender){
-
-        if(gender == null){
-            return new DataValidationInformation(
-                    DataValidationPoint.VALIDATION_POINT_GENDER,
-                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
-            );
-        }
-
-        gender = gender.trim().toUpperCase();
-
-        if(!gender.equals("MALE") && !gender.equals("FEMALE") && !gender.equals("OTHER")){
-            return new DataValidationInformation(
-                    DataValidationPoint.VALIDATION_POINT_GENDER,
-                    DataValidationResult.VALIDATION_RESULT_ILLEGAL_FORMAT
-            );
-        }
-        else{
-            return new DataValidationInformation(
-                    DataValidationPoint.VALIDATION_POINT_GENDER,
-                    DataValidationResult.VALIDATION_RESULT_VALID
-            );
-        }
-    }
-
-    public void validateInstitute(String institute, OnValidationCompleteListener listener){
-        listener.onValidationComplete(validateInstitute(institute));
-    }
-
-    public DataValidationInformation validateInstitute(String institute){
-        return new DataValidationInformation(
-                DataValidationPoint.VALIDATION_POINT_INSTITUTE,
-                DataValidationResult.VALIDATION_RESULT_VALID
-        );
-    }
-
-    public void validateDateOfBirth(String dateOfBirth, OnValidationCompleteListener listener){
-        listener.onValidationComplete(validateDateOfBirth(dateOfBirth));
-    }
-
-    public DataValidationInformation validateDateOfBirth(String dateOfBirth){
-
-        if(dateOfBirth == null){
-            return new DataValidationInformation(
-                    DataValidationPoint.VALIDATION_POINT_DATE_OF_BIRTH,
-                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
-            );
-        }
-
-        dateOfBirth = dateOfBirth.trim();
-
-        if(dateOfBirth.equals("")){
-            return new DataValidationInformation(
-                    DataValidationPoint.VALIDATION_POINT_DATE_OF_BIRTH,
-                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
-            );
-        }
-        else{
-            Date parsedDate = TransformUtilities.convertDDMMYYYYtoDate(dateOfBirth, "/");
-            if(parsedDate != null) {
-                return new DataValidationInformation(
-                        DataValidationPoint.VALIDATION_POINT_DATE_OF_BIRTH,
-                        DataValidationResult.VALIDATION_RESULT_VALID
-                );
-            }
-            else{
-                return new DataValidationInformation(
-                        DataValidationPoint.VALIDATION_POINT_DATE_OF_BIRTH,
-                        DataValidationResult.VALIDATION_RESULT_PARSE_ERROR
-                );
-            }
-        }
-    }
-
-    public void validatePassword(String password, OnValidationCompleteListener listener){
-        listener.onValidationComplete(validatePassword(password));
-    }
-
-    public DataValidationInformation validatePassword(String password){
-        if(password == null || password.equals("")){
-            return new DataValidationInformation(
-                    DataValidationPoint.VALIDATION_POINT_PASSWORD,
-                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
-            );
-        }
-        return new DataValidationInformation(
-                DataValidationPoint.VALIDATION_POINT_PASSWORD,
-                DataValidationResult.VALIDATION_RESULT_VALID
-        );
-    }
-
     public enum DataValidationPoint {
 
         VALIDATION_POINT_ALL,
 
         VALIDATION_POINT_NAME,
         VALIDATION_POINT_EMAIL,
-        VALIDATION_POINT_GENDER,
         VALIDATION_POINT_DATE_OF_BIRTH,
-        VALIDATION_POINT_INSTITUTE,
+        VALIDATION_POINT_INSTITUTE_HANDLE,
         VALIDATION_POINT_PASSWORD,
         VALIDATION_POINT_INTERESTS,
 
+        VALIDATION_POINT_PROFILE_PICTURE,
+        VALIDATION_POINT_IMAGE,
+
+        VALIDATION_POINT_EVENT_TITLE,
+        VALIDATION_POINT_EVENT_DESCRIPTION,
+
+        VALIDATION_POINT_EVENT_TIMINGS,
+
+        VALIDATION_POINT_ARTICLE_TITLE,
+        VALIDATION_POINT_ARTICLE_AUTHOR,
+
+        VALIDATION_POINT_TAGS
     }
 
     public enum DataValidationResult {
@@ -211,6 +80,278 @@ public class DataValidator {
 
     }
 
+
+    public void validateEventTimings(Date startTime, Date endTime) {
+
+    }
+
+    public void validateName(String name, OnValidationCompleteListener listener) {
+        listener.onValidationComplete(validateName(name));
+    }
+
+    public void validateEmail(String email, OnValidationCompleteListener listener) {
+        listener.onValidationComplete(validateEmail(email));
+    }
+
+    public void validateInstitute(String institute, OnValidationCompleteListener listener) {
+
+        LiveData<LiveEvent<DataValidationInformation>> dataValidationLiveData = validateInstitute(institute);
+        dataValidationLiveData.observeForever(new Observer<LiveEvent<DataValidationInformation>>() {
+            @Override
+            public void onChanged(LiveEvent<DataValidationInformation> dataValidationInformationLiveEvent) {
+                listener.onValidationComplete(dataValidationLiveData.getValue().getDataOnceAndReset());
+                dataValidationLiveData.removeObserver(this);
+            }
+        });
+    }
+
+    public void validateDateOfBirth(String dateOfBirth, OnValidationCompleteListener listener) {
+        listener.onValidationComplete(validateDateOfBirth(dateOfBirth));
+    }
+
+    public void validatePassword(String password, OnValidationCompleteListener listener) {
+        listener.onValidationComplete(validatePassword(password));
+    }
+
+    public void validateEventTitle(String title, OnValidationCompleteListener listener) {
+        listener.onValidationComplete(validateEventTitle(title));
+    }
+
+    public void validateEventDescription(String description, OnValidationCompleteListener listener) {
+        listener.onValidationComplete(validateEventDescription(description));
+    }
+
+    /*
+      STUB
+     */
+    // TODO add validation when needed
+    public void validateProfilePicture (Uri uri, OnValidationCompleteListener listener) {
+        listener.onValidationComplete(validateProfilePicture(uri));
+    }
+
+    public void validateImage (Uri uri, OnValidationCompleteListener listener) {
+        listener.onValidationComplete(validateImage(uri));
+    }
+
+
+
+    private DataValidationInformation validateName(String name) {
+
+        if (name == null) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_NAME,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        }
+
+        name = name.trim();
+
+        if (name.equals("")) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_NAME,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        } else if (!name.matches(NAME_VERIFICATION_REGEX)) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_NAME,
+                    DataValidationResult.VALIDATION_RESULT_ILLEGAL_FORMAT
+            );
+        } else {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_NAME,
+                    DataValidationResult.VALIDATION_RESULT_VALID
+            );
+        }
+
+    }
+
+    private DataValidationInformation validateEmail(String email) {
+
+        if (email == null) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EMAIL,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        }
+
+        email = email.trim();
+
+        if (email.equals("")) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EMAIL,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        } else if (!email.matches(EMAIL_VERIFICATION_REGEX)) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EMAIL,
+                    DataValidationResult.VALIDATION_RESULT_ILLEGAL_FORMAT
+            );
+        } else {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EMAIL,
+                    DataValidationResult.VALIDATION_RESULT_VALID
+            );
+        }
+    }
+
+
+    private LiveData<LiveEvent<DataValidationInformation>> validateInstitute(String institute) {
+
+        if(institute == null || institute.equals("")){
+            return new MutableLiveData<>(new LiveEvent<>(new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                    DataValidationResult.VALIDATION_RESULT_INVALID
+            )));
+        }
+
+        return Transformations.map(
+                DataRepository
+                        .getInstance()
+                        .getInstituteDataHandler()
+                        .checkInstituteCodeValidity(institute),
+
+                input -> {
+                    Boolean result = input.getDataOnceAndReset();
+                    if (result != null && result) {
+                        return new LiveEvent<>(new DataValidationInformation(
+                                DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                                DataValidationResult.VALIDATION_RESULT_VALID
+                        ));
+                    } else {
+                        return new LiveEvent<>(new DataValidationInformation(
+                                DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                                DataValidationResult.VALIDATION_RESULT_INVALID
+                        ));
+                    }
+                }
+        );
+    }
+
+    private DataValidationInformation validateProfilePicture(Uri uri) {
+        if (uri == null) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_PROFILE_PICTURE,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        } else {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_PROFILE_PICTURE,
+                    DataValidationResult.VALIDATION_RESULT_VALID
+            );
+        }
+    }
+
+    private DataValidationInformation validateEventDescription(String description) {
+
+        if(description == null || description.equals("")) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EVENT_DESCRIPTION,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        }
+        else if (description.length() > EVENT_DESCRIPTION_MAX_SIZE) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EVENT_DESCRIPTION,
+                    DataValidationResult.VALIDATION_RESULT_OVERFLOW
+            );
+        }
+        else {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EVENT_DESCRIPTION,
+                    DataValidationResult.VALIDATION_RESULT_VALID
+            );
+        }
+
+    }
+
+    private DataValidationInformation validateEventTitle(String title) {
+
+        if(title == null || title.equals("")) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EVENT_TITLE,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        }
+        else if (title.length() > EVENT_TITLE_MAX_SIZE) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EVENT_TITLE,
+                    DataValidationResult.VALIDATION_RESULT_OVERFLOW
+            );
+        }
+        else if (title.length() < EVENT_TITLE_MIN_SIZE) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EVENT_TITLE,
+                    DataValidationResult.VALIDATION_RESULT_UNDERFLOW
+            );
+        }
+        else {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EVENT_TITLE,
+                    DataValidationResult.VALIDATION_RESULT_VALID
+            );
+        }
+
+    }
+
+    private DataValidationInformation validateImage(Uri uri) {
+        if (uri == null) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_IMAGE,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        } else {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_IMAGE,
+                    DataValidationResult.VALIDATION_RESULT_VALID
+            );
+        }
+    }
+
+    private DataValidationInformation validateDateOfBirth(String dateOfBirth) {
+
+        if (dateOfBirth == null) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_DATE_OF_BIRTH,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        }
+
+        dateOfBirth = dateOfBirth.trim();
+
+        if (dateOfBirth.equals("")) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_DATE_OF_BIRTH,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        } else {
+            Date parsedDate = TransformUtilities.convertDDMMYYYYtoDate(dateOfBirth, "/");
+            if (parsedDate != null) {
+                return new DataValidationInformation(
+                        DataValidationPoint.VALIDATION_POINT_DATE_OF_BIRTH,
+                        DataValidationResult.VALIDATION_RESULT_VALID
+                );
+            } else {
+                return new DataValidationInformation(
+                        DataValidationPoint.VALIDATION_POINT_DATE_OF_BIRTH,
+                        DataValidationResult.VALIDATION_RESULT_PARSE_ERROR
+                );
+            }
+        }
+    }
+
+    private DataValidationInformation validatePassword(String password) {
+        if (password == null || password.equals("")) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_PASSWORD,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        }
+        return new DataValidationInformation(
+                DataValidationPoint.VALIDATION_POINT_PASSWORD,
+                DataValidationResult.VALIDATION_RESULT_VALID
+        );
+    }
+
     public static final class DataValidationInformation {
 
         private final DataValidationPoint dataValidationPoint;
@@ -221,7 +362,7 @@ public class DataValidator {
             this.dataValidationResult = dataValidationResult;
         }
 
-        public DataValidationPoint getValidationPoint(){
+        public DataValidationPoint getValidationPoint() {
             return dataValidationPoint;
         }
 

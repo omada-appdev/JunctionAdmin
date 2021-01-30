@@ -39,6 +39,9 @@ captures/
 
 # IntelliJ
 *.iml
+.idea/aws.xml
+.idea/markdown-navigator-enh.xml
+.idea/markdown-navigator.xml
 .idea/workspace.xml
 .idea/tasks.xml
 .idea/gradle.xml

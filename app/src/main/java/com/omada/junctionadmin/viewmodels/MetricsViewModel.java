@@ -1,4 +1,6 @@
 package com.omada.junctionadmin.viewmodels;
 
-public class MetricsViewModel {
+import androidx.lifecycle.ViewModel;
+
+public class MetricsViewModel extends BaseViewModel {
 }

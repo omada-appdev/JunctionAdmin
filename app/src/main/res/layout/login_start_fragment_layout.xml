@@ -5,7 +5,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.omada.junction.viewmodels.LoginViewModel" />
+            type="com.omada.junctionadmin.viewmodels.LoginViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -31,7 +31,7 @@
             app:layout_constraintRight_toRightOf="@id/junction_logo_image"
             android:textStyle="bold"
             android:textColor="#AAAAAA"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Overline"/>
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Overline" />
 
         <com.google.android.material.button.MaterialButton
             android:id = "@+id/sign_up_button"
@@ -51,7 +51,7 @@
             app:layout_constraintBottom_toTopOf="@id/sign_in_button"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            android:text="Already have an account?"/>
+            android:text="Already have an organization?"/>
 
         <com.google.android.material.button.MaterialButton
             android:id = "@+id/sign_in_button"
@@ -62,7 +62,7 @@
             app:layout_constraintLeft_toLeftOf="@id/sign_up_button"
             android:text = "log in"
             style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:onClick="@{() -> viewModel.startSignIn()}"/>
+            android:onClick="@{()->viewModel.startSignIn()}"/>
 
         <androidx.constraintlayout.widget.Guideline
             android:layout_width="wrap_content"

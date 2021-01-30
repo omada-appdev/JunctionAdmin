@@ -4,7 +4,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.omada.junction.viewmodels.LoginViewModel" />
+            type="com.omada.junctionadmin.viewmodels.LoginViewModel" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -66,8 +66,8 @@
             app:layout_constraintBottom_toBottomOf="@id/guideline2"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            android:onClick="@{()->viewModel.doUserLogin()}"
-            android:layout_margin="16dp"/>
+            android:layout_margin="16dp"
+            android:onClick="@{()->viewModel.doUserLogin()}"/>
 
         <com.google.android.material.button.MaterialButton
             android:layout_height="wrap_content"
@@ -78,8 +78,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintBottom_toTopOf="@id/guideline3"
-            android:layout_gravity="center_horizontal"
-            android:onClick="@{()->viewModel.forgotPassword()}" />
+            android:layout_gravity="center_horizontal" />
 
         <androidx.constraintlayout.widget.Guideline
             android:layout_width="wrap_content"

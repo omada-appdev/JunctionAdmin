@@ -5,13 +5,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <import type="com.omada.junction.utils.transform.TransformUtilities"/>
+        <import type="com.omada.junctionadmin.utils.transform.TransformUtilities"/>
         <variable
             name="eventDetails"
-            type="com.omada.junction.data.models.EventModel" />
+            type="com.omada.junctionadmin.data.models.external.EventModel" />
         <variable
             name="viewModel"
-            type="com.omada.junction.viewmodels.FeedContentViewModel" />
+            type="com.omada.junctionadmin.viewmodels.FeedContentViewModel" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -55,7 +55,7 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintBottom_toTopOf="@+id/event_poster_image"
                         app:layout_constraintVertical_chainStyle="packed"
-                        remoteImageUrl="@{eventDetails.creatorProfilePicture}"/>
+                        remoteImageGs="@{eventDetails.creatorProfilePicture}"/>
 
                     <com.google.android.material.textview.MaterialTextView
                         android:id="@+id/title_text"
@@ -90,7 +90,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         app:layout_constraintDimensionRatio="W, 4:3"
-                        remoteImageUrl="@{eventDetails.image}"
+                        remoteImageGs="@{eventDetails.image}"
                         android:scaleType="centerCrop"
                         android:layout_marginTop="12dp"
                         app:layout_constraintTop_toBottomOf="@id/organizer_profile_image"
@@ -118,7 +118,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="50dp"
                     android:layout_marginEnd="16dp"
-                    android:text="@{TransformUtilities.convertTimestampToHHMM(eventDetails.startTime)}"
+                    android:text="@{eventDetails.startTime.toString()}"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Headline2"
                     app:layout_constraintEnd_toStartOf="@+id/event_time_guideline"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -129,7 +129,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="50dp"
-                    android:text="@{TransformUtilities.convertTimestampToHHMM(eventDetails.endTime)}"
+                    android:text="@{eventDetails.endTime.toString()}"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Headline2"
                     app:layout_constraintStart_toStartOf="@+id/event_time_guideline"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -142,8 +142,7 @@
                     android:layout_marginTop="50dp"
                     android:text="call"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/event_time_start_text"
-                    android:onClick="@{()->viewModel.eventViewHandler.callOrganizer(eventDetails.creatorPhone)}"/>
+                    app:layout_constraintTop_toBottomOf="@+id/event_time_start_text"/>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/email_button"
@@ -153,8 +152,7 @@
                     android:layout_marginTop="50dp"
                     android:text="email"
                     app:layout_constraintStart_toEndOf="@+id/call_button"
-                    app:layout_constraintTop_toBottomOf="@+id/event_time_start_text"
-                    android:onClick="@{()->viewModel.eventViewHandler.mailOrganizer(eventDetails.title, eventDetails.creatorMail)}"/>
+                    app:layout_constraintTop_toBottomOf="@+id/event_time_start_text"/>
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/register_button"
@@ -164,8 +162,7 @@
                     android:layout_marginEnd="16dp"
                     android:text="register"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/event_time_start_text"
-                    android:onClick="@{()->viewModel.eventViewHandler.goToEventForm(eventDetails)}"/>
+                    app:layout_constraintTop_toBottomOf="@+id/event_time_start_text"/>
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/event_description_text"

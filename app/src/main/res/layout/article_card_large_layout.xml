@@ -6,7 +6,7 @@
         <import type="android.view.View"/>
         <variable
             name="articleModel"
-            type="com.omada.junctionadmin.data.models.ArticleModel" />
+            type="com.omada.junctionadmin.data.models.external.ArticleModel" />
         <variable
             name="viewModel"
             type="com.omada.junctionadmin.viewmodels.FeedContentViewModel" />
@@ -24,7 +24,7 @@
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/organizer_profile_image"
-            remoteImageUrl="@{articleModel.creatorProfilePicture}"
+            remoteImageGs="@{articleModel.creatorProfilePicture}"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:layout_marginStart="4dp"
@@ -87,7 +87,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/organizer_profile_image"
             app:layout_constraintVertical_chainStyle="packed"
-            app:remoteImageUrl="@{articleModel.image}"
+            app:remoteImageGs="@{articleModel.image}"
             app:shapeAppearanceOverlay="@style/Widget.AppTheme.ThumbnailShapeAppearance" />
 
         <ImageButton
@@ -100,7 +100,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/event_poster_image"
-            app:srcCompat="@drawable/ic_right_24dp" />
+            app:srcCompat="@drawable/ic_right_arrow_key" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

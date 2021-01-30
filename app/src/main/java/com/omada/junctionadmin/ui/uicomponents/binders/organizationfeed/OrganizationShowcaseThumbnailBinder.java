@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 import androidx.databinding.DataBindingUtil;
 
 import com.omada.junctionadmin.R;
-import com.omada.junctionadmin.data.models.ShowcaseModel;
+import com.omada.junctionadmin.data.models.external.ShowcaseModel;
 import com.omada.junctionadmin.databinding.OrganizationProfileShowcaseThumbnailLayoutBinding;
 import com.omada.junctionadmin.viewmodels.FeedContentViewModel;
 

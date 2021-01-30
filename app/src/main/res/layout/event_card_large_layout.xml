@@ -6,7 +6,7 @@
         <import type="android.view.View"/>
         <variable
             name="eventModel"
-            type="com.omada.junctionadmin.data.models.EventModel" />
+            type="com.omada.junctionadmin.data.models.external.EventModel" />
         <variable
             name="viewModel"
             type="com.omada.junctionadmin.viewmodels.FeedContentViewModel" />
@@ -41,7 +41,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintBottom_toTopOf="@+id/event_poster_image"
                 app:layout_constraintVertical_chainStyle="packed"
-                remoteImageUrl="@{eventModel.creatorProfilePicture}"/>
+                remoteImageGs="@{eventModel.creatorProfilePicture}"/>
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/event_name_text"
@@ -85,7 +85,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/organizer_profile_image"
                 app:layout_constraintVertical_chainStyle="packed"
-                app:remoteImageUrl="@{eventModel.image}"/>
+                app:remoteImageGs="@{eventModel.image}"/>
 
             <ImageButton
                 android:id="@+id/peek_button"
@@ -107,7 +107,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/event_poster_image"
-                app:srcCompat="@drawable/ic_right_24dp"/>
+                app:srcCompat="@drawable/ic_right_arrow_key"/>
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/peek_card"
@@ -128,7 +128,7 @@
                         android:id="@+id/event_date_text"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="@{TransformUtilities.convertTimestampToDDMM(eventModel.startTime)}"
+                        android:text="@{eventModel.startTime.toString()}"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
                         app:layout_constraintBottom_toTopOf="@+id/event_venue_text"
                         app:layout_constraintStart_toStartOf="parent" />
@@ -138,7 +138,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="16dp"
-                        android:text="@{TransformUtilities.convertTimestampToHHMM(eventModel.startTime)}"
+                        android:text="@{eventModel.startTime.toString()}"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/event_time_end_text"
@@ -149,7 +149,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="16dp"
-                        android:text="@{TransformUtilities.convertTimestampToHHMM(eventModel.endTime)}"
+                        android:text="@{eventModel.endTime.toString()}"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"

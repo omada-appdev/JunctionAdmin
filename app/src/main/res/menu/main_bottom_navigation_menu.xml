@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="create"
+        android:id="@+id/create_button"
+        android:icon="@drawable/ic_post"/>
+
+    <item android:title="metrics"
+        android:id="@+id/metrics_button"
+        android:icon="@drawable/ic_metrics"/>
+
+    <item android:title="profile"
+        android:id="@+id/profile_button"
+        android:icon="@drawable/ic_person"/>
+
+    <item android:title="institute"
+        android:id="@+id/institute_button"
+        android:icon="@drawable/ic_institute"/>
+
+</menu>

@@ -10,7 +10,7 @@ import androidx.databinding.DataBindingUtil;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textview.MaterialTextView;
 import com.omada.junctionadmin.R;
-import com.omada.junctionadmin.data.models.InterestModel;
+import com.omada.junctionadmin.data.models.external.InterestModel;
 import com.omada.junctionadmin.databinding.InterestsSelectionThumbnailLayoutBinding;
 
 import java.util.Objects;

@@ -2,13 +2,21 @@ package com.omada.junctionadmin.ui.login;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldPath;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.omada.junctionadmin.R;
+import com.omada.junctionadmin.ui.profile.ProfileActivity;
 import com.omada.junctionadmin.viewmodels.LoginViewModel;
+
+import java.util.Arrays;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -83,6 +91,9 @@ public class LoginActivity extends AppCompatActivity {
 
         loginViewModel.getGoToFeedAction().observe(this, goToFeed -> {
             if(goToFeed.getDataOnceAndReset()){
+                Intent i = new Intent(LoginActivity.this, ProfileActivity.class);
+                startActivity(i);
+                finish();
             }
         });
 

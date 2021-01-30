@@ -29,7 +29,7 @@ public abstract class LiveDataAggregator<D, S, T>{
     }
 
     @OverridingMethodsMustInvokeSuper
-    public void holdData(D typeOfData, S data) {
+    public synchronized void holdData(D typeOfData, S data) {
 
         if(data == null){
             return;

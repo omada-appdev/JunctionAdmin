@@ -31,7 +31,7 @@ public class LiveEvent<T> {
         return _data;
     }
 
-    public T getData(){
+    protected T getData(){
         return data;
     }
 }

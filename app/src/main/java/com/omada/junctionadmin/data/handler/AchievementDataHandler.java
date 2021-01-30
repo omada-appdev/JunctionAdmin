@@ -1,4 +1,6 @@
 package com.omada.junctionadmin.data.handler;
 
-public class AchievementDataHandler {
+import com.omada.junctionadmin.data.BaseDataHandler;
+
+public class AchievementDataHandler extends BaseDataHandler {
 }

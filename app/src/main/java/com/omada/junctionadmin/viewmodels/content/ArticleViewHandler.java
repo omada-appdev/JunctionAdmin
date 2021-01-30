@@ -3,7 +3,7 @@ package com.omada.junctionadmin.viewmodels.content;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.omada.junctionadmin.data.models.ArticleModel;
+import com.omada.junctionadmin.data.models.external.ArticleModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 public class ArticleViewHandler {

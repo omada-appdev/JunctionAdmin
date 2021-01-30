@@ -1,4 +1,6 @@
 package com.omada.junctionadmin.data.handler;
 
-public class ArticleDataHandler {
+import com.omada.junctionadmin.data.BaseDataHandler;
+
+public class ArticleDataHandler extends BaseDataHandler {
 }

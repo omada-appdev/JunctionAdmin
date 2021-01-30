@@ -13,7 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.omada.junctionadmin.R;
-import com.omada.junctionadmin.data.models.InterestModel;
+import com.omada.junctionadmin.data.models.external.InterestModel;
 import com.omada.junctionadmin.databinding.LoginInterestsFragmentLayoutBinding;
 import com.omada.junctionadmin.ui.uicomponents.binders.InterestThumbnailBinder;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
@@ -26,7 +26,7 @@ public class InterestsFragment extends Fragment {
     private MultiViewAdapter adapter;
 
     private ListSection<InterestModel> interestListSection;
-    private LoginViewModel loginViewModel = new ViewModelProvider(requireActivity()).get(LoginViewModel.class);
+    private LoginViewModel loginViewModel;
     private LoginInterestsFragmentLayoutBinding binding;
 
     public static InterestsFragment newInstance() {
@@ -42,15 +42,16 @@ public class InterestsFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        loginViewModel = new ViewModelProvider(requireActivity()).get(LoginViewModel.class);
+
         interestListSection = new ListSection<>();
-        interestListSection.set(loginViewModel.getInterestsListSection());
+        interestListSection.set(loginViewModel.getInterestsList());
         interestListSection.clearSelections();
 
         adapter = new MultiViewAdapter();
         adapter.setSpanCount(2);
         adapter.registerItemBinders(new InterestThumbnailBinder());
         adapter.addSection(interestListSection);
-
     }
 
     @Nullable
@@ -82,13 +83,13 @@ public class InterestsFragment extends Fragment {
         loginViewModel.getDataValidationAction().observe(getViewLifecycleOwner(),
                 dataValidationInformationLiveEvent -> {
 
-                    if(dataValidationInformationLiveEvent.getData() == null){
+                    if(dataValidationInformationLiveEvent == null){
                         return;
                     }
 
                     DataValidator.DataValidationInformation dataValidationInformation = dataValidationInformationLiveEvent.getDataOnceAndReset();
 
-                    if(dataValidationInformation.getValidationPoint() != DataValidator.DataValidationPoint.VALIDATION_POINT_INTERESTS){
+                    if(dataValidationInformation == null || dataValidationInformation.getValidationPoint() != DataValidator.DataValidationPoint.VALIDATION_POINT_INTERESTS){
                         return;
                     }
                     switch (dataValidationInformation.getDataValidationResult()){

@@ -1,14 +1,28 @@
 package com.omada.junctionadmin.data;
 
+import androidx.annotation.Nullable;
+
 import com.omada.junctionadmin.data.handler.AppDataHandler;
 import com.omada.junctionadmin.data.handler.ArticleDataHandler;
 import com.omada.junctionadmin.data.handler.EventDataHandler;
+import com.omada.junctionadmin.data.handler.ImageUploadHandler;
+import com.omada.junctionadmin.data.handler.InstituteDataHandler;
 import com.omada.junctionadmin.data.handler.OrganizationDataHandler;
 import com.omada.junctionadmin.data.handler.PostDataHandler;
 import com.omada.junctionadmin.data.handler.ShowcaseDataHandler;
 import com.omada.junctionadmin.data.handler.UserDataHandler;
+import com.omada.junctionadmin.data.handler.VenueDataHandler;
+import com.omada.junctionadmin.utils.string.StringUtilities;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class DataRepository {
+
+    // All the data related to state is to be stored here so that it can be read from handlers
+    // private because the get and set operations need to be performed atomically through synchronized
+    // methods which are package-private
+    private static final Map<DataRepositoryAccessIdentifier, DataRepositoryAccessorData> accessTracker = new HashMap<>();
 
     private static DataRepository dataRepository;
 
@@ -18,6 +32,9 @@ public class DataRepository {
     private final ArticleDataHandler articleDataHandler = new ArticleDataHandler();
     private final ShowcaseDataHandler showcaseDataHandler = new ShowcaseDataHandler();
     private final PostDataHandler postDataHandler = new PostDataHandler();
+    private final VenueDataHandler venueDataHandler = new VenueDataHandler();
+    private final InstituteDataHandler instituteDataHandler = new InstituteDataHandler();
+    private final ImageUploadHandler imageUploadHandler = new ImageUploadHandler();
 
     //this is only for events
     private final EventDataHandler eventDataHandler = new EventDataHandler();
@@ -27,7 +44,7 @@ public class DataRepository {
         //class constructor init firestore and local db etc here if required
     }
 
-    public static DataRepository getInstance() {
+    public static synchronized DataRepository getInstance() {
         if (dataRepository == null) {
             dataRepository = new DataRepository();
         }
@@ -61,5 +78,137 @@ public class DataRepository {
     public PostDataHandler getPostDataHandler() {
         return postDataHandler;
     }
+
+    public VenueDataHandler getVenueDataHandler() {
+        return venueDataHandler;
+    }
+
+    public InstituteDataHandler getInstituteDataHandler() {
+        return instituteDataHandler;
+    }
+
+    // Only for external accessors
+
+    public synchronized static DataRepositoryAccessIdentifier registerForDataRepositoryAccess() {
+
+        DataRepositoryAccessIdentifier identifier = new DataRepositoryAccessIdentifier(
+                StringUtilities.randomAlphabetGenerator(6)
+        );
+        accessTracker.put(identifier, new DataRepositoryAccessorData());
+        return identifier;
+    }
+
+    public synchronized static void removeDataRepositoryAccessRegistration(DataRepositoryAccessIdentifier accessIdentifier) {
+        accessTracker.remove(accessIdentifier);
+    }
+
+    static DataRepositoryHandlerIdentifier registerDataHandler() {
+        return new DataRepositoryHandlerIdentifier(
+                StringUtilities.randomAlphabetGenerator(6)
+        );
+
+    }
+
+    public ImageUploadHandler getImageUploadHandler() {
+        return imageUploadHandler;
+    }
+
+
+    // This class identifies the data repository accessor so that state can be tracked without
+    // creating new instances for each accessor
+    public static class DataRepositoryAccessIdentifier {
+
+
+        private final String id;
+
+        private DataRepositoryAccessIdentifier(String id){
+            this.id = id;
+        }
+
+        @Override
+        public int hashCode() {
+            return id.hashCode();
+        }
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (this.getClass() != obj.getClass()) {
+                return false;
+            }
+            DataRepositoryAccessIdentifier other = (DataRepositoryAccessIdentifier) obj;
+            return this.id.equals(other.id);
+        }
+
+    }
+
+    // Identifies each handler so that the data related to it can be stored in the data
+    // repository accessor data
+    public static class DataRepositoryHandlerIdentifier {
+
+
+        private final String id;
+
+        private DataRepositoryHandlerIdentifier(String id){
+            this.id = id;
+        }
+
+        @Override
+        public int hashCode() {
+            return id.hashCode();
+        }
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (this.getClass() != obj.getClass()) {
+                return false;
+            }
+            DataRepositoryHandlerIdentifier other = (DataRepositoryHandlerIdentifier) obj;
+            return this.id.equals(other.id);
+        }
+
+    }
+
+    // contains all the data that an accessor needs for each handler
+    private static class DataRepositoryAccessorData {
+
+        private final Map<DataRepositoryHandlerIdentifier, Map<String, Object>>  accessorData = new HashMap<>();
+
+        public synchronized void putHandlerData(
+                DataRepositoryHandlerIdentifier handlerIdentifier, String key, Object value) {
+
+            Map<String, Object> handlerData = accessorData.get(handlerIdentifier);
+
+            if(handlerData == null) {
+                handlerData = new HashMap<>();
+                accessorData.put(handlerIdentifier, handlerData);
+            }
+
+            handlerData.put(key, value);
+        }
+
+        public synchronized Object getHandlerData(DataRepositoryHandlerIdentifier handlerIdentifier, String key) {
+
+            Map<String, Object> handlerData = accessorData.get(handlerIdentifier);
+
+            if(handlerData == null) {
+                handlerData = new HashMap<>();
+                accessorData.put(handlerIdentifier, handlerData);
+                return null;
+            }
+
+            return handlerData.get(key);
+        }
+    }
+
 }
 

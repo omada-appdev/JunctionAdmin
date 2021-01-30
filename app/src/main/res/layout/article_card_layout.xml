@@ -4,7 +4,7 @@
     <data>
         <variable
             name="articleModel"
-            type="com.omada.junctionadmin.data.models.ArticleModel" />
+            type="com.omada.junctionadmin.data.models.external.ArticleModel" />
         <variable
             name="viewModel"
             type="com.omada.junctionadmin.viewmodels.FeedContentViewModel" />
@@ -38,7 +38,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintBottom_toTopOf="@+id/article_poster_image"
                 app:layout_constraintVertical_chainStyle="packed"
-                remoteImageUrl="@{articleModel.creatorProfilePicture}"/>
+                remoteImageGs="@{articleModel.creatorProfilePicture}"/>
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/article_title_text"
@@ -74,7 +74,7 @@
                 android:layout_height="0dp"
                 android:layout_marginTop="12dp"
                 android:background="@color/backdrop"
-                remoteImageUrl="@{articleModel.image}"
+                remoteImageGs="@{articleModel.image}"
                 android:scaleType="centerCrop"
                 app:layout_constraintBottom_toTopOf="@+id/more_details_button"
                 app:layout_constraintDimensionRatio="H,3:4"
@@ -104,7 +104,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/article_poster_image"
-                app:srcCompat="@drawable/ic_right_24dp"/>
+                app:srcCompat="@drawable/ic_right_arrow_key"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

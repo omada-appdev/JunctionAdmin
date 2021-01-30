@@ -6,7 +6,7 @@
         <import type="android.view.View"/>
         <variable
             name="eventModel"
-            type="com.omada.junctionadmin.data.models.EventModel" />
+            type="com.omada.junctionadmin.data.models.external.EventModel" />
         <variable
             name="viewModel"
             type="com.omada.junctionadmin.viewmodels.FeedContentViewModel" />
@@ -82,7 +82,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/organizer_profile_image"
                 app:layout_constraintVertical_chainStyle="packed"
-                app:remoteImageUrl="@{eventModel.image}"/>
+                app:remoteImageGs="@{eventModel.image}"/>
 
             <ImageButton
                 android:id="@+id/more_details_button"
@@ -94,7 +94,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/event_poster_image"
-                app:srcCompat="@drawable/ic_right_24dp"/>
+                app:srcCompat="@drawable/ic_right_arrow_key"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

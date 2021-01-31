@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -21,63 +22,20 @@ public class TransformUtilities {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp_value, context.getResources().getDisplayMetrics());
     }
 
-    public static String convertTimestampToHHMM(Timestamp timestamp){
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(timestamp.toDate());
-        String hh = String.valueOf(cal.get(Calendar.HOUR_OF_DAY));
-        String mm = String.valueOf(cal.get(Calendar.MINUTE));
-
-        if(hh.length()==1) hh = "0" + hh;
-        if(mm.length()==1) mm = "0" + mm;
-
-        return hh + ":" + mm;
+    public static ZonedDateTime convertUtcLocalDateTimeToSystemZone(LocalDateTime time) {
+        return time.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault());
     }
 
-    public static String convertTimestampToDDMM(Timestamp timestamp){
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(timestamp.toDate());
-        return cal.get(Calendar.DAY_OF_MONTH) + "/" + (cal.get(Calendar.MONTH) + 1);
+    public static LocalDateTime convertSystemZoneLocalDateTimeToUtc(ZonedDateTime time) {
+        return time.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
     }
 
-    public static String convertTimestampToDDMMYYYY(Timestamp timestamp){
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(timestamp.toDate());
-        return cal.get(Calendar.DAY_OF_MONTH) + "/" + (cal.get(Calendar.MONTH) + 1) + "/" + (cal.get(Calendar.YEAR));
+
+    public static LocalDateTime convertTimestampToLocalDateTime(Timestamp timestamp) {
+        return timestamp.toDate().toInstant().atZone(ZoneId.of("UTC")).toLocalDateTime();
     }
 
-    public static Date convertDDMMYYYYtoDate(String formattedDate, String separator){
-
-        Date date = null;
-        try {
-            date = new SimpleDateFormat("dd"+separator+"MM"+separator+"yyyy", Locale.US).parse(formattedDate);
-        }catch (ParseException e){
-            Log.e("PARSE", "parse exception");
-        }
-        return date;
-    }
-
-    public static String convertMillisecondsToDDMMYYYY(long millis, String separator){
-
-        Calendar calendar = Calendar.getInstance();
-
-        calendar.setTimeInMillis(millis);
-
-        StringBuilder builder = new StringBuilder();
-
-        builder.append(calendar.get(Calendar.DATE));
-        builder.append(separator);
-        builder.append(calendar.get(Calendar.MONTH) + 1); // The calendar month is zero indexed
-        builder.append(separator);
-        builder.append(calendar.get(Calendar.YEAR));
-
-        return builder.toString();
-    }
-
-    public static Date utcDateFromLocalDateTime(LocalDateTime dateTime) {
-        return Date.from(dateTime.toInstant(ZoneOffset.UTC));
-    }
-
-    public static LocalDateTime utcLocalDateTimeFromDate(Date date) {
-        return LocalDateTime.from(date.toInstant().atZone(ZoneId.of("UTC")));
+    public static Timestamp convertLocalDateTimeToTimestamp(LocalDateTime localDateTime) {
+        return new Timestamp(Date.from(localDateTime.toInstant(ZoneOffset.UTC)));
     }
 }

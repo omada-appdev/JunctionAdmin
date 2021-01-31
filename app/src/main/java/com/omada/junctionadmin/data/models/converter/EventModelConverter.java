@@ -5,6 +5,7 @@ import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.external.EventModel;
 import com.omada.junctionadmin.data.models.internal.remote.EventModelRemoteDB;
 import com.omada.junctionadmin.data.models.mutable.MutableEventModel;
+import com.omada.junctionadmin.utils.transform.TransformUtilities;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,9 +39,9 @@ public class EventModelConverter extends BaseConverter <EventModel, EventModelRe
         model.setForm(remoteModel.getForm());
 
         model.setStatus(remoteModel.getStatus());
-        model.setStartTime(remoteModel.getStartTime().toDate());
-        model.setEndTime(remoteModel.getEndTime().toDate());
-        model.setTimeCreated(remoteModel.getTimeCreated().toDate());
+        model.setStartTime(TransformUtilities.convertTimestampToLocalDateTime(remoteModel.getStartTime()));
+        model.setEndTime(TransformUtilities.convertTimestampToLocalDateTime(remoteModel.getEndTime()));
+        model.setTimeCreated(TransformUtilities.convertTimestampToLocalDateTime(remoteModel.getTimeCreated()));
 
         model.setVenue(remoteModel.getVenue());
         model.setVenueName(remoteModel.getVenueCache().get("name"));
@@ -76,8 +77,8 @@ public class EventModelConverter extends BaseConverter <EventModel, EventModelRe
         model.setForm(externalModel.getForm());
 
         model.setStatus(externalModel.getStatus());
-        model.setStartTime(new Timestamp(externalModel.getStartTime()));
-        model.setEndTime(new Timestamp(externalModel.getEndTime()));
+        model.setStartTime(TransformUtilities.convertLocalDateTimeToTimestamp(externalModel.getStartTime()));
+        model.setEndTime(TransformUtilities.convertLocalDateTimeToTimestamp(externalModel.getEndTime()));
 
         model.setVenue(externalModel.getVenue());
 

@@ -23,6 +23,7 @@ import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.utils.taskhandler.LiveDataAggregator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -429,8 +430,8 @@ public class UserProfileViewModel extends BaseViewModel {
         public final MutableLiveData<String> image;
 
         public final MutableLiveData<Map<String, Map<String, Map<String, String>>>> form;
-        public final MutableLiveData<Date> startTime;
-        public final MutableLiveData<Date> endTime;
+        public final MutableLiveData<LocalDateTime> startTime;
+        public final MutableLiveData<LocalDateTime> endTime;
         public final MutableLiveData<VenueModel> venueModel;
 
         public final MutableLiveData<List<String>> tags;

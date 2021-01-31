@@ -1,19 +1,15 @@
 package com.omada.junctionadmin.data.models.external;
 
 import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.Log;
 
 import com.google.common.collect.ImmutableList;
-import com.google.firebase.Timestamp;
-import com.omada.junctionadmin.data.models.internal.remote.EventModelRemoteDB;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
 
 public class EventModel extends PostModel {
 
@@ -22,8 +18,8 @@ public class EventModel extends PostModel {
     protected Map<String, Map<String, Map<String, String>>> form;
 
     protected String status;
-    protected Date startTime;
-    protected Date endTime;
+    protected LocalDateTime startTime;
+    protected LocalDateTime endTime;
 
     protected String venue;
     protected String venueName;
@@ -46,14 +42,14 @@ public class EventModel extends PostModel {
         creatorInstitute = in.readString();
         image = in.readString();
         status = in.readString();
-        startTime = new Date(in.readLong());
-        endTime = new Date(in.readLong());
+        startTime = Instant.ofEpochSecond(in.readLong()).atZone(ZoneId.of("UTC")).toLocalDateTime();
+        endTime = Instant.ofEpochSecond(in.readLong()).atZone(ZoneId.of("UTC")).toLocalDateTime();
         venue = in.readString();
         venueName = in.readString();
         venueAddress = in.readString();
         venueInstitute = in.readString();
         tags = ImmutableList.copyOf(in.createStringArrayList());
-        timeCreated = new Date(in.readLong());
+        timeCreated = Instant.ofEpochSecond(in.readLong()).atZone(ZoneId.of("UTC")).toLocalDateTime();
     }
 
     public static final Creator<EventModel> CREATOR = new Creator<EventModel>() {
@@ -80,11 +76,11 @@ public class EventModel extends PostModel {
         return status;
     }
 
-    public Date getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
-    public Date getEndTime() {
+    public LocalDateTime getEndTime() {
         return endTime;
     }
 
@@ -122,13 +118,13 @@ public class EventModel extends PostModel {
         dest.writeString(creatorInstitute);
         dest.writeString(image);
         dest.writeString(status);
-        dest.writeLong(startTime.getTime());
-        dest.writeLong(endTime.getTime());
+        dest.writeLong(startTime.toEpochSecond(ZoneOffset.UTC));
+        dest.writeLong(endTime.toEpochSecond(ZoneOffset.UTC));
         dest.writeString(venue);
         dest.writeString(venueName);
         dest.writeString(venueAddress);
         dest.writeString(venueInstitute);
         dest.writeStringList(tags);
-        dest.writeLong(timeCreated.getTime());
+        dest.writeLong(timeCreated.toEpochSecond(ZoneOffset.UTC));
     }
 }

@@ -5,6 +5,7 @@ import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.external.ArticleModel;
 import com.omada.junctionadmin.data.models.internal.remote.ArticleModelRemoteDB;
 import com.omada.junctionadmin.data.models.mutable.MutableArticleModel;
+import com.omada.junctionadmin.utils.transform.TransformUtilities;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +34,7 @@ public class ArticleModelConverter extends BaseConverter <ArticleModel, ArticleM
         model.setCreatorInstitute(remoteModel.getCreatorCache().get("institute"));
         model.setAuthor(remoteModel.getAuthor());
         model.setImage(remoteModel.getImage());
-        model.setTimeCreated(remoteModel.getTimeCreated().toDate());
+        model.setTimeCreated(TransformUtilities.convertTimestampToLocalDateTime(remoteModel.getTimeCreated()));
         model.setTags(ImmutableList.copyOf(remoteModel.getTags()));
 
         return model;
@@ -49,7 +50,7 @@ public class ArticleModelConverter extends BaseConverter <ArticleModel, ArticleM
         modelRemoteDB.setImage(externalModel.getImage());
         modelRemoteDB.setTitle(externalModel.getTitle());
         modelRemoteDB.setText(externalModel.getText());
-        modelRemoteDB.setTimeCreated(new Timestamp(externalModel.getTimeCreated()));
+        modelRemoteDB.setTimeCreated(TransformUtilities.convertLocalDateTimeToTimestamp(externalModel.getTimeCreated()));
 
         Map<String, String> creatorCache = new HashMap<>();
         creatorCache.put("name", externalModel.getCreatorName());

@@ -10,6 +10,7 @@ import androidx.lifecycle.Transformations;
 import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.utils.transform.TransformUtilities;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 
@@ -44,7 +45,6 @@ public class DataValidator {
 
         VALIDATION_POINT_NAME,
         VALIDATION_POINT_EMAIL,
-        VALIDATION_POINT_DATE_OF_BIRTH,
         VALIDATION_POINT_INSTITUTE_HANDLE,
         VALIDATION_POINT_PASSWORD,
         VALIDATION_POINT_INTERESTS,
@@ -81,7 +81,7 @@ public class DataValidator {
     }
 
 
-    public void validateEventTimings(Date startTime, Date endTime) {
+    public void validateEventTimings(LocalDateTime startTime, LocalDateTime endTime) {
 
     }
 
@@ -103,10 +103,6 @@ public class DataValidator {
                 dataValidationLiveData.removeObserver(this);
             }
         });
-    }
-
-    public void validateDateOfBirth(String dateOfBirth, OnValidationCompleteListener listener) {
-        listener.onValidationComplete(validateDateOfBirth(dateOfBirth));
     }
 
     public void validatePassword(String password, OnValidationCompleteListener listener) {
@@ -304,38 +300,6 @@ public class DataValidator {
                     DataValidationPoint.VALIDATION_POINT_IMAGE,
                     DataValidationResult.VALIDATION_RESULT_VALID
             );
-        }
-    }
-
-    private DataValidationInformation validateDateOfBirth(String dateOfBirth) {
-
-        if (dateOfBirth == null) {
-            return new DataValidationInformation(
-                    DataValidationPoint.VALIDATION_POINT_DATE_OF_BIRTH,
-                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
-            );
-        }
-
-        dateOfBirth = dateOfBirth.trim();
-
-        if (dateOfBirth.equals("")) {
-            return new DataValidationInformation(
-                    DataValidationPoint.VALIDATION_POINT_DATE_OF_BIRTH,
-                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
-            );
-        } else {
-            Date parsedDate = TransformUtilities.convertDDMMYYYYtoDate(dateOfBirth, "/");
-            if (parsedDate != null) {
-                return new DataValidationInformation(
-                        DataValidationPoint.VALIDATION_POINT_DATE_OF_BIRTH,
-                        DataValidationResult.VALIDATION_RESULT_VALID
-                );
-            } else {
-                return new DataValidationInformation(
-                        DataValidationPoint.VALIDATION_POINT_DATE_OF_BIRTH,
-                        DataValidationResult.VALIDATION_RESULT_PARSE_ERROR
-                );
-            }
         }
     }
 

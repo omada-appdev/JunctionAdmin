@@ -30,11 +30,9 @@ import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,15 +82,15 @@ public class VenueDataHandler extends BaseDataHandler {
 
     // Gets all bookings on a given day and all bookings one day before and after it
     public LiveData<LiveEvent<List<Pair<LocalDateTime, LocalDateTime>>>> getVenueBookingsOn(
-            DataRepository.DataRepositoryAccessIdentifier identifier, Date date, String venueId) {
+            DataRepository.DataRepositoryAccessIdentifier identifier, LocalDateTime date, String venueId) {
 
         MediatorLiveData<LiveEvent<List<Pair<LocalDateTime, LocalDateTime>>>> venueBookingsLiveData = new MediatorLiveData<>();
         BookingsAggregator aggregator = new BookingsAggregator(venueBookingsLiveData);
 
-        LocalDate providedDate = date.toInstant().atZone(ZoneId.of("UTC")).toLocalDate();
+        LocalDateTime providedDate = LocalDateTime.from(date);
 
-        LocalDate beforeDate = providedDate.minusDays(1);
-        LocalDate afterDate = providedDate.plusDays(1);
+        LocalDateTime beforeDate = providedDate.minusDays(1);
+        LocalDateTime afterDate = providedDate.plusDays(1);
 
         getVenueBookingsOn(BookingDayType.BOOKING_DAY_BEFORE, beforeDate, venueId, aggregator);
         getVenueBookingsOn(BookingDayType.BOOKING_DAY_PROVIDED, providedDate, venueId, aggregator);
@@ -102,7 +100,7 @@ public class VenueDataHandler extends BaseDataHandler {
 
     }
 
-    private void getVenueBookingsOn(BookingDayType bookingDayType, LocalDate date, String venueId, BookingsAggregator aggregator) {
+    private void getVenueBookingsOn(BookingDayType bookingDayType, LocalDateTime date, String venueId, BookingsAggregator aggregator) {
 
         FirebaseDatabase
                 .getInstance()
@@ -123,8 +121,8 @@ public class VenueDataHandler extends BaseDataHandler {
                             Long endTime = (Long) child.child("endTime").getValue();
 
                             bookingsList.add(new Pair<>(
-                                    LocalDateTime.from(Instant.ofEpochSecond(startTime)),
-                                    LocalDateTime.from(Instant.ofEpochSecond(endTime))
+                                    Instant.ofEpochSecond(startTime).atZone(ZoneId.of("UTC")).toLocalDateTime(),
+                                    Instant.ofEpochSecond(endTime).atZone(ZoneId.of("UTC")).toLocalDateTime()
                             ));
                         }
                         aggregator.holdData(bookingDayType, bookingsList);
@@ -149,6 +147,7 @@ public class VenueDataHandler extends BaseDataHandler {
                 .collection("bookings")
                 .document();
 
+        // getting only date because that is how it will be stored
         LocalDate date =
                 bookingModel.getStartTime().toDate().toInstant().atZone(ZoneId.of("UTC")).toLocalDate();
 
@@ -202,6 +201,10 @@ public class VenueDataHandler extends BaseDataHandler {
         @Override
         protected void aggregateData() {
 
+            if(!checkDataForAggregability()) {
+                return;
+            }
+
             List<Pair<LocalDateTime, LocalDateTime>> aggregatedBookings = new ArrayList<>();
             aggregatedBookings.addAll(dataOnHold.get(BookingDayType.BOOKING_DAY_BEFORE));
             aggregatedBookings.addAll(dataOnHold.get(BookingDayType.BOOKING_DAY_PROVIDED));
@@ -210,6 +213,5 @@ public class VenueDataHandler extends BaseDataHandler {
             destinationLiveData.setValue(new LiveEvent<>(aggregatedBookings));
         }
     }
-
 
 }

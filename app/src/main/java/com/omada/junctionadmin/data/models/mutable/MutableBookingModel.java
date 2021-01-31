@@ -4,6 +4,7 @@ import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.external.BookingModel;
 import com.omada.junctionadmin.data.models.external.EventModel;
 import com.omada.junctionadmin.data.models.external.VenueModel;
+import com.omada.junctionadmin.utils.transform.TransformUtilities;
 
 
 public class MutableBookingModel extends BookingModel {
@@ -83,8 +84,8 @@ public class MutableBookingModel extends BookingModel {
         // TODO ServerTimestamp
         //mutableBookingModel.setTimeCreated(new Timestamp(eventModel.getTimeCreated()));
 
-        mutableBookingModel.setStartTime(new Timestamp(eventModel.getStartTime()));
-        mutableBookingModel.setEndTime(new Timestamp(eventModel.getEndTime()));
+        mutableBookingModel.setStartTime(TransformUtilities.convertLocalDateTimeToTimestamp(eventModel.getStartTime()));
+        mutableBookingModel.setEndTime(TransformUtilities.convertLocalDateTimeToTimestamp(eventModel.getEndTime()));
         mutableBookingModel.setCreator(eventModel.getCreator());
         mutableBookingModel.setCreatorName(eventModel.getCreatorName());
         mutableBookingModel.setCreatorProfilePicture(eventModel.getCreatorProfilePicture());

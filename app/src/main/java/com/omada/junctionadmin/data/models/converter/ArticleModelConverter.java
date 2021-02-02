@@ -1,13 +1,11 @@
 package com.omada.junctionadmin.data.models.converter;
 
 import com.google.common.collect.ImmutableList;
-import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.external.ArticleModel;
 import com.omada.junctionadmin.data.models.internal.remote.ArticleModelRemoteDB;
 import com.omada.junctionadmin.data.models.mutable.MutableArticleModel;
-import com.omada.junctionadmin.utils.transform.TransformUtilities;
+import com.omada.junctionadmin.utils.TransformUtilities;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 

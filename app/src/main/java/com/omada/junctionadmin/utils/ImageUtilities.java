@@ -1,4 +1,4 @@
-package com.omada.junctionadmin.utils.image;
+package com.omada.junctionadmin.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;

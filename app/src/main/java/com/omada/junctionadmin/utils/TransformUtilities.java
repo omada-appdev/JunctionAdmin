@@ -1,4 +1,4 @@
-package com.omada.junctionadmin.utils.transform;
+package com.omada.junctionadmin.utils;
 
 import android.content.Context;
 import android.util.Log;
@@ -33,6 +33,18 @@ public class TransformUtilities {
 
     public static LocalDateTime convertTimestampToLocalDateTime(Timestamp timestamp) {
         return timestamp.toDate().toInstant().atZone(ZoneId.of("UTC")).toLocalDateTime();
+    }
+
+    public static String convertUtcLocalDateTimeToHHMM(LocalDateTime localDateTime) {
+        ZonedDateTime zonedDateTime = convertUtcLocalDateTimeToSystemZone(localDateTime);
+        return convertSystemZoneDateTimeToHHMM(zonedDateTime);
+    }
+
+    public static String convertSystemZoneDateTimeToHHMM(ZonedDateTime zonedDateTime) {
+        String res = zonedDateTime.getHour() + ":";
+        res += String.valueOf(zonedDateTime.getMinute()).length() < 2 ? "0" : "";
+        res += zonedDateTime.getMinute();
+        return res;
     }
 
     public static Timestamp convertLocalDateTimeToTimestamp(LocalDateTime localDateTime) {

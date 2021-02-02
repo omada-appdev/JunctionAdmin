@@ -30,7 +30,7 @@ import com.google.android.material.imageview.ShapeableImageView;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.databinding.EventCreateFragmentLayoutBinding;
 import com.omada.junctionadmin.utils.image.GlideApp;
-import com.omada.junctionadmin.utils.image.ImageUtilities;
+import com.omada.junctionadmin.utils.ImageUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.viewmodels.CreatePostViewModel;
 
@@ -92,7 +92,7 @@ public class EventCreateFragment extends Fragment {
                                 if(validationResult == DataValidator.DataValidationResult.VALIDATION_RESULT_BLANK_VALUE) {
                                     binding.eventDescriptionLayout.setError("Please provide a description");
                                 } else if (validationResult == DataValidator.DataValidationResult.VALIDATION_RESULT_OVERFLOW) {
-                                    binding.eventDescriptionLayout.setError("Character limit is " + DataValidator.EVENT_TITLE_MAX_SIZE);
+                                    binding.eventDescriptionLayout.setError("Character limit is " + DataValidator.EVENT_DESCRIPTION_MAX_SIZE);
                                 }
                                 break;
                             case VALIDATION_POINT_EVENT_TITLE:

@@ -27,7 +27,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.databinding.UserProfileEditDetailsLayoutBinding;
-import com.omada.junctionadmin.utils.image.ImageUtilities;
+import com.omada.junctionadmin.utils.ImageUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.viewmodels.UserProfileViewModel;
 

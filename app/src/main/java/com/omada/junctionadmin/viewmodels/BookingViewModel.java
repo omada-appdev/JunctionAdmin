@@ -5,25 +5,19 @@ import android.util.Pair;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
 import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.models.external.VenueModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
-import com.omada.junctionadmin.utils.transform.TransformUtilities;
+import com.omada.junctionadmin.utils.TransformUtilities;
 
-import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,10 +44,10 @@ public class BookingViewModel extends BaseViewModel {
 
     public final void setBookingDate(LocalDateTime bookingDate) {
         this.bookingDate = bookingDate;
-        if(cachedBookings.get(bookingDate.atZone(ZoneId.of("UTC")).toEpochSecond()) != null) {
+        if(cachedBookings.get(this.bookingDate.atZone(ZoneId.of("UTC")).toEpochSecond()) != null) {
             return;
         }
-        cachedBookings.put(bookingDate.atZone(ZoneId.of("UTC")).toEpochSecond(), new HashMap<>());
+        cachedBookings.put(this.bookingDate.atZone(ZoneId.of("UTC")).toEpochSecond(), new HashMap<>());
     }
 
     public LiveData<List<VenueModel>> getLoadedInstituteVenues() {
@@ -97,7 +91,6 @@ public class BookingViewModel extends BaseViewModel {
     public void loadAllVenuesSortedByNumberOfBookings() {
 
     }
-
 
     public boolean checkIfBookingCached(String venue) {
 

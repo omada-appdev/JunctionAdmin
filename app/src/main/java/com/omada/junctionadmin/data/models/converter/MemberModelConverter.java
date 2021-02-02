@@ -4,7 +4,7 @@ import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.external.MemberModel;
 import com.omada.junctionadmin.data.models.internal.remote.MemberModelRemoteDB;
 import com.omada.junctionadmin.data.models.mutable.MutableMemberModel;
-import com.omada.junctionadmin.utils.transform.TransformUtilities;
+import com.omada.junctionadmin.utils.TransformUtilities;
 
 import java.time.ZoneOffset;
 import java.util.Date;

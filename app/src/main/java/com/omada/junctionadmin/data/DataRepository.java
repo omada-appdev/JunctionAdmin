@@ -12,7 +12,7 @@ import com.omada.junctionadmin.data.handler.PostDataHandler;
 import com.omada.junctionadmin.data.handler.ShowcaseDataHandler;
 import com.omada.junctionadmin.data.handler.UserDataHandler;
 import com.omada.junctionadmin.data.handler.VenueDataHandler;
-import com.omada.junctionadmin.utils.string.StringUtilities;
+import com.omada.junctionadmin.utils.StringUtilities;
 
 import java.util.HashMap;
 import java.util.Map;

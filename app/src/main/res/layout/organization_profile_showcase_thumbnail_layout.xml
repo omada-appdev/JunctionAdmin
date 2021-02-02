@@ -35,7 +35,7 @@
             app:layout_constraintRight_toRightOf="parent"
             android:text="@{showcaseModel.title}"
             android:textStyle="bold"
-            android:textColor="@color/White"
+            android:textColor="@color/white"
             android:layout_margin="8dp"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

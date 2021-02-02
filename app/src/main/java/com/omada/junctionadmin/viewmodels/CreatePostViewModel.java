@@ -3,7 +3,6 @@ package com.omada.junctionadmin.viewmodels;
 import android.net.Uri;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
@@ -13,36 +12,22 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.common.collect.ImmutableList;
 import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.handler.PostDataHandler;
-import com.omada.junctionadmin.data.handler.UserDataHandler;
-import com.omada.junctionadmin.data.models.external.InterestModel;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.external.VenueModel;
-import com.omada.junctionadmin.data.models.mutable.MutableArticleModel;
-import com.omada.junctionadmin.data.models.mutable.MutableEventModel;
 import com.omada.junctionadmin.data.models.testdummy.TestVenueModel;
-import com.omada.junctionadmin.ui.login.LoginActivity;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
-import com.omada.junctionadmin.utils.taskhandler.LiveDataAggregator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
-import com.omada.junctionadmin.utils.transform.TransformUtilities;
 
-import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.omada.junctionadmin.data.DataRepository.getInstance;
 
 
 public class CreatePostViewModel extends BaseViewModel {

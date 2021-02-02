@@ -1,4 +1,4 @@
-package com.omada.junctionadmin.utils.network;
+package com.omada.junctionadmin.utils;
 
 public class NetworkUtilities {
 

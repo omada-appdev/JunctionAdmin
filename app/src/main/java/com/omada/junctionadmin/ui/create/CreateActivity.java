@@ -54,7 +54,7 @@ public class CreateActivity extends AppCompatActivity {
     private void setupBottomNavigation() {
 
         BottomNavigationView bottomMenu = findViewById(R.id.bottom_navigation);
-        bottomMenu.getMenu().findItem(R.id.profile_button).setChecked(true);
+        bottomMenu.getMenu().findItem(R.id.create_button).setChecked(true);
         bottomMenu.setOnNavigationItemSelectedListener(item -> {
 
             int itemId = item.getItemId();

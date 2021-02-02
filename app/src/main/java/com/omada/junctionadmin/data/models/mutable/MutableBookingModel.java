@@ -3,8 +3,7 @@ package com.omada.junctionadmin.data.models.mutable;
 import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.external.BookingModel;
 import com.omada.junctionadmin.data.models.external.EventModel;
-import com.omada.junctionadmin.data.models.external.VenueModel;
-import com.omada.junctionadmin.utils.transform.TransformUtilities;
+import com.omada.junctionadmin.utils.TransformUtilities;
 
 
 public class MutableBookingModel extends BookingModel {

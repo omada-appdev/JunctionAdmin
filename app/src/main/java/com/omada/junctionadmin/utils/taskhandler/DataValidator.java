@@ -8,10 +8,8 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 
 import com.omada.junctionadmin.data.DataRepository;
-import com.omada.junctionadmin.utils.transform.TransformUtilities;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 
 /*
@@ -29,7 +27,7 @@ import java.util.Date;
 public class DataValidator {
 
 
-    public static final int EVENT_DESCRIPTION_MAX_SIZE = 100;
+    public static final int EVENT_DESCRIPTION_MAX_SIZE = 200;
     public static final int EVENT_TITLE_MAX_SIZE = 30;
     public static final int EVENT_TITLE_MIN_SIZE = 5;
     private static final String EMAIL_VERIFICATION_REGEX =

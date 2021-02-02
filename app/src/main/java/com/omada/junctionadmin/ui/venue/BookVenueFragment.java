@@ -21,23 +21,17 @@ import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.data.models.external.VenueModel;
 import com.omada.junctionadmin.ui.uicomponents.animations.VenueItemAnimator;
 import com.omada.junctionadmin.ui.uicomponents.binders.VenueBookingItemBinder;
-import com.omada.junctionadmin.utils.transform.TransformUtilities;
 import com.omada.junctionadmin.viewmodels.BookingViewModel;
 import com.omada.junctionadmin.viewmodels.CreatePostViewModel;
-import com.omada.junctionadmin.viewmodels.InstituteViewModel;
 
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import mva3.adapter.HeaderSection;
 import mva3.adapter.ListSection;
 import mva3.adapter.MultiViewAdapter;
 import mva3.adapter.util.Mode;
-import mva3.adapter.util.OnSelectionChangedListener;
 
 public class BookVenueFragment extends Fragment {
 

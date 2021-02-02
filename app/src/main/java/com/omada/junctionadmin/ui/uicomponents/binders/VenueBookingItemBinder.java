@@ -1,15 +1,13 @@
 package com.omada.junctionadmin.ui.uicomponents.binders;
 
-import android.text.Layout;
 import android.util.Log;
 import android.util.Pair;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ToggleButton;
+import android.widget.LinearLayout;
 
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -17,9 +15,9 @@ import androidx.lifecycle.Observer;
 import com.google.android.material.textview.MaterialTextView;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.data.models.external.VenueModel;
-import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
+import com.omada.junctionadmin.utils.ColorUtilities;
+import com.omada.junctionadmin.utils.TransformUtilities;
 import com.omada.junctionadmin.viewmodels.BookingViewModel;
-import com.omada.junctionadmin.viewmodels.InstituteViewModel;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -63,7 +61,7 @@ public class VenueBookingItemBinder extends ItemBinder<VenueModel, VenueBookingI
         private final MaterialTextView venueAddress;
         private final ImageButton expandButton;
 
-        private final FrameLayout bookingsLayout;
+        private final LinearLayout bookingsLayout;
 
         private boolean handledBookingsEvent = false;
 
@@ -93,12 +91,15 @@ public class VenueBookingItemBinder extends ItemBinder<VenueModel, VenueBookingI
             expandButton.setImageResource(isItemExpanded() ? R.drawable.ic_downwards_arrow_key : R.drawable.ic_right_arrow_key);
 
             expandButton.setOnClickListener(v -> {
-                bookingViewModel.getBookings(model.getId());
+                if(!isItemExpanded()) {
+                    bookingsLayout.removeAllViews();
+                    bookingViewModel.getBookings(model.getId());
+                }
                 toggleItemExpansion();
             });
 
             // Don't want to load all at once. Only on demand or if already cached
-            if(bookingViewModel.checkIfBookingCached(model.getId())){
+            if(isItemExpanded() || bookingViewModel.checkIfBookingCached(model.getId())){
                 observeBookings(model);
             }
         }
@@ -112,12 +113,26 @@ public class VenueBookingItemBinder extends ItemBinder<VenueModel, VenueBookingI
                 @Override
                 public void onChanged(List<Pair<ZonedDateTime, ZonedDateTime>> pairs) {
                     if(handledBookingsEvent) {
+                        liveData.removeObserver(this);
                         return;
                     }
+                    Log.e("Bookings", "Collected : "+pairs.size()+" bookings");
                     handledBookingsEvent = true;
 
-                    // TODO display bookings from here
-                    Log.e("Bookings", "Collected : "+pairs.size()+" bookings");
+                    LayoutInflater inflater = LayoutInflater.from(bookingsLayout.getContext());
+                    for (Pair<ZonedDateTime, ZonedDateTime> pair : pairs) {
+                        MaterialTextView textView = (MaterialTextView) inflater.inflate(R.layout.booking_layout, bookingsLayout, false);
+                        textView.setText(
+                                String.format(
+                                        "%s   %s",
+                                        TransformUtilities.convertSystemZoneDateTimeToHHMM(pair.first),
+                                        TransformUtilities.convertSystemZoneDateTimeToHHMM(pair.second)
+                                )
+                        );
+                        textView.setBackgroundColor((int) ColorUtilities.randomColor());
+                        bookingsLayout.addView(textView);
+                    }
+
                     liveData.removeObserver(this);
                 }
             });

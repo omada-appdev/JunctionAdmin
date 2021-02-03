@@ -17,7 +17,8 @@ public class ShowcaseModelConverter extends BaseConverter <ShowcaseModel, Showca
     public ShowcaseModel convertRemoteDBToExternalModel(ShowcaseModelRemoteDB remoteModel) {
         
         MutableShowcaseModel model = new MutableShowcaseModel();
-        
+
+        model.setId(remoteModel.getId());
         model.setTitle(remoteModel.getTitle());
         model.setCreator(remoteModel.getCreator());
         model.setCreatorType(remoteModel.getCreatorType());
@@ -31,6 +32,7 @@ public class ShowcaseModelConverter extends BaseConverter <ShowcaseModel, Showca
 
         ShowcaseModelRemoteDB model = new ShowcaseModelRemoteDB();
 
+        model.setId(externalModel.getId());
         model.setTitle(externalModel.getTitle());
         model.setCreator(externalModel.getCreator());
         model.setCreatorType(externalModel.getCreatorType());

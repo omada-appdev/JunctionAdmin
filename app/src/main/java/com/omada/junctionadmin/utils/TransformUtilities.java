@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.TextStyle;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -47,7 +48,20 @@ public class TransformUtilities {
         return res;
     }
 
-    public static Timestamp convertLocalDateTimeToTimestamp(LocalDateTime localDateTime) {
-        return new Timestamp(Date.from(localDateTime.toInstant(ZoneOffset.UTC)));
+    public static String convertUtcLocalDateTimeToddDDMM(LocalDateTime localDateTime) {
+        ZonedDateTime zonedDateTime = convertUtcLocalDateTimeToSystemZone(localDateTime);
+        return convertSystemZoneDateTimeToddDDMM(zonedDateTime);
+    }
+
+    public static String convertSystemZoneDateTimeToddDDMM(ZonedDateTime zonedDateTime) {
+        return String.format(Locale.ENGLISH, "%s %d %s",
+                zonedDateTime.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.ENGLISH),
+                zonedDateTime.getDayOfMonth(),
+                zonedDateTime.getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
+        );
+    }
+
+    public static Timestamp convertUtcLocalDateTimeToTimestamp(LocalDateTime localDateTime) {
+        return new Timestamp(Date.from(localDateTime.atZone(ZoneId.of("UTC")).toInstant()));
     }
 }

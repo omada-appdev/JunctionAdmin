@@ -75,8 +75,8 @@ public class EventModelConverter extends BaseConverter <EventModel, EventModelRe
         model.setForm(externalModel.getForm());
 
         model.setStatus(externalModel.getStatus());
-        model.setStartTime(TransformUtilities.convertLocalDateTimeToTimestamp(externalModel.getStartTime()));
-        model.setEndTime(TransformUtilities.convertLocalDateTimeToTimestamp(externalModel.getEndTime()));
+        model.setStartTime(TransformUtilities.convertUtcLocalDateTimeToTimestamp(externalModel.getStartTime()));
+        model.setEndTime(TransformUtilities.convertUtcLocalDateTimeToTimestamp(externalModel.getEndTime()));
 
         model.setVenue(externalModel.getVenue());
 

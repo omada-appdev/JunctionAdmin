@@ -21,6 +21,7 @@ import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.external.PostModel;
 import com.omada.junctionadmin.data.models.mutable.MutableOrganizationModel;
 import com.omada.junctionadmin.ui.uicomponents.CustomBindings;
+import com.omada.junctionadmin.ui.uicomponents.binders.articlecard.ArticleCardBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.eventcard.EventCardLargeBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.institutefeed.OrganizationThumbnailListBinder;
 import com.omada.junctionadmin.viewmodels.FeedContentViewModel;
@@ -71,7 +72,8 @@ public class InstituteFeedFragment extends Fragment {
         adapter.addSection(highlightSection);
         adapter.registerItemBinders(
                 new OrganizationThumbnailListBinder(feedContentViewModel),
-                new EventCardLargeBinder(feedContentViewModel)
+                new EventCardLargeBinder(feedContentViewModel),
+                new ArticleCardBinder(feedContentViewModel)
         );
 
     }

@@ -12,9 +12,11 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.data.models.external.EventModel;
+import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.ui.create.CreateActivity;
 import com.omada.junctionadmin.ui.event.EventDetailsFragment;
 import com.omada.junctionadmin.ui.metrics.MetricsActivity;
+import com.omada.junctionadmin.ui.organization.OrganizationFragment;
 import com.omada.junctionadmin.ui.profile.ProfileActivity;
 import com.omada.junctionadmin.viewmodels.FeedContentViewModel;
 import com.omada.junctionadmin.viewmodels.InstituteViewModel;
@@ -89,8 +91,6 @@ public class InstituteActivity extends AppCompatActivity {
 
         FeedContentViewModel feedContentViewModel = new ViewModelProvider(this).get(FeedContentViewModel.class);
 
-        /*
-                TODO
         feedContentViewModel.getOrganizationViewHandler()
                 .getOrganizationModelDetailsTrigger()
                 .observe(this, organizationModelLiveEvent -> {
@@ -101,16 +101,22 @@ public class InstituteActivity extends AppCompatActivity {
                         if(organizationModel == null) {
                             return;
                         }
-                        getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.institute_content_placeholder, OrganizationProfileFragment.newInstance(organizationModel))
-                                .addToBackStack("stack")
-                                .commit();
+                        if(organizationModel.getId().equals(instituteViewModel.getUserId())){
+                            Intent i = new Intent(this, ProfileActivity.class);
+                            i.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION|Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivity(i);
+                        }
+                        else {
+                            getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .replace(R.id.institute_content_placeholder, OrganizationFragment.newInstance(organizationModel))
+                                    .addToBackStack("stack")
+                                    .commit();
+                        }
                     }
 
                 });
 
-         */
 
         feedContentViewModel.getEventViewHandler()
                 .getEventCardDetailsTrigger()
@@ -128,9 +134,6 @@ public class InstituteActivity extends AppCompatActivity {
                     }
                 });
 
-
-        /*
-                TODO
         feedContentViewModel.getOrganizationViewHandler().getOrganizationDetailsTrigger()
                 .observe(this, organizationIDLiveEvent -> {
                     if(organizationIDLiveEvent != null){
@@ -139,14 +142,23 @@ public class InstituteActivity extends AppCompatActivity {
                         if(organizationID == null) {
                             return;
                         }
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.institute_content_placeholder, OrganizationProfileFragment.newInstance(organizationID))
-                                .addToBackStack("stack")
-                                .commit();
+                        if(organizationID.equals(instituteViewModel.getUserId())){
+                            Intent i = new Intent(this, ProfileActivity.class);
+                            i.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION|Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivity(i);
+                        }
+                        else {
+                            getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .replace(R.id.institute_content_placeholder, OrganizationFragment.newInstance(organizationID))
+                                    .addToBackStack("stack")
+                                    .commit();
+                        }
                     }
                 });
 
 
+        /*
                 TODO
         feedContentViewModel
                 .getOrganizationViewHandler()

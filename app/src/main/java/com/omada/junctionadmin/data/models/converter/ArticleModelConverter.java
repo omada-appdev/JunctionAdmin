@@ -48,7 +48,7 @@ public class ArticleModelConverter extends BaseConverter <ArticleModel, ArticleM
         modelRemoteDB.setImage(externalModel.getImage());
         modelRemoteDB.setTitle(externalModel.getTitle());
         modelRemoteDB.setText(externalModel.getText());
-        modelRemoteDB.setTimeCreated(TransformUtilities.convertLocalDateTimeToTimestamp(externalModel.getTimeCreated()));
+        modelRemoteDB.setTimeCreated(TransformUtilities.convertUtcLocalDateTimeToTimestamp(externalModel.getTimeCreated()));
 
         Map<String, String> creatorCache = new HashMap<>();
         creatorCache.put("name", externalModel.getCreatorName());

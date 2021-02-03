@@ -36,7 +36,7 @@ public class OrganizationFragment extends Fragment {
 
         Bundle args = new Bundle();
         args.putString("organizationID", organizationModel.getId());
-        args.putSerializable("organizationModel", (Serializable) organizationModel);
+        args.putParcelable("organizationModel", organizationModel);
 
         OrganizationFragment fragment = new OrganizationFragment();
         fragment.setArguments(args);
@@ -54,6 +54,8 @@ public class OrganizationFragment extends Fragment {
         return fragment;
     }
 
+    private OrganizationFragment(){}
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,8 +65,12 @@ public class OrganizationFragment extends Fragment {
         if(savedInstanceState == null) {
             // created first time
 
-            organizationProfileViewModel.setOrganizationModel((OrganizationModel) getArguments().get("organizationModel"));
-            organizationProfileViewModel.setOrganizationID(getArguments().getString("organizationID"));
+            if (getArguments() != null) {
+                organizationProfileViewModel.setOrganizationModel(getArguments().getParcelable("organizationModel"));
+                organizationProfileViewModel.setOrganizationID(getArguments().getString("organizationID"));
+            } else {
+                throw new RuntimeException("Arguments were not set");
+            }
 
             organizationProfileViewModel.loadOrganizationHighlights();
             organizationProfileViewModel.loadOrganizationShowcases();
@@ -101,8 +107,12 @@ public class OrganizationFragment extends Fragment {
             LiveData<LiveEvent<OrganizationModel>> orgLiveData = organizationProfileViewModel.getOrganizationDetails();
 
             orgLiveData.observe(getViewLifecycleOwner(), orgModelLiveEvent->{
-                if (orgModelLiveEvent != null && orgModelLiveEvent.getDataOnceAndReset() != null){
-                    organizationProfileViewModel.setOrganizationModel(orgModelLiveEvent.getDataOnceAndReset());
+                if (orgModelLiveEvent != null){
+                    OrganizationModel model =  orgModelLiveEvent.getDataOnceAndReset();
+                    if(model == null) {
+                        return;
+                    }
+                    organizationProfileViewModel.setOrganizationModel(model);
                     populateViews();
                 }
             });
@@ -139,7 +149,7 @@ public class OrganizationFragment extends Fragment {
 
     private void populateViews(){
         binding.organizationNameText.setText(organizationProfileViewModel.getOrganizationModel().getName());
-        CustomBindings.loadImageGs(
+        CustomBindings.loadImageUrl(
                 binding.organizationProfilePictureImage,
                 organizationProfileViewModel.getOrganizationModel().getProfilePicture()
         );

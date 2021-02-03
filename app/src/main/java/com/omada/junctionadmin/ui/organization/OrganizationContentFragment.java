@@ -2,6 +2,7 @@ package com.omada.junctionadmin.ui.organization;
 
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import com.omada.junctionadmin.data.models.external.BaseModel;
 import com.omada.junctionadmin.data.models.external.PostModel;
 import com.omada.junctionadmin.data.models.external.ShowcaseModel;
 import com.omada.junctionadmin.ui.uicomponents.binders.articlecard.ArticleCardBinder;
+import com.omada.junctionadmin.ui.uicomponents.binders.articlecard.ArticleCardLargeBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.eventcard.EventCardMediumNoTitleBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.misc.LargeBoldHeaderBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.organizationfeed.OrganizationShowcaseThumbnailListBinder;
@@ -129,8 +131,7 @@ public class OrganizationContentFragment extends Fragment {
             }
             if (showcaseSection.getItem() != null &&
                     showcaseSection.getItem().size() > 0 &&
-                    //there is no method named getShowcaseId in Base model.
-                    showcaseSection.getItem().get(0).getShowcaseID() == null) {
+                    showcaseSection.getItem().get(0).getId() == null) {
 
                 showcaseSection.getItem().remove(0);
 

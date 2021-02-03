@@ -21,5 +21,6 @@
         app:shapeAppearanceOverlay="@style/Widget.AppTheme.CircleShapeAppearance"
         android:background="@color/white"
         android:elevation="2dp"
+        android:onClick="@{()->viewModel.organizationViewHandler.goToOrganization(organizationModel)}"
         android:visibility="@{organizationModel.id == null ? View.GONE : View.VISIBLE}"/>
 </layout>

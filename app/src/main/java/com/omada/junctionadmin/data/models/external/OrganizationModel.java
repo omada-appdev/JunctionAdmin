@@ -80,6 +80,11 @@ public class OrganizationModel extends BaseModel {
         }
     };
 
+    @Override
+    public String getId() {
+        return super.getId();
+    }
+
     public String getName() {
         return name;
     }

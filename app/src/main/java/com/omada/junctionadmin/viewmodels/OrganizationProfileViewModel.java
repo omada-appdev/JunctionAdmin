@@ -38,6 +38,9 @@ public class OrganizationProfileViewModel extends BaseViewModel {
     public void setOrganizationModel(OrganizationModel organizationModel) {
         this.organizationModel = organizationModel;
     }
+    public OrganizationModel getOrganizationModel(){
+        return this.organizationModel;
+    }
 
     public LiveData<LiveEvent<OrganizationModel>> getOrganizationDetails(){
 

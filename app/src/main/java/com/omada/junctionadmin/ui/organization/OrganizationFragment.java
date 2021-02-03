@@ -101,7 +101,7 @@ public class OrganizationFragment extends Fragment {
             LiveData<LiveEvent<OrganizationModel>> orgLiveData = organizationProfileViewModel.getOrganizationDetails();
 
             orgLiveData.observe(getViewLifecycleOwner(), orgModelLiveEvent->{
-                if (orgModelLiveEvent != null && orgModelLiveEvent.getData() != null){
+                if (orgModelLiveEvent != null && orgModelLiveEvent.getDataOnceAndReset() != null){
                     organizationProfileViewModel.setOrganizationModel(orgModelLiveEvent.getDataOnceAndReset());
                     populateViews();
                 }

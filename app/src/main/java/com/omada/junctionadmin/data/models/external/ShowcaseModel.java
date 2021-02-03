@@ -13,7 +13,7 @@ public class ShowcaseModel extends BaseModel {
     protected String creatorType;
     protected String photo;
 
-    protected ShowcaseModel(){
+    public ShowcaseModel(){
     }
 
     protected ShowcaseModel(Parcel in) {

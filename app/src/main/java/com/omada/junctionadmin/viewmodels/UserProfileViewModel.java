@@ -229,68 +229,57 @@ public class UserProfileViewModel extends BaseViewModel {
 
         MediatorLiveData<DataValidator.DataValidationInformation> anyDetailsEntryInvalid = new MediatorLiveData<>();
 
-        ValidationAggregator validationAggregator = new ValidationAggregator(anyDetailsEntryInvalid);
+        ValidationAggregator validationAggregator = ValidationAggregator
+                .build(anyDetailsEntryInvalid)
+                .add(DataValidator.DataValidationPoint.VALIDATION_POINT_NAME)
+                .add(DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE)
+                .get();
 
         if(organizationUpdater.newProfilePicture.getValue() != null) {
             userOrganizationModel.setProfilePicturePath(organizationUpdater.newProfilePicture.getValue());
         }
+
         dataValidator.validateInstitute(organizationUpdater.instituteHandle.getValue(), dataValidationInformation -> {
 
-            boolean reFetching = false;
-            if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID){
-                String id = InstituteDataHandler.getCachedInstituteId(organizationUpdater.instituteHandle.getValue());
-                if (id == null || id.equals("")) {
+            if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                LiveData<LiveEvent<String>> instituteId = DataRepository
+                        .getInstance()
+                        .getInstituteDataHandler()
+                        .getInstituteId(organizationUpdater.instituteHandle.getValue());
 
-                    reFetching = true;
-                    LiveData<LiveEvent<String>> reFetchedId = DataRepository
-                            .getInstance()
-                            .getInstituteDataHandler()
-                            .getInstituteId(organizationUpdater.instituteHandle.getValue());
+                instituteId.observeForever(new Observer<LiveEvent<String>>() {
+                    @Override
+                    public void onChanged(LiveEvent<String> stringLiveEvent) {
+                        if (stringLiveEvent == null) {
+                            return;
+                        }
+                        String result = stringLiveEvent.getDataOnceAndReset();
+                        DataValidator.DataValidationInformation newValidationInformation;
 
-                    reFetchedId.observeForever(new Observer<LiveEvent<String>>() {
-                        @Override
-                        public void onChanged(LiveEvent<String> stringLiveEvent) {
-                            if(stringLiveEvent == null) {
-                                return;
-                            }
-                            String result = stringLiveEvent.getDataOnceAndReset();
-                            DataValidator.DataValidationInformation newValidationInformation;
-
-                            if(result != null && !result.equals("notFound")){
-                                userOrganizationModel.setInstitute(result);
-                                newValidationInformation = new DataValidator.DataValidationInformation(
-                                        DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
-                                        DataValidator.DataValidationResult.VALIDATION_RESULT_VALID
-                                );
-                            }
-                            else {
-                                newValidationInformation = new DataValidator.DataValidationInformation(
-                                        DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
-                                        DataValidator.DataValidationResult.VALIDATION_RESULT_INVALID
-                                );
-                            }
-
-                            validationAggregator.holdData(
+                        if (result != null && !result.equals("notFound")) {
+                            userOrganizationModel.setInstitute(result);
+                            newValidationInformation = new DataValidator.DataValidationInformation(
                                     DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
-                                    newValidationInformation
+                                    DataValidator.DataValidationResult.VALIDATION_RESULT_VALID
                             );
-                            notifyValidity(newValidationInformation);
-                            reFetchedId.removeObserver(this);
-                        }});
+                        } else {
+                            newValidationInformation = new DataValidator.DataValidationInformation(
+                                    DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                                    DataValidator.DataValidationResult.VALIDATION_RESULT_INVALID
+                            );
+                        }
 
-                } else {
-                    userOrganizationModel.setInstitute(id);
-                }
+                        validationAggregator.holdData(
+                                DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                                newValidationInformation
+                        );
+                        notifyValidity(newValidationInformation);
+                        instituteId.removeObserver(this);
+                    }
+                });
             }
-            if(!reFetching) {
-                validationAggregator.holdData(
-                        DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
-                        dataValidationInformation
-                );
-                notifyValidity(dataValidationInformation);
-            }
+            else notifyValidity(dataValidationInformation);
         });
-
 
         dataValidator.validateName(organizationUpdater.name.getValue(), dataValidationInformation -> {
             if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
@@ -471,48 +460,6 @@ public class UserProfileViewModel extends BaseViewModel {
         public final MutableLiveData<String> title;
         public final MutableLiveData<String> photo;
 
-    }
-
-    private static class ValidationAggregator extends LiveDataAggregator<DataValidator.DataValidationPoint, DataValidator.DataValidationInformation, DataValidator.DataValidationInformation> {
-
-        private static final Set<DataValidator.DataValidationPoint> allValidationPoints = new HashSet<>();
-
-        static {
-            allValidationPoints.add(DataValidator.DataValidationPoint.VALIDATION_POINT_NAME);
-            allValidationPoints.add(DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE);
-        }
-
-        public ValidationAggregator(MediatorLiveData<DataValidator.DataValidationInformation> destination) {
-            super(destination);
-        }
-
-        @Override
-        protected DataValidator.DataValidationInformation mergeWithExistingData(DataValidator.DataValidationPoint typeofData, DataValidator.DataValidationInformation oldData, DataValidator.DataValidationInformation newData) {
-            throw new UnsupportedOperationException("Attempt to set same type of validation parameter twice");
-        }
-
-        @Override
-        protected boolean checkDataForAggregability() {
-            return dataOnHold.keySet().containsAll(allValidationPoints);
-        }
-
-        @Override
-        protected void aggregateData() {
-
-            for (DataValidator.DataValidationInformation dataValidationInformation : dataOnHold.values()) {
-                if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
-                    destinationLiveData.postValue(new DataValidator.DataValidationInformation(
-                            DataValidator.DataValidationPoint.VALIDATION_POINT_ALL,
-                            DataValidator.DataValidationResult.VALIDATION_RESULT_INVALID
-                    ));
-                    return;
-                }
-            }
-            destinationLiveData.postValue(new DataValidator.DataValidationInformation(
-                    DataValidator.DataValidationPoint.VALIDATION_POINT_ALL,
-                    DataValidator.DataValidationResult.VALIDATION_RESULT_VALID
-            ));
-        }
     }
 
 }

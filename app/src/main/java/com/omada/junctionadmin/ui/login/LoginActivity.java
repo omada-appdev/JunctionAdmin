@@ -97,7 +97,16 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        loginViewModel.getToastMessageAction().observe(this, s -> Toast.makeText(LoginActivity.this, s.getDataOnce(), Toast.LENGTH_SHORT).show());
+        loginViewModel.getToastMessageAction().observe(this, stringLiveEvent -> {
+            if(stringLiveEvent == null) {
+                return;
+            }
+            String data = stringLiveEvent.getDataOnceAndReset();
+            if(data == null) {
+                return;
+            }
+            Toast.makeText(LoginActivity.this, data, Toast.LENGTH_SHORT).show();
+        });
     }
 
     @Override

@@ -75,7 +75,6 @@ public class ProfileEditDetailsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         binding.doneButton.setOnClickListener(v -> {
-            binding.doneButton.setEnabled(false);
             binding.getViewModel().detailsEntryDone();
         });
 
@@ -150,8 +149,8 @@ public class ProfileEditDetailsFragment extends Fragment {
                                 }
                                 break;
                             case VALIDATION_POINT_ALL:
-                                if(dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
-                                    binding.doneButton.setEnabled(true);
+                                if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                                    binding.doneButton.setEnabled(false);
                                 }
                                 break;
                             default:

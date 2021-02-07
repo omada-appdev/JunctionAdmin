@@ -3,6 +3,7 @@ package com.omada.junctionadmin.ui.institute;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,12 +12,18 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.omada.junctionadmin.R;
+import com.omada.junctionadmin.data.models.external.ArticleModel;
 import com.omada.junctionadmin.data.models.external.EventModel;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
+import com.omada.junctionadmin.data.models.external.ShowcaseModel;
+import com.omada.junctionadmin.ui.article.ArticleDetailsEditFragment;
+import com.omada.junctionadmin.ui.article.ArticleDetailsFragment;
 import com.omada.junctionadmin.ui.create.CreateActivity;
+import com.omada.junctionadmin.ui.event.EventDetailsEditFragment;
 import com.omada.junctionadmin.ui.event.EventDetailsFragment;
 import com.omada.junctionadmin.ui.metrics.MetricsActivity;
 import com.omada.junctionadmin.ui.organization.OrganizationFragment;
+import com.omada.junctionadmin.ui.organization.OrganizationShowcaseFragment;
 import com.omada.junctionadmin.ui.profile.ProfileActivity;
 import com.omada.junctionadmin.viewmodels.FeedContentViewModel;
 import com.omada.junctionadmin.viewmodels.InstituteViewModel;
@@ -127,10 +134,40 @@ public class InstituteActivity extends AppCompatActivity {
                         if(model == null) {
                             return;
                         }
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.institute_content_placeholder, EventDetailsFragment.newInstance(model))
-                                .addToBackStack("stack")
-                                .commit();
+                        if(model.getCreator().equals(instituteViewModel.getUserId())) {
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.institute_content_placeholder, EventDetailsEditFragment.newInstance(model))
+                                    .addToBackStack("stack")
+                                    .commit();
+                        } else {
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.institute_content_placeholder, EventDetailsFragment.newInstance(model))
+                                    .addToBackStack("stack")
+                                    .commit();
+                        }
+                    }
+                });
+
+        feedContentViewModel.getArticleViewHandler()
+                .getArticleCardDetailsTrigger()
+                .observe(this, articleModelLiveEvent -> {
+                    if(articleModelLiveEvent != null){
+                        ArticleModel model = articleModelLiveEvent.getDataOnceAndReset();
+
+                        if(model == null) {
+                            return;
+                        }
+                        if(model.getCreator().equals(instituteViewModel.getUserId())) {
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.institute_content_placeholder, ArticleDetailsEditFragment.newInstance(model))
+                                    .addToBackStack("stack")
+                                    .commit();
+                        } else {
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.institute_content_placeholder, ArticleDetailsFragment.newInstance(model))
+                                    .addToBackStack("stack")
+                                    .commit();
+                        }
                     }
                 });
 
@@ -158,29 +195,32 @@ public class InstituteActivity extends AppCompatActivity {
                 });
 
 
-        /*
-                TODO
-        feedContentViewModel
-                .getOrganizationViewHandler()
+        feedContentViewModel.getOrganizationViewHandler()
                 .getOrganizationShowcaseDetailsTrigger()
                 .observe(this, showcaseModelLiveEvent -> {
-
-                    if(showcaseModelLiveEvent != null){
-                        ShowcaseModel model = showcaseModelLiveEvent.getDataOnceAndReset();
-                        if(model == null) {
-                            return;
-                        }
+                    if(showcaseModelLiveEvent == null) {
+                        return;
+                    }
+                    ShowcaseModel showcaseModel = showcaseModelLiveEvent.getDataOnceAndReset();
+                    if(showcaseModel == null) {
+                        return;
+                    }
+                    if (showcaseModel.getCreator().equals(instituteViewModel.getUserId())) {
+                        // TODO open edit details fragment
                         getSupportFragmentManager()
                                 .beginTransaction()
-                                .replace(R.id.institute_content_placeholder, OrganizationShowcaseFragment.newInstance(model.getCreator(), model.getShowcaseID()))
-                                .addToBackStack("stack")
+                                .replace(R.id.institute_content_placeholder, OrganizationShowcaseFragment.newInstance(showcaseModel))
+                                .addToBackStack(null)
                                 .commit();
-
                     }
-
+                    else {
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.institute_content_placeholder, OrganizationShowcaseFragment.newInstance(showcaseModel))
+                                .addToBackStack(null)
+                                .commit();
+                    }
                 });
-
-         */
     }
 
 

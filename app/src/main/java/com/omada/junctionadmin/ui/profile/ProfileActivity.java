@@ -12,11 +12,19 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.data.handler.UserDataHandler;
+import com.omada.junctionadmin.data.models.external.ArticleModel;
+import com.omada.junctionadmin.data.models.external.EventModel;
+import com.omada.junctionadmin.data.models.external.ShowcaseModel;
+import com.omada.junctionadmin.ui.article.ArticleDetailsFragment;
 import com.omada.junctionadmin.ui.create.CreateActivity;
+import com.omada.junctionadmin.ui.event.EventDetailsFragment;
 import com.omada.junctionadmin.ui.institute.InstituteActivity;
 import com.omada.junctionadmin.ui.login.LoginActivity;
 import com.omada.junctionadmin.ui.metrics.MetricsActivity;
+import com.omada.junctionadmin.ui.organization.OrganizationShowcaseFragment;
+import com.omada.junctionadmin.viewmodels.FeedContentViewModel;
 import com.omada.junctionadmin.viewmodels.UserProfileViewModel;
+
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -122,11 +130,95 @@ public class ProfileActivity extends AppCompatActivity {
 
                     }
                 });
+
+        FeedContentViewModel feedContentViewModel = new ViewModelProvider(this).get(FeedContentViewModel.class);
+
+        feedContentViewModel.getEventViewHandler()
+                .getEventCardDetailsTrigger()
+                .observe(this, eventModelLiveEvent -> {
+                    if(eventModelLiveEvent == null) {
+                        return;
+                    }
+                    EventModel eventModel = eventModelLiveEvent.getDataOnceAndReset();
+                    if(eventModel == null) {
+                        return;
+                    }
+                    if (eventModel.getCreator().equals(userProfileViewModel.getUserId())) {
+                        // TODO open edit details fragment
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.profile_content_placeholder, EventDetailsFragment.newInstance(eventModel))
+                                .addToBackStack(null)
+                                .commit();
+                    }
+                    else {
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.profile_content_placeholder, EventDetailsFragment.newInstance(eventModel))
+                                .addToBackStack(null)
+                                .commit();
+                    }
+                });
+
+        feedContentViewModel.getArticleViewHandler()
+                .getArticleCardDetailsTrigger()
+                .observe(this, articleModelLiveEvent -> {
+                    if(articleModelLiveEvent == null) {
+                        return;
+                    }
+                    ArticleModel articleModel = articleModelLiveEvent.getDataOnceAndReset();
+                    if(articleModel == null) {
+                        return;
+                    }
+                    if (articleModel.getCreator().equals(userProfileViewModel.getUserId())) {
+                        // TODO open edit details fragment
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.profile_content_placeholder, ArticleDetailsFragment.newInstance(articleModel))
+                                .addToBackStack(null)
+                                .commit();
+                    }
+                    else {
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.profile_content_placeholder, ArticleDetailsFragment.newInstance(articleModel))
+                                .addToBackStack(null)
+                                .commit();
+                    }
+                });
+
+        feedContentViewModel.getOrganizationViewHandler()
+                .getOrganizationShowcaseDetailsTrigger()
+                .observe(this, showcaseModelLiveEvent -> {
+                    if(showcaseModelLiveEvent == null) {
+                        return;
+                    }
+                    ShowcaseModel showcaseModel = showcaseModelLiveEvent.getDataOnceAndReset();
+                    if(showcaseModel == null) {
+                        return;
+                    }
+                    if (showcaseModel.getCreator().equals(userProfileViewModel.getUserId())) {
+                        // TODO open edit details fragment
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.profile_content_placeholder, OrganizationShowcaseFragment.newInstance(showcaseModel))
+                                .addToBackStack(null)
+                                .commit();
+                    }
+                    else {
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.profile_content_placeholder, OrganizationShowcaseFragment.newInstance(showcaseModel))
+                                .addToBackStack(null)
+                                .commit();
+                    }
+                });
+
     }
 
     @Override
     public void onBackPressed() {
-        userProfileViewModel.resetUpdater();
+        userProfileViewModel.resetOrganizationUpdater();
         super.onBackPressed();
     }
 

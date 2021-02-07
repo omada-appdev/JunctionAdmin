@@ -12,6 +12,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 import com.omada.junctionadmin.data.BaseDataHandler;
 import com.omada.junctionadmin.data.DataRepository;
@@ -31,6 +32,7 @@ import com.omada.junctionadmin.data.models.mutable.MutableEventModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -220,9 +222,37 @@ public class PostDataHandler extends BaseDataHandler {
      */
     // TODO changesInPostModel must be made immutable
 
-    public LiveData<LiveEvent<Boolean>> updatePost(String postId, Map<String, Object> changesInPostModel){
+    public LiveData<LiveEvent<Boolean>> updatePost(String postId, PostModel mutableModel){
+
+        /*
+         I know I am abusing Java here but I think this is better and more scalable
+         than overloading updatePost for every model.
+        */
+        if (!(mutableModel instanceof MutableEventModel)
+                && !(mutableModel instanceof MutableArticleModel)) {
+
+            throw new RuntimeException("Expected a mutable model of a post");
+        }
 
         MutableLiveData<LiveEvent<Boolean>> resultLiveData = new MutableLiveData<>();
+
+        Map<String, Object> changesInPostModel = new HashMap<>();
+
+        Class<? extends PostModel> aClass = mutableModel.getClass();
+        if (MutableArticleModel.class.equals(aClass)) {
+
+            MutableArticleModel mutableArticleModel = (MutableArticleModel) mutableModel;
+            changesInPostModel.put("text", mutableArticleModel.getText());
+            changesInPostModel.put("author", mutableArticleModel.getAuthor());
+            changesInPostModel.put("tags", mutableArticleModel.getTags());
+
+        } else if (MutableEventModel.class.equals(aClass)) {
+
+            MutableEventModel mutableEventModel = (MutableEventModel) mutableModel;
+            changesInPostModel.put("description", mutableEventModel.getDescription());
+            changesInPostModel.put("tags", mutableEventModel.getTags());
+
+        }
 
         FirebaseFirestore.getInstance()
                 .collection("posts")

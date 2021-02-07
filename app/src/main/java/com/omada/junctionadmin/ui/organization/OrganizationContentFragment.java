@@ -2,7 +2,6 @@ package com.omada.junctionadmin.ui.organization;
 
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,8 +17,8 @@ import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.data.models.external.BaseModel;
 import com.omada.junctionadmin.data.models.external.PostModel;
 import com.omada.junctionadmin.data.models.external.ShowcaseModel;
-import com.omada.junctionadmin.ui.uicomponents.binders.articlecard.ArticleCardBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.articlecard.ArticleCardLargeBinder;
+import com.omada.junctionadmin.ui.uicomponents.binders.articlecard.ArticleCardMediumNoTitleBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.eventcard.EventCardMediumNoTitleBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.misc.LargeBoldHeaderBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.organizationfeed.OrganizationShowcaseThumbnailListBinder;
@@ -75,7 +74,7 @@ public class OrganizationContentFragment extends Fragment {
 
         adapter.registerItemBinders(
                 new EventCardMediumNoTitleBinder(feedContentViewModel),
-                new ArticleCardBinder(feedContentViewModel),
+                new ArticleCardMediumNoTitleBinder(feedContentViewModel),
                 new OrganizationShowcaseThumbnailListBinder(feedContentViewModel),
                 new LargeBoldHeaderBinder()
         );

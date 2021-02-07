@@ -16,12 +16,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.appbar.AppBarLayout;
 import com.mancj.materialsearchbar.MaterialSearchBar;
 import com.omada.junctionadmin.R;
-import com.omada.junctionadmin.data.models.external.BaseModel;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.external.PostModel;
 import com.omada.junctionadmin.data.models.mutable.MutableOrganizationModel;
 import com.omada.junctionadmin.ui.uicomponents.CustomBindings;
-import com.omada.junctionadmin.ui.uicomponents.binders.articlecard.ArticleCardBinder;
+import com.omada.junctionadmin.ui.uicomponents.binders.articlecard.ArticleCardLargeBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.eventcard.EventCardLargeBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.institutefeed.OrganizationThumbnailListBinder;
 import com.omada.junctionadmin.viewmodels.FeedContentViewModel;
@@ -73,7 +72,7 @@ public class InstituteFeedFragment extends Fragment {
         adapter.registerItemBinders(
                 new OrganizationThumbnailListBinder(feedContentViewModel),
                 new EventCardLargeBinder(feedContentViewModel),
-                new ArticleCardBinder(feedContentViewModel)
+                new ArticleCardLargeBinder(feedContentViewModel)
         );
 
     }

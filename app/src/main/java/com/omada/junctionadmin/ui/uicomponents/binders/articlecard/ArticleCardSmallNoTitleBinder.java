@@ -7,17 +7,20 @@ import androidx.databinding.DataBindingUtil;
 
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.data.models.external.ArticleModel;
+import com.omada.junctionadmin.databinding.ArticleCardLargeLayoutBinding;
 import com.omada.junctionadmin.databinding.ArticleCardSmallNoTitleLayoutBinding;
 import com.omada.junctionadmin.viewmodels.FeedContentViewModel;
 
 import mva3.adapter.ItemBinder;
 import mva3.adapter.ItemViewHolder;
 
+
 public class ArticleCardSmallNoTitleBinder extends ItemBinder<ArticleModel, ArticleCardSmallNoTitleBinder.ArticleCardViewHolder> {
 
-    private FeedContentViewModel viewModel;
 
-    public ArticleCardSmallNoTitleBinder(FeedContentViewModel viewModel) {
+    private final FeedContentViewModel viewModel;
+
+    public ArticleCardSmallNoTitleBinder(FeedContentViewModel viewModel){
         this.viewModel = viewModel;
     }
 
@@ -28,7 +31,7 @@ public class ArticleCardSmallNoTitleBinder extends ItemBinder<ArticleModel, Arti
     }
 
     @Override
-    public void bindViewHolder(ArticleCardViewHolder holder, ArticleModel item) {
+    public void bindViewHolder(final ArticleCardViewHolder holder, ArticleModel item) {
         holder.binding.setArticleModel(item);
         holder.binding.setViewModel(viewModel);
     }
@@ -40,11 +43,11 @@ public class ArticleCardSmallNoTitleBinder extends ItemBinder<ArticleModel, Arti
 
     public static class ArticleCardViewHolder extends ItemViewHolder<ArticleModel>{
 
-        private ArticleCardSmallNoTitleLayoutBinding binding;
+        ArticleCardSmallNoTitleLayoutBinding binding;
 
-        public ArticleCardViewHolder(ArticleCardSmallNoTitleLayoutBinding binding) {
-            super(binding.getRoot());
-            this.binding = binding;
+        public ArticleCardViewHolder (ArticleCardSmallNoTitleLayoutBinding containerBinding) {
+            super(containerBinding.getRoot());
+            binding = containerBinding;
         }
 
         public ArticleCardSmallNoTitleLayoutBinding getBinding() {

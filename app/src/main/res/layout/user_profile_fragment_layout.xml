@@ -82,7 +82,7 @@
                                 android:layout_marginBottom="4dp"
                                 android:text="@={viewModel.organizationUpdater.name}"
                                 android:textAlignment="viewEnd"
-                                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                                 android:textColor="@color/black"
                                 android:theme="@style/Theme.AppTheme"
                                 app:layout_constraintBottom_toTopOf="@id/edit_details_button"
@@ -187,7 +187,8 @@
 
                 </com.google.android.material.appbar.AppBarLayout>
 
-                <androidx.recyclerview.widget.RecyclerView
+                <androidx.fragment.app.FragmentContainerView
+                    class="com.omada.junctionadmin.ui.profile.ProfileContentFragment"
                     android:id="@+id/recycler_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

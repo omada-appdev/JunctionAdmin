@@ -5,6 +5,7 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.BindingAdapter;
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -30,8 +31,15 @@ public class CustomBindings {
             gsRef = FirebaseStorage.getInstance().getReferenceFromUrl(gsUrl);
         }
 
+        CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(view.getContext());
+        circularProgressDrawable.setStrokeWidth(5f);
+        circularProgressDrawable.setCenterRadius(30f);
+        circularProgressDrawable.start();
+
+
         GlideApp.with(view.getContext())
                 .load(gsRef)
+                .placeholder(circularProgressDrawable)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(view);
 
@@ -44,8 +52,15 @@ public class CustomBindings {
     @BindingAdapter({"remoteImageHttp"})
     public static void loadImageUrl(ImageView view, String httpUrl) {
 
+        CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(view.getContext());
+        circularProgressDrawable.setStrokeWidth(5f);
+        circularProgressDrawable.setCenterRadius(30f);
+        circularProgressDrawable.start();
+
+
         GlideApp.with(view.getContext())
                 .load(httpUrl)
+                .placeholder(circularProgressDrawable)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(view);
     }

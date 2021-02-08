@@ -200,6 +200,7 @@ public class UserDataHandler extends BaseDataHandler {
 
                     if(!documentSnapshot.exists()) {
                         resultLiveData.setValue(false);
+                        authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.USER_TOKEN_EXPIRED));
                         return;
                     }
                     OrganizationModelRemoteDB modelRemoteDB = documentSnapshot.toObject(OrganizationModelRemoteDB.class);
@@ -208,6 +209,7 @@ public class UserDataHandler extends BaseDataHandler {
                         signedInUser = new MutableOrganizationModel(
                                 organizationModelConverter.convertRemoteDBToExternalModel(modelRemoteDB)
                         );
+                        Log.e("Auth", "Retrieved user data from Source.SERVER");
                         authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.LOGIN_SUCCESS));
                         signedInUserNotifier.setValue(new LiveEvent<>(getCurrentUserModel()));
                         resultLiveData.setValue(true);
@@ -248,6 +250,7 @@ public class UserDataHandler extends BaseDataHandler {
                         signedInUser = new MutableOrganizationModel(
                                 organizationModelConverter.convertRemoteDBToExternalModel(modelRemoteDB)
                         );
+                        Log.e("Auth", "Retrieved user data from Source.CACHE");
                         authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.LOGIN_SUCCESS));
                         signedInUserNotifier.setValue(new LiveEvent<>(getCurrentUserModel()));
                         resultLiveData.setValue(true);

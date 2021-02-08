@@ -1,6 +1,7 @@
 package com.omada.junctionadmin.viewmodels;
 
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -15,6 +16,7 @@ import com.omada.junctionadmin.data.handler.PostDataHandler;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.external.VenueModel;
 import com.omada.junctionadmin.data.models.testdummy.TestVenueModel;
+import com.omada.junctionadmin.utils.FileUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
@@ -279,7 +281,7 @@ public class CreatePostViewModel extends BaseViewModel {
     }
 
 
-    private long invalidUpto;
+    private long invalidUpTo;
     private long endTime;
     private long startTime;
 
@@ -293,7 +295,7 @@ public class CreatePostViewModel extends BaseViewModel {
         startTime = calendar.getTimeInMillis();
 
         calendar.roll(Calendar.DATE, -1);
-        invalidUpto = calendar.getTimeInMillis();
+        invalidUpTo = calendar.getTimeInMillis();
 
         calendar.roll(Calendar.YEAR, 2);
         endTime = calendar.getTimeInMillis();
@@ -318,7 +320,7 @@ public class CreatePostViewModel extends BaseViewModel {
         constraintsBuilder.setStart(startTime);
         constraintsBuilder.setEnd(endTime);
         constraintsBuilder.setOpenAt(startTime);
-        constraintsBuilder.setValidator(DateValidatorPointForward.from(invalidUpto));
+        constraintsBuilder.setValidator(DateValidatorPointForward.from(invalidUpTo));
 
         return constraintsBuilder;
     }
@@ -371,11 +373,15 @@ public class CreatePostViewModel extends BaseViewModel {
 
         public void resetData(boolean resetForm, boolean resetVenueModel) {
 
+            Log.e("Create", "Resetting event");
             title.setValue(null);
             description.setValue(null);
             startTime.setValue(null);
             endTime.setValue(null);
-            imagePath = null;
+            if(imagePath != null) {
+                FileUtilities.Companion.deleteFile(imagePath);
+                imagePath = null;
+            }
             tags = null;
 
             if (resetForm) {
@@ -455,10 +461,15 @@ public class CreatePostViewModel extends BaseViewModel {
 
         @Override
         public void resetData(boolean resetForm, boolean resetVenueModel) {
-
+            Log.e("Create", "Resetting event");
             title.setValue(null);
             description.setValue(null);
-            imagePath = null;
+            if(imagePath != null) {
+                FileUtilities.Companion.deleteFile(imagePath);
+                imagePath = null;
+            } else {
+                Log.e("Create", "Null image path");
+            }
             tags = null;
 
             if (resetForm) {

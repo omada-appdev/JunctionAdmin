@@ -29,6 +29,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.databinding.EventCreateFragmentLayoutBinding;
+import com.omada.junctionadmin.utils.FileUtilities;
 import com.omada.junctionadmin.utils.image.GlideApp;
 import com.omada.junctionadmin.utils.ImageUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
@@ -294,6 +295,9 @@ public class EventCreateFragment extends Fragment {
                         if(fileLiveEvent != null){
                             File file = fileLiveEvent.getDataOnceAndReset();
                             if(file != null) {
+                                if(binding.getEventCreator().getImagePath() != null) {
+                                    FileUtilities.Companion.deleteFile(binding.getEventCreator().getImagePath());
+                                }
                                 binding.getEventCreator().setImagePath(Uri.fromFile(file));
                             }
                             else {
@@ -301,7 +305,7 @@ public class EventCreateFragment extends Fragment {
                             }
                         }
                         else{
-                            Log.e("Profile", "Error ");
+                            Log.e("Profile", "Error: fileLiveEvent was null");
                         }
                     });
 

@@ -10,7 +10,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.data.handler.UserDataHandler;
-import com.omada.junctionadmin.ui.create.CreateActivity;
 import com.omada.junctionadmin.ui.login.LoginActivity;
 import com.omada.junctionadmin.ui.profile.ProfileActivity;
 import com.omada.junctionadmin.viewmodels.SplashViewModel;
@@ -37,14 +36,13 @@ public class SplashActivity extends AppCompatActivity {
                 switch (authStatus){
                     case CURRENT_USER_SUCCESS:
                         break;
-                    case CURRENT_USER_LOGIN_SUCCESS:
+                    case LOGIN_SUCCESS:
                         i = new Intent(this, ProfileActivity.class);
                         startActivity(i);
                         finish();
                         break;
-                    case LOGIN_FAILURE:
                     case CURRENT_USER_FAILURE:
-                    case CURRENT_USER_LOGIN_FAILURE:
+                    case LOGIN_FAILURE:
                         i = new Intent(this, LoginActivity.class);
                         startActivity(i);
                         finish();

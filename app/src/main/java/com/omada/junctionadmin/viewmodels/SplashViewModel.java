@@ -32,8 +32,8 @@ public class SplashViewModel extends BaseViewModel {
                     switch (receivedAuthResponse){
                         case CURRENT_USER_SUCCESS:
                         case CURRENT_USER_FAILURE:
-                        case CURRENT_USER_LOGIN_SUCCESS:
-                        case CURRENT_USER_LOGIN_FAILURE:
+                        case LOGIN_SUCCESS:
+                        case LOGIN_FAILURE:
                             break;
                     }
                     return new LiveEvent<>(receivedAuthResponse);

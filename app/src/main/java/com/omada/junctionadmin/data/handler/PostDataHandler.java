@@ -29,6 +29,7 @@ import com.omada.junctionadmin.data.models.internal.remote.RegistrationModelRemo
 import com.omada.junctionadmin.data.models.mutable.MutableArticleModel;
 import com.omada.junctionadmin.data.models.mutable.MutableBookingModel;
 import com.omada.junctionadmin.data.models.mutable.MutableEventModel;
+import com.omada.junctionadmin.utils.FileUtilities;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.util.ArrayList;
@@ -325,12 +326,14 @@ public class PostDataHandler extends BaseDataHandler {
 
         // for lambda
         Object finalData = data;
+        Uri finalImagePath = imagePath;
         DataRepository.getInstance()
                 .getImageUploadHandler()
                 .uploadPostImage(imagePath, generatedId, postModel.getCreator())
                 .addOnCompleteListener(task -> {
                     if(task.isSuccessful()) {
 
+                        FileUtilities.Companion.deleteFile(finalImagePath);
                         String path = task.getResult().getMetadata().getReference().toString();
 
                         setImagePath(finalData, path);

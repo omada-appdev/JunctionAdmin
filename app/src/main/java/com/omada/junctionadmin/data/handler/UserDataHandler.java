@@ -286,6 +286,7 @@ public class UserDataHandler extends BaseDataHandler {
 
         updates.put("institute", signedInUser.getInstitute());
         updates.put("name", updatedUserModel.getName());
+        updates.put("phone", updatedUserModel.getPhone());
 
         // Filesystem path
         Uri newProfilePicture = updatedUserModel.getProfilePicturePath();
@@ -316,6 +317,7 @@ public class UserDataHandler extends BaseDataHandler {
                     Log.e("User", "Updated details successfully");
                     signedInUser.setInstitute((String) updates.get("institute"));
                     signedInUser.setName((String) updates.get("name"));
+                    signedInUser.setPhone((String) updates.get("phone"));
 
                     if(updates.get("profilePicture") != null) {
                         signedInUser.setProfilePicture((String) updates.get("profilePicture"));

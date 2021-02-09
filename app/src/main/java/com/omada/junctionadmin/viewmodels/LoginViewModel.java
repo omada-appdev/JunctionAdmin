@@ -46,6 +46,7 @@ public class LoginViewModel extends BaseViewModel {
     public final MutableLiveData<String> password = new MutableLiveData<>();
     public final MutableLiveData<String> email = new MutableLiveData<>();
     public final MutableLiveData<String> institute = new MutableLiveData<>();
+    public final MutableLiveData<String> phone = new MutableLiveData<>();
     public final MutableLiveData<Uri> profilePicture = new MutableLiveData<>();
 
     private final List<InterestModel> selectedInterests = new ArrayList<>();
@@ -173,6 +174,7 @@ public class LoginViewModel extends BaseViewModel {
                 .build(anyDetailsEntryInvalid)
                 .add(DataValidator.DataValidationPoint.VALIDATION_POINT_PROFILE_PICTURE)
                 .add(DataValidator.DataValidationPoint.VALIDATION_POINT_EMAIL)
+                .add(DataValidator.DataValidationPoint.VALIDATION_POINT_PHONE)
                 .add(DataValidator.DataValidationPoint.VALIDATION_POINT_NAME)
                 .add(DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE)
                 .add(DataValidator.DataValidationPoint.VALIDATION_POINT_PASSWORD)
@@ -254,6 +256,19 @@ public class LoginViewModel extends BaseViewModel {
             }
             validationAggregator.holdData(
                     DataValidator.DataValidationPoint.VALIDATION_POINT_EMAIL,
+                    dataValidationInformation
+            );
+            notifyValidity(dataValidationInformation);
+        });
+
+        dataValidator.validatePhone(phone.getValue(), dataValidationInformation -> {
+            if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID){
+                userModel.setPhone(
+                        phone.getValue()
+                );
+            }
+            validationAggregator.holdData(
+                    DataValidator.DataValidationPoint.VALIDATION_POINT_PHONE,
                     dataValidationInformation
             );
             notifyValidity(dataValidationInformation);

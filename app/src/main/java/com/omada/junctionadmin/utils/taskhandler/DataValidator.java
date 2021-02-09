@@ -36,6 +36,9 @@ public class DataValidator {
     private static final String NAME_VERIFICATION_REGEX =
             "[a-zA-Z ]*";
 
+    private static final String PHONE_VERIFICATION_REGEX =
+            "[0-9]{6,}";
+
 
     public enum DataValidationPoint {
 
@@ -43,6 +46,7 @@ public class DataValidator {
 
         VALIDATION_POINT_NAME,
         VALIDATION_POINT_EMAIL,
+        VALIDATION_POINT_PHONE,
         VALIDATION_POINT_INSTITUTE_HANDLE,
         VALIDATION_POINT_PASSWORD,
         VALIDATION_POINT_INTERESTS,
@@ -89,6 +93,10 @@ public class DataValidator {
 
     public void validateEmail(String email, OnValidationCompleteListener listener) {
         listener.onValidationComplete(validateEmail(email));
+    }
+
+    public void validatePhone(String phone, OnValidationCompleteListener listener) {
+        listener.onValidationComplete(validatePhone(phone));
     }
 
     public void validateInstitute(String institute, OnValidationCompleteListener listener) {
@@ -183,6 +191,35 @@ public class DataValidator {
         } else {
             return new DataValidationInformation(
                     DataValidationPoint.VALIDATION_POINT_EMAIL,
+                    DataValidationResult.VALIDATION_RESULT_VALID
+            );
+        }
+    }
+
+    private DataValidationInformation validatePhone(String phone) {
+
+        if (phone == null) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_PHONE,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        }
+
+        phone = phone.trim();
+
+        if (phone.equals("")) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_PHONE,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        } else if (!phone.matches(PHONE_VERIFICATION_REGEX)) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_PHONE,
+                    DataValidationResult.VALIDATION_RESULT_ILLEGAL_FORMAT
+            );
+        } else {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_PHONE,
                     DataValidationResult.VALIDATION_RESULT_VALID
             );
         }

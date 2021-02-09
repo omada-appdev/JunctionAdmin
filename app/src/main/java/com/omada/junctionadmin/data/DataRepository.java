@@ -87,10 +87,21 @@ public class DataRepository {
         return instituteDataHandler;
     }
 
-    // Only for external accessors
+    public ImageUploadHandler getImageUploadHandler() {
+        return imageUploadHandler;
+    }
 
+
+    public Object getAccessorDataOfHandlerWithKey(DataRepositoryAccessIdentifier accessIdentifier, DataRepositoryHandlerIdentifier handlerIdentifier, String key) {
+        DataRepositoryAccessorData data = accessTracker.get(accessIdentifier);
+        if(data == null) {
+            throw new RuntimeException("Attempt to get accessor data of a non-existent or de-registered access identifier");
+        }
+        return data.getHandlerData(handlerIdentifier, key);
+    }
+
+    /* Only for external accessors that are separate from the model */
     public synchronized static DataRepositoryAccessIdentifier registerForDataRepositoryAccess() {
-
         DataRepositoryAccessIdentifier identifier = new DataRepositoryAccessIdentifier(
                 StringUtilities.randomAlphabetGenerator(6)
         );
@@ -102,22 +113,21 @@ public class DataRepository {
         accessTracker.remove(accessIdentifier);
     }
 
+    /*
+     Package private because only base data handler should be able to access it and to register handlers
+     */
     static DataRepositoryHandlerIdentifier registerDataHandler() {
         return new DataRepositoryHandlerIdentifier(
                 StringUtilities.randomAlphabetGenerator(6)
         );
-
-    }
-
-    public ImageUploadHandler getImageUploadHandler() {
-        return imageUploadHandler;
     }
 
 
-    // This class identifies the data repository accessor so that state can be tracked without
-    // creating new instances for each accessor
-    public static class DataRepositoryAccessIdentifier {
-
+    /*
+     This class identifies the data repository accessor so that state can be tracked without
+     creating new instances for each accessor
+    */
+    public static final class DataRepositoryAccessIdentifier {
 
         private final String id;
 
@@ -146,9 +156,11 @@ public class DataRepository {
 
     }
 
-    // Identifies each handler so that the data related to it can be stored in the data
-    // repository accessor data
-    public static class DataRepositoryHandlerIdentifier {
+    /*
+     Identifies each handler so that the data related to it can be stored in the data
+     repository accessor data
+    */
+    public static final class DataRepositoryHandlerIdentifier {
 
 
         private final String id;
@@ -178,8 +190,9 @@ public class DataRepository {
 
     }
 
-    // contains all the data that an accessor needs for each handler
-    private static class DataRepositoryAccessorData {
+    // contains all the data that an accessor needs for each handler. The handlers that need this data
+    // can get it from accessTracker
+    private static final class DataRepositoryAccessorData {
 
         private final Map<DataRepositoryHandlerIdentifier, Map<String, Object>>  accessorData = new HashMap<>();
 

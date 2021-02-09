@@ -314,6 +314,7 @@ public class UserProfileViewModel extends BaseViewModel {
                 .build(anyDetailsEntryInvalid)
                 .add(DataValidator.DataValidationPoint.VALIDATION_POINT_NAME)
                 .add(DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE)
+                .add(DataValidator.DataValidationPoint.VALIDATION_POINT_PHONE)
                 .get();
 
         if(organizationUpdater.newProfilePicture.getValue() != null) {
@@ -370,6 +371,19 @@ public class UserProfileViewModel extends BaseViewModel {
             }
             validationAggregator.holdData(
                     DataValidator.DataValidationPoint.VALIDATION_POINT_NAME,
+                    dataValidationInformation
+            );
+            notifyValidity(dataValidationInformation);
+        });
+
+        dataValidator.validatePhone(organizationUpdater.phone.getValue(), dataValidationInformation -> {
+            if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                userOrganizationModel.setPhone(
+                        organizationUpdater.phone.getValue()
+                );
+            }
+            validationAggregator.holdData(
+                    DataValidator.DataValidationPoint.VALIDATION_POINT_PHONE,
                     dataValidationInformation
             );
             notifyValidity(dataValidationInformation);

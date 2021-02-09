@@ -129,7 +129,7 @@ public class EventDetailsEditFragment extends Fragment {
 
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Confirm deletion")
-                .setMessage("This action cannot be undone")
+                .setMessage("This action cannot be undone. Are you sure you want to delete?")
                 .setPositiveButton("Yes, delete", (dialog, which) -> {
                     if (which != dialog.BUTTON_POSITIVE) return;
                     LiveData<Boolean> resultLiveData = userProfileViewModel.deletePost(eventModel);

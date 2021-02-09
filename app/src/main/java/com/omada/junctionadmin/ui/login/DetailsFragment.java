@@ -101,6 +101,11 @@ public class DetailsFragment extends Fragment {
                                 binding.emailLayout.setError("Invalid email");
                             }
                             break;
+                        case VALIDATION_POINT_PHONE:
+                            if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID){
+                                binding.phoneLayout.setError("Invalid phone number");
+                            }
+                            break;
                         case VALIDATION_POINT_PASSWORD:
                             if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                                 binding.passwordLayout.setError("Invalid password");
@@ -185,6 +190,7 @@ public class DetailsFragment extends Fragment {
             binding.emailLayout.setError("");
             binding.passwordLayout.setError("");
             binding.nameLayout.setError("");
+            binding.phoneLayout.setError("");
             binding.getViewModel().detailsEntryDone();
         });
 
@@ -192,6 +198,21 @@ public class DetailsFragment extends Fragment {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 binding.emailLayout.setErrorEnabled(false);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        binding.phoneInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                binding.phoneLayout.setErrorEnabled(false);
             }
 
             @Override

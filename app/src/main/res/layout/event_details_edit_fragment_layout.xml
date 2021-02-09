@@ -82,6 +82,16 @@
                     app:layout_constraintStart_toEndOf="@+id/organizer_profile_image"
                     app:layout_constraintTop_toBottomOf="@+id/title_text" />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/delete_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    app:layout_constraintTop_toTopOf="@id/organizer_profile_image"
+                    app:layout_constraintBottom_toBottomOf="@id/organizer_profile_image"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:text="Delete"
+                    android:textColor="@color/design_default_color_error"/>
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/event_poster_image"

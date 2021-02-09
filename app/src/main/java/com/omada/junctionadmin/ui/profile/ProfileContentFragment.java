@@ -114,6 +114,9 @@ public class ProfileContentFragment extends Fragment {
         Log.e("UserProfile", "Highlights loaded :" + postModels.size());
         if(postModels != null && postModels.size() > 0 && refreshHighlights) {
 
+            if (highlightListSection.size() > postModels.size()) {
+                highlightListSection.clear();
+            }
             if(highlightHeaderSection.isSectionHidden()){
                 highlightHeaderSection.showSection();
             }

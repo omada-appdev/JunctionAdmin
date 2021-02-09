@@ -1,6 +1,7 @@
 package com.omada.junctionadmin.viewmodels;
 
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -26,6 +27,7 @@ import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 
 
 /*
@@ -178,20 +180,29 @@ public class UserProfileViewModel extends BaseViewModel {
         );
     }
 
-    public LiveData<LiveEvent<Boolean>> deletePost(String postId) {
+    public LiveData<Boolean> deletePost(EventModel eventModel) {
 
         return Transformations.map(DataRepository
                         .getInstance()
                         .getPostDataHandler()
-                        .deletePost(postId),
+                        .deletePost(eventModel),
 
                 resultLiveEvent -> {
                     if (resultLiveEvent == null) {
-                        return new LiveEvent<>(false);
+                        return null;
                     }
-                    boolean res = resultLiveEvent.getDataOnceAndReset();
-                    // Do something and pass it on to view
-                    return new LiveEvent<>(res);
+                    Boolean deleted = resultLiveEvent.getDataOnceAndReset();
+                    if(deleted != null && deleted) {
+                        List<PostModel> highlights = loadedOrganizationHighlights.getValue();
+                        if (highlights != null) {
+                            highlights.removeIf(postModel -> postModel.getId().equals(eventModel.getId()));
+                            loadedOrganizationHighlights.setValue(highlights);
+                        }
+                    }
+                    else {
+                        Log.e("Post", "Error deleting " + eventModel.getId());
+                    }
+                    return deleted;
                 }
         );
     }

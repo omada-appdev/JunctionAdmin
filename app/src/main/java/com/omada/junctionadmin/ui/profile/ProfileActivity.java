@@ -15,12 +15,15 @@ import com.omada.junctionadmin.data.handler.UserDataHandler;
 import com.omada.junctionadmin.data.models.external.ArticleModel;
 import com.omada.junctionadmin.data.models.external.EventModel;
 import com.omada.junctionadmin.data.models.external.ShowcaseModel;
+import com.omada.junctionadmin.ui.article.ArticleDetailsEditFragment;
 import com.omada.junctionadmin.ui.article.ArticleDetailsFragment;
 import com.omada.junctionadmin.ui.create.CreateActivity;
+import com.omada.junctionadmin.ui.event.EventDetailsEditFragment;
 import com.omada.junctionadmin.ui.event.EventDetailsFragment;
 import com.omada.junctionadmin.ui.institute.InstituteActivity;
 import com.omada.junctionadmin.ui.login.LoginActivity;
 import com.omada.junctionadmin.ui.metrics.MetricsActivity;
+import com.omada.junctionadmin.ui.organization.OrganizationShowcaseEditFragment;
 import com.omada.junctionadmin.ui.organization.OrganizationShowcaseFragment;
 import com.omada.junctionadmin.viewmodels.FeedContentViewModel;
 import com.omada.junctionadmin.viewmodels.UserProfileViewModel;
@@ -147,7 +150,7 @@ public class ProfileActivity extends AppCompatActivity {
                         // TODO open edit details fragment
                         getSupportFragmentManager()
                                 .beginTransaction()
-                                .replace(R.id.profile_content_placeholder, EventDetailsFragment.newInstance(eventModel))
+                                .replace(R.id.profile_content_placeholder, EventDetailsEditFragment.newInstance(eventModel))
                                 .addToBackStack(null)
                                 .commit();
                     }
@@ -174,7 +177,7 @@ public class ProfileActivity extends AppCompatActivity {
                         // TODO open edit details fragment
                         getSupportFragmentManager()
                                 .beginTransaction()
-                                .replace(R.id.profile_content_placeholder, ArticleDetailsFragment.newInstance(articleModel))
+                                .replace(R.id.profile_content_placeholder, ArticleDetailsEditFragment.newInstance(articleModel))
                                 .addToBackStack(null)
                                 .commit();
                     }
@@ -198,10 +201,9 @@ public class ProfileActivity extends AppCompatActivity {
                         return;
                     }
                     if (showcaseModel.getCreator().equals(userProfileViewModel.getUserId())) {
-                        // TODO open edit details fragment
                         getSupportFragmentManager()
                                 .beginTransaction()
-                                .replace(R.id.profile_content_placeholder, OrganizationShowcaseFragment.newInstance(showcaseModel))
+                                .replace(R.id.profile_content_placeholder, OrganizationShowcaseEditFragment.newInstance(showcaseModel))
                                 .addToBackStack(null)
                                 .commit();
                     }

@@ -1,6 +1,7 @@
 package com.omada.junctionadmin.ui.organization;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.data.models.external.PostModel;
 import com.omada.junctionadmin.data.models.external.ShowcaseModel;
+import com.omada.junctionadmin.databinding.OrganizationShowcaseEditFragmentLayoutBinding;
 import com.omada.junctionadmin.databinding.OrganizationShowcaseFragmentLayoutBinding;
 import com.omada.junctionadmin.ui.uicomponents.binders.articlecard.ArticleCardSmallNoTitleBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.eventcard.EventCardSmallNoTitleBinder;
@@ -30,7 +32,7 @@ import javax.annotation.Nonnull;
 import mva3.adapter.ListSection;
 import mva3.adapter.MultiViewAdapter;
 
-public class OrganizationShowcaseFragment extends Fragment {
+public class OrganizationShowcaseEditFragment extends Fragment {
 
     private ShowcaseModel showcaseModel;
 
@@ -39,15 +41,15 @@ public class OrganizationShowcaseFragment extends Fragment {
     private final MultiViewAdapter adapter = new MultiViewAdapter();
     private final ListSection<PostModel> showcaseItemsListSection = new ListSection<>();
     private boolean refreshContents = true;
-    private OrganizationShowcaseFragmentLayoutBinding binding;
+    private OrganizationShowcaseEditFragmentLayoutBinding binding;
 
 
-    public static com.omada.junctionadmin.ui.organization.OrganizationShowcaseFragment newInstance(@Nonnull ShowcaseModel model) {
+    public static OrganizationShowcaseEditFragment newInstance(@Nonnull ShowcaseModel model) {
 
         Bundle args = new Bundle();
         args.putParcelable("showcaseModel", model);
 
-        com.omada.junctionadmin.ui.organization.OrganizationShowcaseFragment fragment = new com.omada.junctionadmin.ui.organization.OrganizationShowcaseFragment();
+        OrganizationShowcaseEditFragment fragment = new OrganizationShowcaseEditFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -83,7 +85,7 @@ public class OrganizationShowcaseFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = DataBindingUtil.inflate(inflater, R.layout.organization_showcase_fragment_layout, container, false);
+        binding = DataBindingUtil.inflate(inflater, R.layout.organization_showcase_edit_fragment_layout, container, false);
         binding.setViewModel(showcaseFeedViewModel);
         return binding.getRoot();
     }
@@ -91,6 +93,7 @@ public class OrganizationShowcaseFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Log.e("Showcase", "Opened edit fragment");
 
         if(getView() == null) return;
         RecyclerView recyclerView = getView().findViewById(R.id.recycler_view);

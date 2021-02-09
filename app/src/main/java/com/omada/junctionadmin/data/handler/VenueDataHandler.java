@@ -22,6 +22,7 @@ import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.models.converter.BookingModelConverter;
 import com.omada.junctionadmin.data.models.converter.VenueModelConverter;
 import com.omada.junctionadmin.data.models.external.BookingModel;
+import com.omada.junctionadmin.data.models.external.EventModel;
 import com.omada.junctionadmin.data.models.external.VenueModel;
 import com.omada.junctionadmin.data.models.internal.remote.VenueModelRemoteDB;
 import com.omada.junctionadmin.utils.taskhandler.LiveDataAggregator;
@@ -136,8 +137,10 @@ public class VenueDataHandler extends BaseDataHandler {
 
     }
 
-    // package private because EventDataHandler needs access to this method but preferably
-    // no other packages should be able to access it
+    /*
+     package private because EventDataHandler needs access to this method but preferably
+     no other packages should be able to access it
+    */
     Task<Void> createNewBooking(BookingModel bookingModel, WriteBatch batch) {
 
         DocumentReference docRef = FirebaseFirestore
@@ -145,7 +148,7 @@ public class VenueDataHandler extends BaseDataHandler {
                 .collection("geography")
                 .document(bookingModel.getVenue())
                 .collection("bookings")
-                .document();
+                .document(bookingModel.getEvent());
 
         // getting only date because that is how it will be stored
         LocalDate date =
@@ -168,6 +171,18 @@ public class VenueDataHandler extends BaseDataHandler {
                 .push()
                 .setValue(bookingData);
 
+    }
+
+    void deleteBooking(EventModel eventModel, WriteBatch batch) {
+
+        DocumentReference documentReference =  FirebaseFirestore
+                .getInstance()
+                .collection("geography")
+                .document(eventModel.getVenue())
+                .collection("bookings")
+                .document(eventModel.getId());
+
+        batch.delete(documentReference);
     }
 
     private enum BookingDayType {

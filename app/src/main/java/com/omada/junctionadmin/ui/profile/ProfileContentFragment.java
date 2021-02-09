@@ -111,7 +111,7 @@ public class ProfileContentFragment extends Fragment {
 
     // apparently we are using post model here and in junction we are using BaseModel.
     private void onHighlightsLoaded(List<PostModel> postModels) {
-        Log.e("UserProfile", "loaded " + postModels.size() + " highlights");
+        Log.e("UserProfile", "Highlights loaded :" + postModels.size());
         if(postModels != null && postModels.size() > 0 && refreshHighlights) {
 
             if(highlightHeaderSection.isSectionHidden()){

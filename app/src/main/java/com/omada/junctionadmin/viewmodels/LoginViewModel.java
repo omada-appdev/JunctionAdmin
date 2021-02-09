@@ -81,16 +81,16 @@ public class LoginViewModel extends BaseViewModel {
                             password.setValue("");
                             break;
                         case SIGNUP_SUCCESS:
-                            Log.e("SIGNUP", "success");
+                            Log.e("Login", "Signed up successfully");
                             break;
                         case SIGNUP_FAILURE:
-                            Log.e("SIGNUP", "failure");
+                            Log.e("Login", "Sign up failure");
                             email.setValue(null);
                             password.setValue(null);
 
                             break;
                         case ADD_EXTRA_DETAILS_SUCCESS:
-                            Log.e("DETAILS", "success");
+                            Log.e("Login", "Added extra details successfully");
                             //add code to tell user to verify mail
 
                             getInstance()
@@ -98,7 +98,7 @@ public class LoginViewModel extends BaseViewModel {
                                     .authenticateUser(email.getValue(), password.getValue());
                             break;
                         case ADD_EXTRA_DETAILS_FAILURE:
-                            Log.e("DETAILS", "failure");
+                            Log.e("Login", "Error adding user details");
                             break;
                     }
                     /*

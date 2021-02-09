@@ -214,11 +214,13 @@ public class UserDataHandler extends BaseDataHandler {
                         signedInUserNotifier.setValue(new LiveEvent<>(getCurrentUserModel()));
                         resultLiveData.setValue(true);
                     } else {
+                        authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.LOGIN_FAILURE));
                         resultLiveData.setValue(false);
                     }
 
                 })
                 .addOnFailureListener(e -> {
+                    authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.LOGIN_FAILURE));
                     resultLiveData.setValue(false);
                 });
 
@@ -255,14 +257,12 @@ public class UserDataHandler extends BaseDataHandler {
                         signedInUserNotifier.setValue(new LiveEvent<>(getCurrentUserModel()));
                         resultLiveData.setValue(true);
                     } else {
-                        authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.LOGIN_FAILURE));
                         resultLiveData.setValue(false);
                     }
 
                 })
                 .addOnFailureListener(e -> {
                     resultLiveData.setValue(false);
-                    authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.LOGIN_FAILURE));
                 });
 
         return resultLiveData;
@@ -313,9 +313,7 @@ public class UserDataHandler extends BaseDataHandler {
                 .update(updates)
                 .addOnSuccessListener(aVoid -> {
 
-                    Log.e("Update", "success");
-                    Log.e("Update", "institute " + updates.get("institute"));
-                    Log.e("Update", "success");
+                    Log.e("User", "Updated details successfully");
                     signedInUser.setInstitute((String) updates.get("institute"));
                     signedInUser.setName((String) updates.get("name"));
 
@@ -327,7 +325,7 @@ public class UserDataHandler extends BaseDataHandler {
                     authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.UPDATE_USER_DETAILS_SUCCESS));
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("Update", e.getMessage());
+                    Log.e("User", "Updated details in database");
                     authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.UPDATE_USER_DETAILS_FAILURE));
                 });
     }

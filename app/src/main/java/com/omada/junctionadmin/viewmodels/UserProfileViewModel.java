@@ -19,6 +19,7 @@ import com.omada.junctionadmin.data.models.external.PostModel;
 import com.omada.junctionadmin.data.models.external.ShowcaseModel;
 import com.omada.junctionadmin.data.models.mutable.MutableArticleModel;
 import com.omada.junctionadmin.data.models.mutable.MutableEventModel;
+import com.omada.junctionadmin.utils.FileUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
@@ -51,6 +52,8 @@ public class UserProfileViewModel extends BaseViewModel {
     private MediatorLiveData<List<PostModel>> loadedOrganizationHighlights = new MediatorLiveData<>();
     private MediatorLiveData<List<ShowcaseModel>> loadedOrganizationShowcases = new MediatorLiveData<>();
 
+    private boolean editingDetails = false;
+    private boolean updatingDetails = false;
 
     public UserProfileViewModel() {
 
@@ -279,10 +282,17 @@ public class UserProfileViewModel extends BaseViewModel {
     }
 
     public void goToEditDetails() {
+        editingDetails = true;
         editDetailsTrigger.setValue(new LiveEvent<>(true));
     }
 
+    public void exitEditDetails() {
+        editingDetails = false;
+    }
+
     public void detailsEntryDone() {
+
+        updatingDetails = true;
 
         UserDataHandler.MutableUserOrganizationModel userOrganizationModel =
                 new UserDataHandler.MutableUserOrganizationModel();
@@ -361,10 +371,11 @@ public class UserProfileViewModel extends BaseViewModel {
                     notifyValidity(dataValidationInformation);
                     if (dataValidationInformation.getValidationPoint() == DataValidator.DataValidationPoint.VALIDATION_POINT_ALL
                             && dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
-
+                        updatingDetails = false;
                         DataRepository.getInstance()
                                 .getUserDataHandler()
                                 .updateCurrentUserDetails(userOrganizationModel);
+                    } else {
                     }
                 }
                 anyDetailsEntryInvalid.removeObserver(this);
@@ -515,7 +526,10 @@ public class UserProfileViewModel extends BaseViewModel {
 
         public final MutableLiveData<String> title;
         public final MutableLiveData<String> photo;
-
     }
 
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+    }
 }

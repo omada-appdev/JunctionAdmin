@@ -1,5 +1,6 @@
 package com.omada.junctionadmin.ui.uicomponents;
 
+import android.graphics.ColorFilter;
 import android.net.Uri;
 import android.widget.ImageView;
 
@@ -34,6 +35,7 @@ public class CustomBindings {
         CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(view.getContext());
         circularProgressDrawable.setStrokeWidth(5f);
         circularProgressDrawable.setCenterRadius(30f);
+        circularProgressDrawable.setAlpha(60);
         circularProgressDrawable.start();
 
 
@@ -52,15 +54,8 @@ public class CustomBindings {
     @BindingAdapter({"remoteImageHttp"})
     public static void loadImageUrl(ImageView view, String httpUrl) {
 
-        CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(view.getContext());
-        circularProgressDrawable.setStrokeWidth(5f);
-        circularProgressDrawable.setCenterRadius(30f);
-        circularProgressDrawable.start();
-
-
         GlideApp.with(view.getContext())
                 .load(httpUrl)
-                .placeholder(circularProgressDrawable)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(view);
     }

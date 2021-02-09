@@ -212,7 +212,7 @@ public class EventCreateFragment extends Fragment {
         super.onResume();
         if(createPostViewModel.getEventCreator().getImagePath() != null && !filePickerOpened.get()) {
 
-            Log.e("Create", "image path is non null");
+            Log.e("Create", "Image path is non null. Preparing to set image");
 
             binding.eventPosterImage.setColorFilter(getResources().getColor(R.color.transparent, requireActivity().getTheme()));
             binding.eventPosterImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -250,7 +250,7 @@ public class EventCreateFragment extends Fragment {
 
         if( requestCode == REQUEST_CODE_IMAGE_CHOOSER) {
 
-            Log.e("Event", "Entered onActivityResult");
+            Log.e("CreateEvent", "Entered onActivityResult");
 
             filePickerOpened.set(true);
             compressingImage.set(true);
@@ -263,7 +263,7 @@ public class EventCreateFragment extends Fragment {
                 e.printStackTrace();
             }
 
-            Log.e("Details", "Compressing image... " + bitmap.getWidth() + "  " + bitmap.getHeight());
+            Log.e("CreateEvent", "Compressing image... " + bitmap.getWidth() + "  " + bitmap.getHeight());
             ImageUtilities
                     .scaleToPostImageGetBitmap(requireActivity(), bitmap)
                     .observe(getViewLifecycleOwner(), bitmapLiveEvent -> {
@@ -295,9 +295,6 @@ public class EventCreateFragment extends Fragment {
                         if(fileLiveEvent != null){
                             File file = fileLiveEvent.getDataOnceAndReset();
                             if(file != null) {
-                                if(binding.getEventCreator().getImagePath() != null) {
-                                    FileUtilities.Companion.deleteFile(binding.getEventCreator().getImagePath());
-                                }
                                 binding.getEventCreator().setImagePath(Uri.fromFile(file));
                             }
                             else {

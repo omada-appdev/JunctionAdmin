@@ -31,7 +31,7 @@ public class SplashActivity extends AppCompatActivity {
             if(authStatusLiveEvent != null){
                 UserDataHandler.AuthStatus authStatus = authStatusLiveEvent.getDataOnceAndReset();
                 if(authStatus==null) return;
-                Log.e("Splash", authStatus.toString());
+                Log.e("Splash", "AuthStatus : " + authStatus.toString());
                 Intent i;
                 switch (authStatus){
                     case CURRENT_USER_SUCCESS:

@@ -378,10 +378,7 @@ public class CreatePostViewModel extends BaseViewModel {
             description.setValue(null);
             startTime.setValue(null);
             endTime.setValue(null);
-            if(imagePath != null) {
-                FileUtilities.Companion.deleteFile(imagePath);
-                imagePath = null;
-            }
+            imagePath = null;
             tags = null;
 
             if (resetForm) {
@@ -464,12 +461,7 @@ public class CreatePostViewModel extends BaseViewModel {
             Log.e("Create", "Resetting event");
             title.setValue(null);
             description.setValue(null);
-            if(imagePath != null) {
-                FileUtilities.Companion.deleteFile(imagePath);
-                imagePath = null;
-            } else {
-                Log.e("Create", "Null image path");
-            }
+            imagePath = null;
             tags = null;
 
             if (resetForm) {

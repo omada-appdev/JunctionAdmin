@@ -43,7 +43,6 @@ public class ImageUploadHandler extends BaseDataHandler {
                 .child("profilePicture");
 
         return reference.putFile(path).continueWithTask(task -> {
-            FileUtilities.Companion.deleteFile(path);
             if (!task.isSuccessful()) {
                 throw task.getException();
             }

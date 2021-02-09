@@ -208,7 +208,7 @@ public class PostDataHandler extends BaseDataHandler {
 
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("Posts", "Failed to retrieve showcase posts");
+                    Log.e("Posts", "Error retrieving showcase posts");
                     loadedShowcasePostsLiveData.setValue(null);
                 });
 
@@ -332,8 +332,6 @@ public class PostDataHandler extends BaseDataHandler {
                 .uploadPostImage(imagePath, generatedId, postModel.getCreator())
                 .addOnCompleteListener(task -> {
                     if(task.isSuccessful()) {
-
-                        FileUtilities.Companion.deleteFile(finalImagePath);
                         String path = task.getResult().getMetadata().getReference().toString();
 
                         setImagePath(finalData, path);
@@ -456,7 +454,7 @@ public class PostDataHandler extends BaseDataHandler {
                 })
                 .addOnFailureListener(e -> {
                     resultLiveData.setValue(new LiveEvent<>(false));
-                    Log.e("Posts", "Failed to update organization highlights");
+                    Log.e("Posts", "Error updating organization highlights");
                 });
 
         return resultLiveData;

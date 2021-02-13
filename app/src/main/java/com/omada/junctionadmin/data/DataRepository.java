@@ -19,9 +19,10 @@ import java.util.Map;
 
 public class DataRepository {
 
-    // All the data related to state is to be stored here so that it can be read from handlers
-    // private because the get and set operations need to be performed atomically through synchronized
-    // methods which are package-private
+    // All the data related to state is to be stored here so that it can be read from handlers.
+    // private because the get and set operations need to be performed atomically through synchronized.
+    // methods which are package-private.
+
     private static final Map<DataRepositoryAccessIdentifier, DataRepositoryAccessorData> accessTracker = new HashMap<>();
 
     private static DataRepository dataRepository;

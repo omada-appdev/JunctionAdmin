@@ -1,5 +1,6 @@
 package com.omada.junctionadmin.data.handler;
 
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -16,7 +17,10 @@ import com.omada.junctionadmin.data.BaseDataHandler;
 import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.models.converter.InstituteModelConverter;
 import com.omada.junctionadmin.data.models.external.InstituteModel;
+import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.internal.remote.InstituteModelRemoteDB;
+import com.omada.junctionadmin.data.models.mutable.MutableInstituteModel;
+import com.omada.junctionadmin.data.models.mutable.MutableOrganizationModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.util.HashMap;
@@ -59,6 +63,10 @@ public class InstituteDataHandler extends BaseDataHandler {
 
         return instituteModelLiveData;
 
+    }
+
+    public InstituteModel getInstituteModel() {
+        return new MutableInstituteModel();
     }
 
     public LiveData<LiveEvent<Boolean>> updateInstituteDetails(InstituteModel changedInstituteModel) {
@@ -212,5 +220,18 @@ public class InstituteDataHandler extends BaseDataHandler {
 
     public static String getCachedInstituteHandle(String id) {
         return instituteIdToHandleCache.get(id);
+    }
+
+    public static final class MutableUserInstituteModel extends MutableInstituteModel {
+
+        private Uri profilePicturePath;
+
+        public Uri getProfilePicturePath() {
+            return profilePicturePath;
+        }
+
+        public void setProfilePicturePath(Uri profilePicturePath) {
+            this.profilePicturePath = profilePicturePath;
+        }
     }
 }

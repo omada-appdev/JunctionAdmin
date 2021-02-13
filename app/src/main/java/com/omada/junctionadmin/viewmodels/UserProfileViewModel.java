@@ -303,8 +303,11 @@ public class UserProfileViewModel extends BaseViewModel {
 
     public void detailsEntryDone() {
 
-        updatingDetails = true;
+        if(updatingDetails) {
+            return;
+        }
 
+        updatingDetails = true;
         UserDataHandler.MutableUserOrganizationModel userOrganizationModel =
                 new UserDataHandler.MutableUserOrganizationModel();
 

@@ -28,7 +28,6 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.databinding.UserProfileEditDetailsLayoutBinding;
-import com.omada.junctionadmin.utils.FileUtilities;
 import com.omada.junctionadmin.utils.ImageUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.viewmodels.UserProfileViewModel;
@@ -76,6 +75,7 @@ public class ProfileEditDetailsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         binding.doneButton.setOnClickListener(v -> {
+            binding.doneButton.setEnabled(false);
             binding.getViewModel().detailsEntryDone();
         });
 
@@ -170,8 +170,8 @@ public class ProfileEditDetailsFragment extends Fragment {
                                 }
                                 break;
                             case VALIDATION_POINT_ALL:
-                                if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
-                                    binding.doneButton.setEnabled(false);
+                                if(dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                                    binding.doneButton.setEnabled(true);
                                 }
                                 break;
                             default:

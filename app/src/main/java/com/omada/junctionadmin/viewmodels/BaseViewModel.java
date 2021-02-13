@@ -41,4 +41,8 @@ public abstract class BaseViewModel extends ViewModel {
     protected void notifyValidity(DataValidator.DataValidationInformation dataValidationInformation){
         dataValidationAction.setValue(new LiveEvent<>(dataValidationInformation));
     }
+
+    public final String getUserId() {
+        return DataRepository.getInstance().getUserDataHandler().getCurrentUserModel().getId();
+    }
 }

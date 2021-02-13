@@ -3,6 +3,7 @@ package com.omada.junctionadmin.data.models.mutable;
 import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.external.MemberModel;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class MutableMemberModel extends MemberModel {
@@ -19,7 +20,7 @@ public class MutableMemberModel extends MemberModel {
         this.photo = photo;
     }
 
-    public void setDateJoined(Date dateJoined) {
+    public void setDateJoined(LocalDateTime dateJoined) {
         this.dateJoined = dateJoined;
     }
 

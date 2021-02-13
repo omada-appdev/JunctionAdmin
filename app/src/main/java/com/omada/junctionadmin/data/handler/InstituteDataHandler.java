@@ -24,6 +24,8 @@ import java.util.Map;
 
 public class InstituteDataHandler extends BaseDataHandler {
 
+    private final InstituteModelConverter instituteModelConverter = new InstituteModelConverter();
+
     private static final Map<String, String> instituteHandleToIdCache = new HashMap<>();
     private static final Map<String, String> instituteIdToHandleCache = new HashMap<>();
 
@@ -58,7 +60,6 @@ public class InstituteDataHandler extends BaseDataHandler {
         return instituteModelLiveData;
 
     }
-    private final InstituteModelConverter instituteModelConverter = new InstituteModelConverter();
 
     public LiveData<LiveEvent<Boolean>> updateInstituteDetails(InstituteModel changedInstituteModel) {
 
@@ -132,7 +133,7 @@ public class InstituteDataHandler extends BaseDataHandler {
             resultLiveData.setValue(new LiveEvent<>("notFound"));
         }
         else if (instituteHandleToIdCache.get(handle) != null) {
-            resultLiveData.setValue(new LiveEvent<>(instituteIdToHandleCache.get(handle)));
+            resultLiveData.setValue(new LiveEvent<>(instituteHandleToIdCache.get(handle)));
         }
         else {
             FirebaseDatabase

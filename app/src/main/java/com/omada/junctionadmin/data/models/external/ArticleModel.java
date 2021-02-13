@@ -7,6 +7,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.internal.remote.ArticleModelRemoteDB;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Map;
 
@@ -31,7 +35,7 @@ public class ArticleModel extends PostModel {
         creatorInstitute = in.readString();
         image = in.readString();
         tags = ImmutableList.copyOf(in.createStringArrayList());
-        timeCreated = new Date(in.readLong());
+        timeCreated = Instant.ofEpochSecond(in.readLong()).atZone(ZoneId.of("UTC")).toLocalDateTime();
     }
 
     public static final Creator<ArticleModel> CREATOR = new Creator<ArticleModel>() {
@@ -73,6 +77,6 @@ public class ArticleModel extends PostModel {
         dest.writeString(creatorInstitute);
         dest.writeString(image);
         dest.writeStringList(tags);
-        dest.writeLong(timeCreated.getTime());
+        dest.writeLong(timeCreated.toEpochSecond(ZoneOffset.UTC));
     }
 }

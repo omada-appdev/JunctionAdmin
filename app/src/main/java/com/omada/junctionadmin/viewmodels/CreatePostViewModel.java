@@ -1,60 +1,55 @@
 package com.omada.junctionadmin.viewmodels;
 
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
 import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.common.collect.ImmutableList;
 import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.handler.PostDataHandler;
-import com.omada.junctionadmin.data.handler.UserDataHandler;
-import com.omada.junctionadmin.data.models.external.InterestModel;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.external.VenueModel;
-import com.omada.junctionadmin.data.models.mutable.MutableArticleModel;
-import com.omada.junctionadmin.data.models.mutable.MutableEventModel;
 import com.omada.junctionadmin.data.models.testdummy.TestVenueModel;
-import com.omada.junctionadmin.ui.login.LoginActivity;
+import com.omada.junctionadmin.utils.FileUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
-import com.omada.junctionadmin.utils.taskhandler.LiveDataAggregator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
-import com.omada.junctionadmin.utils.transform.TransformUtilities;
 
-import java.sql.Date;
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.omada.junctionadmin.data.DataRepository.getInstance;
 
 
 public class CreatePostViewModel extends BaseViewModel {
 
+
+
     private enum CurrentState {
         CURRENT_STATE_IDLE,
+        CURRENT_STATE_EDITING,
         CURRENT_STATE_UPLOADING,
         CURRENT_STATE_UPLOAD_SUCCESS,
-        CURRENT_STATE_UPLOAD_FAILURE
+        CURRENT_STATE_UPLOAD_FAILURE;
     }
 
     private CurrentState currentState = CurrentState.CURRENT_STATE_IDLE;
+
     private final EventCreator eventCreator = new TestEventCreator();
     private final ArticleCreator articleCreator = new ArticleCreator();
-
     private final MutableLiveData<LiveEvent<Boolean>> createEventTrigger = new MutableLiveData<>();
+
     private final MutableLiveData<LiveEvent<Boolean>> createArticleTrigger = new MutableLiveData<>();
     private final MutableLiveData<LiveEvent<Boolean>> createBookingTrigger = new MutableLiveData<>();
     private final MutableLiveData<LiveEvent<Boolean>> createFormTrigger = new MutableLiveData<>();
@@ -170,11 +165,11 @@ public class CreatePostViewModel extends BaseViewModel {
             eventModel.setCreatorProfilePicture(organizationModel.getProfilePicture());
 
             // TODO check how exactly parsing is done
-            eventModel.setStartTime(TransformUtilities.utcDateFromLocalDateTime(
-                    LocalDateTime.parse(eventCreator.startTime.getValue()))
+            eventModel.setStartTime(
+                    LocalDateTime.parse(eventCreator.startTime.getValue()).atZone(ZoneId.of("UTC")).toLocalDateTime()
             );
-            eventModel.setEndTime(TransformUtilities.utcDateFromLocalDateTime(
-                    LocalDateTime.parse(eventCreator.endTime.getValue()))
+            eventModel.setEndTime(
+                    LocalDateTime.parse(eventCreator.endTime.getValue()).atZone(ZoneId.of("UTC")).toLocalDateTime()
             );
 
             //VenueModel venueModel = eventCreator.getVenueModel();
@@ -276,27 +271,35 @@ public class CreatePostViewModel extends BaseViewModel {
         return articleCreator;
     }
 
+    public CurrentState getCurrentState() {
+        return currentState;
+    }
+
     public void resetCreators() {
         eventCreator.resetData();
         articleCreator.resetData();
     }
 
 
+    private long invalidUpTo;
     private long endTime;
     private long startTime;
 
     private void initCalendar() {
 
-        long today = MaterialDatePicker.todayInUtcMilliseconds();
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        long today = Instant.now().toEpochMilli();
+        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
         calendar.clear();
         calendar.setTimeInMillis(today);
 
-        calendar.roll(Calendar.YEAR, -5);
+        startTime = calendar.getTimeInMillis();
+
+        calendar.roll(Calendar.DATE, -1);
+        invalidUpTo = calendar.getTimeInMillis();
+
+        calendar.roll(Calendar.YEAR, 2);
         endTime = calendar.getTimeInMillis();
 
-        calendar.roll(Calendar.YEAR, -70);
-        startTime = calendar.getTimeInMillis();
     }
 
     public MaterialDatePicker.Builder<?> setupDateSelectorBuilder() {
@@ -304,7 +307,7 @@ public class CreatePostViewModel extends BaseViewModel {
         int inputMode = MaterialDatePicker.INPUT_MODE_CALENDAR;
 
         MaterialDatePicker.Builder<Long> builder = MaterialDatePicker.Builder.datePicker();
-        builder.setSelection(endTime);
+        builder.setSelection(startTime);
         builder.setInputMode(inputMode);
 
         return builder;
@@ -316,10 +319,12 @@ public class CreatePostViewModel extends BaseViewModel {
 
         constraintsBuilder.setStart(startTime);
         constraintsBuilder.setEnd(endTime);
-        constraintsBuilder.setOpenAt(endTime);
+        constraintsBuilder.setOpenAt(startTime);
+        constraintsBuilder.setValidator(DateValidatorPointForward.from(invalidUpTo));
 
         return constraintsBuilder;
     }
+
 
     public static class EventCreator {
 
@@ -328,8 +333,8 @@ public class CreatePostViewModel extends BaseViewModel {
 
         public final MutableLiveData<String> title = new MutableLiveData<>();
         public final MutableLiveData<String> description = new MutableLiveData<>();
-        protected Uri imagePath;
 
+        protected Uri imagePath;
 
         public final MutableLiveData<String> startTime = new MutableLiveData<>();
         public final MutableLiveData<String> endTime = new MutableLiveData<>();
@@ -368,6 +373,7 @@ public class CreatePostViewModel extends BaseViewModel {
 
         public void resetData(boolean resetForm, boolean resetVenueModel) {
 
+            Log.e("Create", "Resetting event");
             title.setValue(null);
             description.setValue(null);
             startTime.setValue(null);
@@ -452,7 +458,7 @@ public class CreatePostViewModel extends BaseViewModel {
 
         @Override
         public void resetData(boolean resetForm, boolean resetVenueModel) {
-
+            Log.e("Create", "Resetting event");
             title.setValue(null);
             description.setValue(null);
             imagePath = null;

@@ -5,6 +5,10 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import java.io.Serializable;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Map;
 
@@ -14,7 +18,7 @@ public class RegistrationModel extends BaseModel implements Parcelable {
     protected String userPhone;
     protected String userInstitute;
     protected String user;
-    protected Date timeCreated;
+    protected LocalDateTime timeCreated;
     protected String userProfilePicture;
 
     protected Map<String, Map<String, Map <String, String>>> responses;
@@ -28,7 +32,7 @@ public class RegistrationModel extends BaseModel implements Parcelable {
         userPhone = in.readString();
         userInstitute = in.readString();
         user = in.readString();
-        timeCreated = new Date(in.readLong());
+        timeCreated = Instant.ofEpochSecond(in.readLong()).atZone(ZoneId.of("UTC")).toLocalDateTime();
         try {
             responses = (Map<String, Map<String, Map<String, String>>>)in.readSerializable();
         }
@@ -58,7 +62,7 @@ public class RegistrationModel extends BaseModel implements Parcelable {
         return userPhone;
     }
 
-    public Date getTimeCreated() {
+    public LocalDateTime getTimeCreated() {
         return timeCreated;
     }
 
@@ -90,7 +94,7 @@ public class RegistrationModel extends BaseModel implements Parcelable {
         dest.writeString(userPhone);
         dest.writeString(userInstitute);
         dest.writeString(user);
-        dest.writeLong(timeCreated.getTime());
+        dest.writeLong(timeCreated.toEpochSecond(ZoneOffset.UTC));
         dest.writeSerializable((Serializable)responses);
     }
 }

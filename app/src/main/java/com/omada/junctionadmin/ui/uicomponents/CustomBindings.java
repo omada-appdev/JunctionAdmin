@@ -1,10 +1,12 @@
 package com.omada.junctionadmin.ui.uicomponents;
 
+import android.graphics.ColorFilter;
 import android.net.Uri;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.BindingAdapter;
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -30,8 +32,16 @@ public class CustomBindings {
             gsRef = FirebaseStorage.getInstance().getReferenceFromUrl(gsUrl);
         }
 
+        CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(view.getContext());
+        circularProgressDrawable.setStrokeWidth(5f);
+        circularProgressDrawable.setCenterRadius(30f);
+        circularProgressDrawable.setAlpha(60);
+        circularProgressDrawable.start();
+
+
         GlideApp.with(view.getContext())
                 .load(gsRef)
+                .placeholder(circularProgressDrawable)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(view);
 

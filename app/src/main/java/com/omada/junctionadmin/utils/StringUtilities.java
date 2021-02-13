@@ -1,4 +1,4 @@
-package com.omada.junctionadmin.utils.string;
+package com.omada.junctionadmin.utils;
 
 import java.util.Random;
 

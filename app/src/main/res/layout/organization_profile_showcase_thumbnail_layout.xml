@@ -26,7 +26,8 @@
             app:shapeAppearanceOverlay="@style/Widget.AppTheme.ThumbnailShapeAppearance"
             android:background="@color/colorAccent"
             remoteImageGs="@{showcaseModel.photo}"
-            android:scaleType="centerCrop" />
+            android:scaleType="centerCrop"
+            android:onClick="@{()->viewModel.organizationViewHandler.goToOrganizationShowcase(showcaseModel)}"/>
 
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
@@ -35,7 +36,7 @@
             app:layout_constraintRight_toRightOf="parent"
             android:text="@{showcaseModel.title}"
             android:textStyle="bold"
-            android:textColor="@color/White"
+            android:textColor="@color/white"
             android:layout_margin="8dp"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

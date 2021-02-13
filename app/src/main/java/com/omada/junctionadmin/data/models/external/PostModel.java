@@ -3,6 +3,7 @@ package com.omada.junctionadmin.data.models.external;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.Timestamp;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -13,7 +14,7 @@ public abstract class PostModel extends BaseModel {
     protected String title;
     protected String image;
 
-    protected Date timeCreated;
+    protected LocalDateTime timeCreated;
 
     protected String creator;
     protected String creatorName;
@@ -36,7 +37,7 @@ public abstract class PostModel extends BaseModel {
         return image;
     }
 
-    public Date getTimeCreated() {
+    public LocalDateTime getTimeCreated() {
         return timeCreated;
     }
 

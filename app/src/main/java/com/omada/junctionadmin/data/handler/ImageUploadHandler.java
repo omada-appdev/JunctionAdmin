@@ -7,6 +7,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.omada.junctionadmin.data.BaseDataHandler;
+import com.omada.junctionadmin.utils.FileUtilities;
 
 public class ImageUploadHandler extends BaseDataHandler {
 
@@ -42,11 +43,11 @@ public class ImageUploadHandler extends BaseDataHandler {
                 .child("profilePicture");
 
         return reference.putFile(path).continueWithTask(task -> {
-                    if (!task.isSuccessful()) {
-                        throw task.getException();
-                    }
-                    // Continue with the task to get the download URL
-                    return reference.getDownloadUrl();
-                });
+            if (!task.isSuccessful()) {
+                throw task.getException();
+            }
+            // Continue with the task to get the download URL
+            return reference.getDownloadUrl();
+        });
     }
 }

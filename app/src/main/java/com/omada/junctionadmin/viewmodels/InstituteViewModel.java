@@ -51,7 +51,7 @@ public class InstituteViewModel extends BaseViewModel {
                         if (existingData == null) {
                             existingData = new ArrayList<>();
                         }
-                        existingData.addAll(input.getDataOnceAndReset());
+                        existingData.addAll(highlights);
                         loadedInstituteHighlights.setValue(existingData);
                     }
                 }
@@ -72,7 +72,7 @@ public class InstituteViewModel extends BaseViewModel {
                         if (existingData == null) {
                             existingData = new ArrayList<>();
                         }
-                        existingData.addAll(input.getDataOnceAndReset());
+                        existingData.addAll(organizationModels);
                         loadedInstituteOrganizations.setValue(existingData);
                     }
                 }
@@ -133,6 +133,18 @@ public class InstituteViewModel extends BaseViewModel {
 
     }
 
+    public MediatorLiveData<List<OrganizationModel>> getLoadedInstituteOrganizations() {
+        return loadedInstituteOrganizations;
+    }
+
+    public MediatorLiveData<List<PostModel>> getLoadedInstituteHighlights() {
+        return loadedInstituteHighlights;
+    }
+
+    public MediatorLiveData<List<VenueModel>> getLoadedInstituteVenues() {
+        return loadedInstituteVenues;
+    }
+
     public void updateVenues(List<VenueModel> added, List<VenueModel> removed) {
 
     }
@@ -141,4 +153,8 @@ public class InstituteViewModel extends BaseViewModel {
 
     }
 
+    public final boolean checkInstituteContentLoaded() {
+        return loadedInstituteHighlights.getValue() != null && loadedInstituteHighlights.getValue().size() != 0
+                && loadedInstituteOrganizations.getValue() != null && loadedInstituteOrganizations.getValue().size() != 0;
+    }
 }

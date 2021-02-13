@@ -22,12 +22,14 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.imageview.ShapeableImageView;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.databinding.UserProfileEditDetailsLayoutBinding;
-import com.omada.junctionadmin.utils.image.ImageUtilities;
+import com.omada.junctionadmin.utils.FileUtilities;
+import com.omada.junctionadmin.utils.ImageUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.viewmodels.UserProfileViewModel;
 
@@ -46,7 +48,6 @@ public class ProfileEditDetailsFragment extends Fragment {
                     startFilePicker();
                 }
             });
-
 
     private UserProfileEditDetailsLayoutBinding binding;
 
@@ -75,7 +76,6 @@ public class ProfileEditDetailsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         binding.doneButton.setOnClickListener(v -> {
-            binding.doneButton.setEnabled(false);
             binding.getViewModel().detailsEntryDone();
         });
 
@@ -150,8 +150,8 @@ public class ProfileEditDetailsFragment extends Fragment {
                                 }
                                 break;
                             case VALIDATION_POINT_ALL:
-                                if(dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
-                                    binding.doneButton.setEnabled(true);
+                                if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                                    binding.doneButton.setEnabled(false);
                                 }
                                 break;
                             default:
@@ -241,17 +241,24 @@ public class ProfileEditDetailsFragment extends Fragment {
                         if(fileLiveEvent != null){
                             File file = fileLiveEvent.getDataOnceAndReset();
                             if(file != null) {
-                                binding.getViewModel().getOrganizationUpdater().newProfilePicture.setValue(Uri.fromFile(file));
+                                MutableLiveData<Uri> profilePictureLiveData = binding.getViewModel().getOrganizationUpdater().newProfilePicture;
+                                profilePictureLiveData.setValue(Uri.fromFile(file));
                             }
                             else {
                                 // Handle null case
                             }
                         }
                         else{
-                            Log.e("Profile", "Error ");
+                            Log.e("Profile", "Error : the provided fileLiveEvent was null");
                         }
                     });
 
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        binding.getViewModel().exitEditDetails();
+        super.onDestroyView();
     }
 }

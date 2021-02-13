@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.external.EventModel;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
@@ -32,15 +33,15 @@ public class MutableEventModel extends EventModel {
         this.status = status;
     }
 
-    public void setStartTime(Date startTime) {
+    public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
-    public void setEndTime(Date endTime) {
+    public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
 
-    public void setTimeCreated(Date timeCreated){
+    public void setTimeCreated(LocalDateTime timeCreated){
         this.timeCreated = timeCreated;
     }
 

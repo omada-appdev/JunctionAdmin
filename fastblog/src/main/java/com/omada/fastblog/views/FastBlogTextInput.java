@@ -147,7 +147,7 @@ public class FastBlogTextInput extends ConstraintLayout implements FastBlogCompo
 
         serializedData.put("text", Html.toHtml(textInput.getText()));
 
-        Log.e("Serial", (String) serializedData.get("text"));
+        Log.e("FastBlog", "TextInput text : " + serializedData.get("text"));
 
         return serializedData;
     }

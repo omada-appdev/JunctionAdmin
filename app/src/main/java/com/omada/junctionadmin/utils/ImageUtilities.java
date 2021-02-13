@@ -1,4 +1,4 @@
-package com.omada.junctionadmin.utils.image;
+package com.omada.junctionadmin.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -44,7 +44,7 @@ public final class ImageUtilities {
         Compress.Companion
                 .with(context, cropToSquare(bitmap))
                 .setQuality(100)
-                .setTargetDir(PathUtils.getExternalPicturesPath())
+                .setTargetDir(PathUtils.getInternalAppFilesPath())
                 .setCompressListener(new CompressListener() {
                     @Override
                     public void onStart() {
@@ -103,7 +103,7 @@ public final class ImageUtilities {
         Compress.Companion
                 .with(context, cropToSquare(bitmap))
                 .setQuality(100)
-                .setTargetDir(PathUtils.getExternalPicturesPath())
+                .setTargetDir(PathUtils.getInternalAppFilesPath())
                 .setCompressListener(new CompressListener() {
                     @Override
                     public void onStart() {

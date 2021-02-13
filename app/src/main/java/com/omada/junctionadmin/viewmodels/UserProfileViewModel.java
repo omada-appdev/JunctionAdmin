@@ -10,24 +10,24 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import com.google.common.collect.ImmutableList;
 import com.omada.junctionadmin.data.DataRepository;
-import com.omada.junctionadmin.data.handler.InstituteDataHandler;
 import com.omada.junctionadmin.data.handler.UserDataHandler;
 import com.omada.junctionadmin.data.models.external.ArticleModel;
 import com.omada.junctionadmin.data.models.external.EventModel;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.external.PostModel;
 import com.omada.junctionadmin.data.models.external.ShowcaseModel;
-import com.omada.junctionadmin.data.models.external.VenueModel;
+import com.omada.junctionadmin.data.models.mutable.MutableArticleModel;
+import com.omada.junctionadmin.data.models.mutable.MutableEventModel;
+import com.omada.junctionadmin.utils.FileUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
-import com.omada.junctionadmin.utils.taskhandler.LiveDataAggregator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
-import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 
 
 /*
@@ -54,6 +54,8 @@ public class UserProfileViewModel extends BaseViewModel {
     private MediatorLiveData<List<PostModel>> loadedOrganizationHighlights = new MediatorLiveData<>();
     private MediatorLiveData<List<ShowcaseModel>> loadedOrganizationShowcases = new MediatorLiveData<>();
 
+    private boolean editingDetails = false;
+    private boolean updatingDetails = false;
 
     public UserProfileViewModel() {
 
@@ -98,36 +100,109 @@ public class UserProfileViewModel extends BaseViewModel {
         return organizationModel;
     }
 
-    public LiveData<LiveEvent<Boolean>> updateDetails() {
-        return Transformations.map(null, null);
-    }
-
     // Update both showcase details and showcase items
     public LiveData<LiveEvent<Boolean>> updateShowcase() {
         return Transformations.map(null, null);
     }
 
     public LiveData<LiveEvent<Boolean>> updateEvent(EventUpdater updater) {
-        return Transformations.map(null, null);
+
+        DataValidator dataValidator = getDataValidator();
+        AtomicBoolean detailsInvalid = new AtomicBoolean(false);
+
+        MutableEventModel mutableEventModel = new MutableEventModel();
+        mutableEventModel.setTags(ImmutableList.copyOf(updater.tags.getValue()));
+
+        /*
+         It is known that this validation routine is synchronous so adding a ValidationAggregator
+         will only complicate things. If later use requires asynchronous routines, use a
+         ValidationAggregator
+        */
+        dataValidator.validateEventDescription(updater.description.getValue(), dataValidationInformation -> {
+            notifyValidity(dataValidationInformation);
+            if(dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                detailsInvalid.set(true);
+            }
+            mutableEventModel.setDescription(updater.description.getValue());
+        });
+
+        if(detailsInvalid.get()) {
+            notifyValidity(new DataValidator.DataValidationInformation(
+                    DataValidator.DataValidationPoint.VALIDATION_POINT_ALL,
+                    DataValidator.DataValidationResult.VALIDATION_RESULT_INVALID
+            ));
+            return new MutableLiveData<>(new LiveEvent<>(false));
+        }
+        notifyValidity(new DataValidator.DataValidationInformation(
+                DataValidator.DataValidationPoint.VALIDATION_POINT_ALL,
+                DataValidator.DataValidationResult.VALIDATION_RESULT_VALID
+        ));
+        return Transformations.map(
+                DataRepository.getInstance()
+                .getPostDataHandler()
+                .updatePost(updater.getId(), mutableEventModel),
+
+                booleanLiveEvent -> {
+                    if(booleanLiveEvent == null) {
+                        return null;
+                    }
+                    Boolean result = booleanLiveEvent.getDataOnceAndReset();
+                    if(result == null) {
+                        return null;
+                    }
+                    return new LiveEvent<>(result);
+                }
+        );
     }
 
     public LiveData<LiveEvent<Boolean>> updateArticle(ArticleUpdater updater) {
-        return Transformations.map(null, null);
+
+        MutableArticleModel mutableArticleModel = new MutableArticleModel();
+        mutableArticleModel.setText(updater.text.getValue());
+        mutableArticleModel.setAuthor(updater.author.getValue());
+        mutableArticleModel.setTags(ImmutableList.copyOf(updater.tags.getValue()));
+
+        return Transformations.map(
+                DataRepository.getInstance()
+                        .getPostDataHandler()
+                        .updatePost(updater.getId(), mutableArticleModel),
+
+                booleanLiveEvent -> {
+                    if(booleanLiveEvent == null) {
+                        return null;
+                    }
+                    Boolean result = booleanLiveEvent.getDataOnceAndReset();
+                    if(result == null) {
+                        return null;
+                    }
+                    return new LiveEvent<>(result);
+                }
+        );
     }
 
-    public LiveData<LiveEvent<Boolean>> deletePost(String postId) {
+    public LiveData<Boolean> deletePost(EventModel eventModel) {
 
         return Transformations.map(DataRepository
                         .getInstance()
                         .getPostDataHandler()
-                        .deletePost(postId),
+                        .deletePost(eventModel),
+
                 resultLiveEvent -> {
                     if (resultLiveEvent == null) {
-                        return new LiveEvent<>(false);
+                        return null;
                     }
-                    boolean res = resultLiveEvent.getDataOnceAndReset();
-                    // Do something and pass it on to view
-                    return new LiveEvent<>(res);
+                    Boolean deleted = resultLiveEvent.getDataOnceAndReset();
+                    if(deleted != null && deleted) {
+                        List<PostModel> highlights = loadedOrganizationHighlights.getValue();
+                        if (highlights != null) {
+                            highlights.removeIf(postModel -> postModel.getId().equals(eventModel.getId()));
+                            loadedOrganizationHighlights.setValue(highlights);
+                        }
+                    }
+                    else {
+                        Log.e("Post", "Error deleting " + eventModel.getId());
+                    }
+                    return deleted;
                 }
         );
     }
@@ -218,78 +293,74 @@ public class UserProfileViewModel extends BaseViewModel {
     }
 
     public void goToEditDetails() {
+        editingDetails = true;
         editDetailsTrigger.setValue(new LiveEvent<>(true));
     }
 
+    public void exitEditDetails() {
+        editingDetails = false;
+    }
+
     public void detailsEntryDone() {
+
+        updatingDetails = true;
 
         UserDataHandler.MutableUserOrganizationModel userOrganizationModel =
                 new UserDataHandler.MutableUserOrganizationModel();
 
         MediatorLiveData<DataValidator.DataValidationInformation> anyDetailsEntryInvalid = new MediatorLiveData<>();
 
-        ValidationAggregator validationAggregator = new ValidationAggregator(anyDetailsEntryInvalid);
+        ValidationAggregator validationAggregator = ValidationAggregator
+                .build(anyDetailsEntryInvalid)
+                .add(DataValidator.DataValidationPoint.VALIDATION_POINT_NAME)
+                .add(DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE)
+                .get();
 
         if(organizationUpdater.newProfilePicture.getValue() != null) {
             userOrganizationModel.setProfilePicturePath(organizationUpdater.newProfilePicture.getValue());
         }
+
         dataValidator.validateInstitute(organizationUpdater.instituteHandle.getValue(), dataValidationInformation -> {
 
-            boolean reFetching = false;
-            if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID){
-                String id = InstituteDataHandler.getCachedInstituteId(organizationUpdater.instituteHandle.getValue());
-                if (id == null || id.equals("")) {
+            if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                LiveData<LiveEvent<String>> instituteId = DataRepository
+                        .getInstance()
+                        .getInstituteDataHandler()
+                        .getInstituteId(organizationUpdater.instituteHandle.getValue());
 
-                    reFetching = true;
-                    LiveData<LiveEvent<String>> reFetchedId = DataRepository
-                            .getInstance()
-                            .getInstituteDataHandler()
-                            .getInstituteId(organizationUpdater.instituteHandle.getValue());
+                instituteId.observeForever(new Observer<LiveEvent<String>>() {
+                    @Override
+                    public void onChanged(LiveEvent<String> stringLiveEvent) {
+                        if (stringLiveEvent == null) {
+                            return;
+                        }
+                        String result = stringLiveEvent.getDataOnceAndReset();
+                        DataValidator.DataValidationInformation newValidationInformation;
 
-                    reFetchedId.observeForever(new Observer<LiveEvent<String>>() {
-                        @Override
-                        public void onChanged(LiveEvent<String> stringLiveEvent) {
-                            if(stringLiveEvent == null) {
-                                return;
-                            }
-                            String result = stringLiveEvent.getDataOnceAndReset();
-                            DataValidator.DataValidationInformation newValidationInformation;
-
-                            if(result != null && !result.equals("notFound")){
-                                userOrganizationModel.setInstitute(result);
-                                newValidationInformation = new DataValidator.DataValidationInformation(
-                                        DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
-                                        DataValidator.DataValidationResult.VALIDATION_RESULT_VALID
-                                );
-                            }
-                            else {
-                                newValidationInformation = new DataValidator.DataValidationInformation(
-                                        DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
-                                        DataValidator.DataValidationResult.VALIDATION_RESULT_INVALID
-                                );
-                            }
-
-                            validationAggregator.holdData(
+                        if (result != null && !result.equals("notFound")) {
+                            userOrganizationModel.setInstitute(result);
+                            newValidationInformation = new DataValidator.DataValidationInformation(
                                     DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
-                                    newValidationInformation
+                                    DataValidator.DataValidationResult.VALIDATION_RESULT_VALID
                             );
-                            notifyValidity(newValidationInformation);
-                            reFetchedId.removeObserver(this);
-                        }});
+                        } else {
+                            newValidationInformation = new DataValidator.DataValidationInformation(
+                                    DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                                    DataValidator.DataValidationResult.VALIDATION_RESULT_INVALID
+                            );
+                        }
 
-                } else {
-                    userOrganizationModel.setInstitute(id);
-                }
+                        validationAggregator.holdData(
+                                DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                                newValidationInformation
+                        );
+                        notifyValidity(newValidationInformation);
+                        instituteId.removeObserver(this);
+                    }
+                });
             }
-            if(!reFetching) {
-                validationAggregator.holdData(
-                        DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
-                        dataValidationInformation
-                );
-                notifyValidity(dataValidationInformation);
-            }
+            else notifyValidity(dataValidationInformation);
         });
-
 
         dataValidator.validateName(organizationUpdater.name.getValue(), dataValidationInformation -> {
             if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
@@ -311,10 +382,11 @@ public class UserProfileViewModel extends BaseViewModel {
                     notifyValidity(dataValidationInformation);
                     if (dataValidationInformation.getValidationPoint() == DataValidator.DataValidationPoint.VALIDATION_POINT_ALL
                             && dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
-
+                        updatingDetails = false;
                         DataRepository.getInstance()
                                 .getUserDataHandler()
                                 .updateCurrentUserDetails(userOrganizationModel);
+                    } else {
                     }
                 }
                 anyDetailsEntryInvalid.removeObserver(this);
@@ -357,7 +429,7 @@ public class UserProfileViewModel extends BaseViewModel {
         return editDetailsTrigger;
     }
 
-    public void resetUpdater() {
+    public void resetOrganizationUpdater() {
         organizationUpdater.setValues(organizationModel);
     }
 
@@ -410,108 +482,65 @@ public class UserProfileViewModel extends BaseViewModel {
         }
     }
 
-    public static class EventUpdater {
+    public static final class EventUpdater {
 
         private EventUpdater(EventModel eventModel) {
-
+            id = eventModel.getId();
             description = new MutableLiveData<>(eventModel.getDescription());
-            image = new MutableLiveData<>(eventModel.getImage());
-            form = new MutableLiveData<>(eventModel.getForm());
-
-            startTime = new MutableLiveData<>(eventModel.getStartTime());
-            endTime = new MutableLiveData<>(eventModel.getEndTime());
             tags = new MutableLiveData<>(eventModel.getTags());
+        }
 
-            venueModel = new MutableLiveData<>();
+        private final String id;
+
+        private String getId() {
+            return id;
         }
 
         public final MutableLiveData<String> description;
-        public final MutableLiveData<String> image;
-
-        public final MutableLiveData<Map<String, Map<String, Map<String, String>>>> form;
-        public final MutableLiveData<Date> startTime;
-        public final MutableLiveData<Date> endTime;
-        public final MutableLiveData<VenueModel> venueModel;
-
         public final MutableLiveData<List<String>> tags;
 
     }
 
-    public static class ArticleUpdater {
+    public static final class ArticleUpdater {
 
         private ArticleUpdater(ArticleModel articleModel) {
-
-            title = new MutableLiveData<>(articleModel.getTitle());
-            image = new MutableLiveData<>(articleModel.getImage());
-
+            id = articleModel.getId();
             text = new MutableLiveData<>(articleModel.getText());
             author = new MutableLiveData<>(articleModel.getAuthor());
-
             tags = new MutableLiveData<>(articleModel.getTags());
         }
 
-        public final MutableLiveData<String> title;
-        public final MutableLiveData<String> image;
+        private final String id;
+
+        private String getId() {
+            return id;
+        }
 
         public final MutableLiveData<String> text;
         public final MutableLiveData<String> author;
-
         public final MutableLiveData<List<String>> tags;
-
     }
 
-    public static class ShowcaseUpdater {
+    public static final class ShowcaseUpdater {
 
         private ShowcaseUpdater(ShowcaseModel showcaseModel) {
+            id = showcaseModel.getId();
             title = new MutableLiveData<>(showcaseModel.getTitle());
             photo = new MutableLiveData<>(showcaseModel.getPhoto());
         }
 
+        private final String id;
+
+        private String getId() {
+            return id;
+        }
+
         public final MutableLiveData<String> title;
         public final MutableLiveData<String> photo;
-
     }
 
-    private static class ValidationAggregator extends LiveDataAggregator<DataValidator.DataValidationPoint, DataValidator.DataValidationInformation, DataValidator.DataValidationInformation> {
-
-        private static final Set<DataValidator.DataValidationPoint> allValidationPoints = new HashSet<>();
-
-        static {
-            allValidationPoints.add(DataValidator.DataValidationPoint.VALIDATION_POINT_NAME);
-            allValidationPoints.add(DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE);
-        }
-
-        public ValidationAggregator(MediatorLiveData<DataValidator.DataValidationInformation> destination) {
-            super(destination);
-        }
-
-        @Override
-        protected DataValidator.DataValidationInformation mergeWithExistingData(DataValidator.DataValidationPoint typeofData, DataValidator.DataValidationInformation oldData, DataValidator.DataValidationInformation newData) {
-            throw new UnsupportedOperationException("Attempt to set same type of validation parameter twice");
-        }
-
-        @Override
-        protected boolean checkDataForAggregability() {
-            return dataOnHold.keySet().containsAll(allValidationPoints);
-        }
-
-        @Override
-        protected void aggregateData() {
-
-            for (DataValidator.DataValidationInformation dataValidationInformation : dataOnHold.values()) {
-                if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
-                    destinationLiveData.postValue(new DataValidator.DataValidationInformation(
-                            DataValidator.DataValidationPoint.VALIDATION_POINT_ALL,
-                            DataValidator.DataValidationResult.VALIDATION_RESULT_INVALID
-                    ));
-                    return;
-                }
-            }
-            destinationLiveData.postValue(new DataValidator.DataValidationInformation(
-                    DataValidator.DataValidationPoint.VALIDATION_POINT_ALL,
-                    DataValidator.DataValidationResult.VALIDATION_RESULT_VALID
-            ));
-        }
+    @Override
+    protected void onCleared() {
+        super.onCleared();
     }
-
 }

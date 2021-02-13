@@ -3,10 +3,14 @@ package com.omada.junctionadmin.viewmodels;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 
+import com.omada.junctionadmin.application.JunctionAdminApplication;
 import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.handler.UserDataHandler;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
+import com.omada.junctionadmin.utils.FileUtilities;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
+
+import me.shouheng.utils.UtilsApp;
 
 
 public class SplashViewModel extends BaseViewModel {
@@ -15,6 +19,11 @@ public class SplashViewModel extends BaseViewModel {
     private final LiveData<LiveEvent<OrganizationModel>> signedInUserAction;
 
     public SplashViewModel() {
+
+        // clear all files on startup
+        UtilsApp.init(JunctionAdminApplication.getInstance());
+        FileUtilities.Companion.clearTemporaryFiles();
+
         authResultAction = Transformations.map(
                 DataRepository.getInstance()
                         .getUserDataHandler()
@@ -32,8 +41,8 @@ public class SplashViewModel extends BaseViewModel {
                     switch (receivedAuthResponse){
                         case CURRENT_USER_SUCCESS:
                         case CURRENT_USER_FAILURE:
-                        case CURRENT_USER_LOGIN_SUCCESS:
-                        case CURRENT_USER_LOGIN_FAILURE:
+                        case LOGIN_SUCCESS:
+                        case LOGIN_FAILURE:
                             break;
                     }
                     return new LiveEvent<>(receivedAuthResponse);

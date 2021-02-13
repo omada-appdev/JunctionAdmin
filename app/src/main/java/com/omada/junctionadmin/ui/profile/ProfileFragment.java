@@ -40,6 +40,9 @@ public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetCh
                 new ViewModelProvider(requireActivity()).get(UserProfileViewModel.class)
         );
 
+        binding.getViewModel().loadOrganizationHighlights();
+        binding.getViewModel().loadOrganizationShowcases();
+
         return binding.getRoot();
     }
 
@@ -54,10 +57,6 @@ public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetCh
                     }
                     CustomBindings.loadImageUrl(binding.userProfileImage, organizationModel.getProfilePicture());
                 });
-
-        binding.recyclerView.setLayoutManager(
-                new LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
-        );
 
         binding.toolbar.setNavigationOnClickListener(v -> {
             binding.drawerLayout.openDrawer(binding.navigationView, true);

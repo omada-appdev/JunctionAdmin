@@ -110,7 +110,7 @@ public class OrganizationProfileViewModel extends BaseViewModel {
                         .getShowcaseDataHandler()
                         .getOrganizationShowcases(getDataRepositoryAccessIdentifier(), organizationID);
 
-        loadedOrganizationHighlights.addSource(
+        loadedOrganizationShowcases.addSource(
                 source,
                 showcaseModelsLiveEvent -> {
 
@@ -132,7 +132,7 @@ public class OrganizationProfileViewModel extends BaseViewModel {
                         }
                         else {
                         }
-                        loadedOrganizationShowcases.removeSource(source);
+                        //loadedOrganizationShowcases.removeSource(source);
                     }
 
                 }

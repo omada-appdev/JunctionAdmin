@@ -12,6 +12,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 import com.omada.junctionadmin.data.BaseDataHandler;
 import com.omada.junctionadmin.data.DataRepository;
@@ -28,9 +29,11 @@ import com.omada.junctionadmin.data.models.internal.remote.RegistrationModelRemo
 import com.omada.junctionadmin.data.models.mutable.MutableArticleModel;
 import com.omada.junctionadmin.data.models.mutable.MutableBookingModel;
 import com.omada.junctionadmin.data.models.mutable.MutableEventModel;
+import com.omada.junctionadmin.utils.FileUtilities;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -205,7 +208,7 @@ public class PostDataHandler extends BaseDataHandler {
 
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("Posts", "Failed to retrieve showcase posts");
+                    Log.e("Posts", "Error retrieving showcase posts");
                     loadedShowcasePostsLiveData.setValue(null);
                 });
 
@@ -220,9 +223,37 @@ public class PostDataHandler extends BaseDataHandler {
      */
     // TODO changesInPostModel must be made immutable
 
-    public LiveData<LiveEvent<Boolean>> updatePost(String postId, Map<String, Object> changesInPostModel){
+    public LiveData<LiveEvent<Boolean>> updatePost(String postId, PostModel mutableModel){
+
+        /*
+         I know I am abusing Java here but I think this is better and more scalable
+         than overloading updatePost for every model.
+        */
+        if (!(mutableModel instanceof MutableEventModel)
+                && !(mutableModel instanceof MutableArticleModel)) {
+
+            throw new RuntimeException("Expected a mutable model of a post");
+        }
 
         MutableLiveData<LiveEvent<Boolean>> resultLiveData = new MutableLiveData<>();
+
+        Map<String, Object> changesInPostModel = new HashMap<>();
+
+        Class<? extends PostModel> aClass = mutableModel.getClass();
+        if (MutableArticleModel.class.equals(aClass)) {
+
+            MutableArticleModel mutableArticleModel = (MutableArticleModel) mutableModel;
+            changesInPostModel.put("text", mutableArticleModel.getText());
+            changesInPostModel.put("author", mutableArticleModel.getAuthor());
+            changesInPostModel.put("tags", mutableArticleModel.getTags());
+
+        } else if (MutableEventModel.class.equals(aClass)) {
+
+            MutableEventModel mutableEventModel = (MutableEventModel) mutableModel;
+            changesInPostModel.put("description", mutableEventModel.getDescription());
+            changesInPostModel.put("tags", mutableEventModel.getTags());
+
+        }
 
         FirebaseFirestore.getInstance()
                 .collection("posts")
@@ -247,10 +278,9 @@ public class PostDataHandler extends BaseDataHandler {
         // creating batch to write booking and upload event in same batch
         WriteBatch batch = FirebaseFirestore.getInstance().batch();
 
-        // Generate a new random Id to correlate booking and event
-        String generatedId = FirebaseFirestore.getInstance()
+        // Generate a new random Id to store in booking
+        String generatedEventId = FirebaseFirestore.getInstance()
                 .collection("posts").document().getId();
-
 
         Uri imagePath = null;
         Object data = null;
@@ -262,7 +292,7 @@ public class PostDataHandler extends BaseDataHandler {
             imagePath = eventModel.getImagePath();
 
             // id needed for creating booking
-            eventModel.setId(generatedId);
+            eventModel.setId(generatedEventId);
             data = eventModelConverter.convertExternalToRemoteDBModel(eventModel);
 
             /*
@@ -291,16 +321,16 @@ public class PostDataHandler extends BaseDataHandler {
 
         DocumentReference postDocRef = FirebaseFirestore.getInstance()
                 .collection("posts")
-                .document(generatedId);
+                .document(generatedEventId);
 
         // for lambda
         Object finalData = data;
+        Uri finalImagePath = imagePath;
         DataRepository.getInstance()
                 .getImageUploadHandler()
-                .uploadPostImage(imagePath, generatedId, postModel.getCreator())
+                .uploadPostImage(imagePath, generatedEventId, postModel.getCreator())
                 .addOnCompleteListener(task -> {
                     if(task.isSuccessful()) {
-
                         String path = task.getResult().getMetadata().getReference().toString();
 
                         setImagePath(finalData, path);
@@ -331,24 +361,22 @@ public class PostDataHandler extends BaseDataHandler {
 
     }
 
-    private void setImagePath(Object data, String image) {
-        if(data instanceof EventModelRemoteDB) {
-            ((EventModelRemoteDB)data).setImage(image);
-        } else if (data instanceof ArticleModelRemoteDB) {
-            ((ArticleModelRemoteDB)data).setImage(image);
-        } else {
-            throw new UnsupportedOperationException("Provided object does not meet requirements for being a post");
-        }
-    }
-
-    public LiveData<LiveEvent<Boolean>> deletePost(String postID){
+    public LiveData<LiveEvent<Boolean>> deletePost(EventModel eventModel){
 
         MutableLiveData<LiveEvent<Boolean>> resultLiveData = new MutableLiveData<>();
 
-        FirebaseFirestore.getInstance()
+        WriteBatch batch = FirebaseFirestore.getInstance().batch();
+
+        DocumentReference eventDocRef = FirebaseFirestore.getInstance()
                 .collection("posts")
-                .document(postID)
-                .delete()
+                .document(eventModel.getId());
+
+        batch.delete(eventDocRef);
+
+        DataRepository.getInstance().getVenueDataHandler()
+                .deleteBooking(eventModel, batch);
+
+        batch.commit()
                 .addOnSuccessListener(aVoid -> {
                     resultLiveData.setValue(new LiveEvent<>(true));
                 })
@@ -359,6 +387,16 @@ public class PostDataHandler extends BaseDataHandler {
 
         return resultLiveData;
 
+    }
+
+    private void setImagePath(Object data, String image) {
+        if(data instanceof EventModelRemoteDB) {
+            ((EventModelRemoteDB)data).setImage(image);
+        } else if (data instanceof ArticleModelRemoteDB) {
+            ((ArticleModelRemoteDB)data).setImage(image);
+        } else {
+            throw new UnsupportedOperationException("Provided object does not meet requirements for being a post");
+        }
     }
 
     public LiveData<LiveEvent<List<RegistrationModel>>> getEventRegistrations(
@@ -423,7 +461,7 @@ public class PostDataHandler extends BaseDataHandler {
                 })
                 .addOnFailureListener(e -> {
                     resultLiveData.setValue(new LiveEvent<>(false));
-                    Log.e("Posts", "Failed to update organization highlights");
+                    Log.e("Posts", "Error updating organization highlights");
                 });
 
         return resultLiveData;

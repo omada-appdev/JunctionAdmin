@@ -1,5 +1,6 @@
 package com.omada.junctionadmin.ui.uicomponents.binders.organizationfeed;
 
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -34,6 +35,7 @@ public class OrganizationShowcaseThumbnailListBinder extends ItemBinder<ListSect
     @Override
     public void bindViewHolder(ShowcaseThumbnailListViewHolder holder, ListSection<ShowcaseModel> item) {
 
+        Log.e("Showcases", "bindViewHolder");
         holder.recyclerView.setLayoutManager(
                 new LinearLayoutManager(holder.recyclerView.getContext(), RecyclerView.HORIZONTAL, false)
         );

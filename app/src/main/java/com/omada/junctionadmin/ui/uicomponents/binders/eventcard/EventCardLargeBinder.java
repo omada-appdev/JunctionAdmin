@@ -12,6 +12,7 @@ import com.omada.junctionadmin.viewmodels.FeedContentViewModel;
 
 import mva3.adapter.ItemBinder;
 import mva3.adapter.ItemViewHolder;
+import mva3.adapter.ListSection;
 
 
 public class EventCardLargeBinder extends ItemBinder<EventModel, EventCardLargeBinder.EventCardViewHolder> {
@@ -48,6 +49,7 @@ public class EventCardLargeBinder extends ItemBinder<EventModel, EventCardLargeB
             super(containerBinding.getRoot());
             binding = containerBinding;
         }
+
 
         public EventCardLargeLayoutBinding getBinding() {
             return binding;

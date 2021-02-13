@@ -29,7 +29,9 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.databinding.EventCreateFragmentLayoutBinding;
-import com.omada.junctionadmin.utils.image.ImageUtilities;
+import com.omada.junctionadmin.utils.FileUtilities;
+import com.omada.junctionadmin.utils.image.GlideApp;
+import com.omada.junctionadmin.utils.ImageUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.viewmodels.CreatePostViewModel;
 
@@ -43,6 +45,7 @@ public class EventCreateFragment extends Fragment {
     private EventCreateFragmentLayoutBinding binding;
 
     private final AtomicBoolean compressingImage = new AtomicBoolean(false);
+    private final AtomicBoolean filePickerOpened = new AtomicBoolean(false);
     private static final int REQUEST_CODE_IMAGE_CHOOSER = 2;
 
     private final ActivityResultLauncher<String> storagePermissionLauncher =
@@ -68,7 +71,6 @@ public class EventCreateFragment extends Fragment {
         binding.setLifecycleOwner(getViewLifecycleOwner());
         binding.setViewModel(createPostViewModel);
         binding.setEventCreator(createPostViewModel.getEventCreator());
-        binding.getEventCreator().resetData();
 
         return binding.getRoot();
     }
@@ -91,7 +93,7 @@ public class EventCreateFragment extends Fragment {
                                 if(validationResult == DataValidator.DataValidationResult.VALIDATION_RESULT_BLANK_VALUE) {
                                     binding.eventDescriptionLayout.setError("Please provide a description");
                                 } else if (validationResult == DataValidator.DataValidationResult.VALIDATION_RESULT_OVERFLOW) {
-                                    binding.eventDescriptionLayout.setError("Character limit is " + DataValidator.EVENT_TITLE_MAX_SIZE);
+                                    binding.eventDescriptionLayout.setError("Character limit is " + DataValidator.EVENT_DESCRIPTION_MAX_SIZE);
                                 }
                                 break;
                             case VALIDATION_POINT_EVENT_TITLE:
@@ -139,6 +141,10 @@ public class EventCreateFragment extends Fragment {
         });
 
         binding.eventPosterImage.setOnClickListener(v -> {
+
+            if(filePickerOpened.get()) {
+                return;
+            }
             if(compressingImage.get()) {
                 Toast.makeText(requireContext(), "Please wait", Toast.LENGTH_SHORT).show();
                 return;
@@ -148,6 +154,7 @@ public class EventCreateFragment extends Fragment {
             if (ContextCompat.checkSelfPermission(
                     requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
+
                 startFilePicker();
             }
             else {
@@ -193,16 +200,31 @@ public class EventCreateFragment extends Fragment {
     }
 
     private void startFilePicker() {
+        filePickerOpened.set(true);
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CODE_IMAGE_CHOOSER);
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        if(createPostViewModel.getEventCreator().getImagePath() != null && !filePickerOpened.get()) {
+
+            Log.e("Create", "Image path is non null. Preparing to set image");
+
+            binding.eventPosterImage.setColorFilter(getResources().getColor(R.color.transparent, requireActivity().getTheme()));
+            binding.eventPosterImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            Uri uri = createPostViewModel.getEventCreator().getImagePath();
+            GlideApp
+                    .with(this)
+                    .load(uri)
+                    .into(binding.eventPosterImage);
+
+        } else {
+            filePickerOpened.set(false);
+        }
     }
 
     @Override
@@ -228,6 +250,9 @@ public class EventCreateFragment extends Fragment {
 
         if( requestCode == REQUEST_CODE_IMAGE_CHOOSER) {
 
+            Log.e("CreateEvent", "Entered onActivityResult");
+
+            filePickerOpened.set(true);
             compressingImage.set(true);
             Uri selectedImage = data.getData();
 
@@ -238,7 +263,7 @@ public class EventCreateFragment extends Fragment {
                 e.printStackTrace();
             }
 
-            Log.e("Details", "Compressing image... " + bitmap.getWidth() + "  " + bitmap.getHeight());
+            Log.e("CreateEvent", "Compressing image... " + bitmap.getWidth() + "  " + bitmap.getHeight());
             ImageUtilities
                     .scaleToPostImageGetBitmap(requireActivity(), bitmap)
                     .observe(getViewLifecycleOwner(), bitmapLiveEvent -> {
@@ -254,7 +279,6 @@ public class EventCreateFragment extends Fragment {
                             }
                         }
                         else{
-                            Log.e("Profile", "Error ");
                         }
                     });
 
@@ -278,7 +302,7 @@ public class EventCreateFragment extends Fragment {
                             }
                         }
                         else{
-                            Log.e("Profile", "Error ");
+                            Log.e("Profile", "Error: fileLiveEvent was null");
                         }
                     });
 

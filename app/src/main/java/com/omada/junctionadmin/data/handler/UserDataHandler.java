@@ -3,19 +3,15 @@ package com.omada.junctionadmin.data.handler;
 import android.net.Uri;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.UploadTask;
+import com.google.firebase.firestore.Source;
 import com.omada.junctionadmin.BuildConfig;
 import com.omada.junctionadmin.data.BaseDataHandler;
 import com.omada.junctionadmin.data.DataRepository;
@@ -33,9 +29,7 @@ public class UserDataHandler extends BaseDataHandler {
     public enum AuthStatus {
 
         CURRENT_USER_SUCCESS,
-        CURRENT_USER_LOGIN_SUCCESS,
         CURRENT_USER_FAILURE,
-        CURRENT_USER_LOGIN_FAILURE,
 
         AUTHENTICATION_SUCCESS,
         AUTHENTICATION_FAILURE,
@@ -61,7 +55,6 @@ public class UserDataHandler extends BaseDataHandler {
     MutableLiveData<LiveEvent<AuthStatus>> authResponseNotifier = new MutableLiveData<>();
     MutableLiveData<LiveEvent<OrganizationModel>> signedInUserNotifier = new MutableLiveData<>();
 
-    //state fields go here
     private final OrganizationModelConverter organizationModelConverter = new OrganizationModelConverter();
 
 
@@ -107,7 +100,20 @@ public class UserDataHandler extends BaseDataHandler {
 
     }
 
+    //state fields go here
     //to be called in createNewUser when it is successful and not anywhere else
+    /*
+    use it through authResponse LiveData by attaching a transformation or an observer and use the
+    sign in data in auth state listener
+    */
+    /*
+    This method is for getting details of newly authenticated user
+     */
+    // Copy of user model. Changes from outside have no effect on it internally
+    public OrganizationModel getCurrentUserModel() {
+        return new MutableOrganizationModel(signedInUser);
+    }
+
     private void addCreatedUserDetails(Uri profilePicturePath, OrganizationModelRemoteDB details) {
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -140,17 +146,13 @@ public class UserDataHandler extends BaseDataHandler {
         }
     }
 
-    /*
-    use it through authResponse LiveData by attaching a transformation or an observer and use the
-    sign in data in auth state listener
-    */
     public void authenticateUser(final String email, final String password) {
 
         FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.AUTHENTICATION_SUCCESS));
-                        getNewlyAuthenticatedUserDetails();
+                        getCurrentUserDetails();
                     } else {
                         authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.AUTHENTICATION_FAILURE));
                     }
@@ -158,96 +160,112 @@ public class UserDataHandler extends BaseDataHandler {
     }
 
     /*
-    This method is for getting details of newly authenticated user
-     */
-    private void getNewlyAuthenticatedUserDetails() {
-
-        signedInUser = null;
-
-        FirebaseUser newUser = FirebaseAuth.getInstance().getCurrentUser();
-
-        if (newUser == null) {
-            signedInUserNotifier.setValue(new LiveEvent<>(null));
-        } else {
-
-            FirebaseFirestore.getInstance()
-                    .collection("organizations")
-                    .document(newUser.getUid())
-                    .get()
-                    .addOnSuccessListener(documentSnapshot -> {
-
-                        OrganizationModelRemoteDB modelRemoteDB = documentSnapshot.toObject(OrganizationModelRemoteDB.class);
-                        if (modelRemoteDB != null) {
-                            modelRemoteDB.setId(documentSnapshot.getId());
-                            signedInUser = new MutableOrganizationModel(
-                                    organizationModelConverter.convertRemoteDBToExternalModel(modelRemoteDB)
-                            );
-
-                            authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.LOGIN_SUCCESS));
-                            signedInUserNotifier.setValue(new LiveEvent<>(getCurrentUserModel()));
-                        } else {
-                            authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.LOGIN_FAILURE));
-                        }
-
-                    })
-                    .addOnFailureListener(e -> authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.LOGIN_FAILURE)));
-        }
-    }
-
-    // Copy of user model. Changes from outside have no effect on it internally
-    public OrganizationModel getCurrentUserModel() {
-        return new MutableOrganizationModel(signedInUser);
-    }
-
-    /*
     this method triggers a get user through firebase auth that changes the value in signed in user
     notifier live data through the auth state listener callback
      */
     public void getCurrentUserDetails() {
-
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null && !user.getUid().equals("")) {
             authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.CURRENT_USER_SUCCESS));
-            getUserDetailsFromRemote(user.getUid());
+            LiveData<Boolean> localResultLiveData = getUserDetailsFromLocal(user.getUid());
+            localResultLiveData.observeForever(new Observer<Boolean>() {
+                @Override
+                public void onChanged(Boolean result) {
+                    if(result != null) {
+                        if (!result) {
+                            getUserDetailsFromRemote(user.getUid());
+                        }
+                        localResultLiveData.removeObserver(this);
+                    }
+                }
+            });
         } else {
             authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.CURRENT_USER_FAILURE));
         }
     }
 
     /*
+    This method is called when firebase already has a current user. It sets details into the signed
+    in user notifier live data.
+     */
+    private LiveData<Boolean> getUserDetailsFromRemote(String uid) {
+
+        MutableLiveData<Boolean> resultLiveData = new MutableLiveData<>();
+
+        FirebaseFirestore.getInstance()
+                .collection("organizations")
+                .document(uid)
+                .get(Source.SERVER)
+                .addOnSuccessListener(documentSnapshot -> {
+
+                    if(!documentSnapshot.exists()) {
+                        resultLiveData.setValue(false);
+                        authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.USER_TOKEN_EXPIRED));
+                        return;
+                    }
+                    OrganizationModelRemoteDB modelRemoteDB = documentSnapshot.toObject(OrganizationModelRemoteDB.class);
+                    if (modelRemoteDB != null) {
+                        modelRemoteDB.setId(documentSnapshot.getId());
+                        signedInUser = new MutableOrganizationModel(
+                                organizationModelConverter.convertRemoteDBToExternalModel(modelRemoteDB)
+                        );
+                        Log.e("Auth", "Retrieved user data from Source.SERVER");
+                        authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.LOGIN_SUCCESS));
+                        signedInUserNotifier.setValue(new LiveEvent<>(getCurrentUserModel()));
+                        resultLiveData.setValue(true);
+                    } else {
+                        authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.LOGIN_FAILURE));
+                        resultLiveData.setValue(false);
+                    }
+
+                })
+                .addOnFailureListener(e -> {
+                    authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.LOGIN_FAILURE));
+                    resultLiveData.setValue(false);
+                });
+
+        return resultLiveData;
+
+    }
+
+    /*
     This method is called after login and getting details is done. ie, when firebase already has a current user.
     It sets details into the signed in user notifier live data
      */
-    private void getUserDetailsFromRemote(String uid) {
+    private LiveData<Boolean> getUserDetailsFromLocal(String uid) {
 
-        if (!FirebaseAuth.getInstance().getCurrentUser().getUid().equals("")) {
-            //TODO get data from local and then remote if that fails
+        MutableLiveData<Boolean> resultLiveData = new MutableLiveData<>();
 
-            FirebaseFirestore.getInstance()
-                    .collection("organizations")
-                    .document(uid)
-                    .get()
-                    .addOnSuccessListener(documentSnapshot -> {
+        FirebaseFirestore.getInstance()
+                .collection("organizations")
+                .document(uid)
+                .get(Source.CACHE)
+                .addOnSuccessListener(documentSnapshot -> {
 
-                        OrganizationModelRemoteDB modelRemoteDB = documentSnapshot.toObject(OrganizationModelRemoteDB.class);
-                        if (modelRemoteDB != null) {
-                            modelRemoteDB.setId(documentSnapshot.getId());
-                            signedInUser = new MutableOrganizationModel(
-                                    organizationModelConverter.convertRemoteDBToExternalModel(modelRemoteDB)
-                            );
-                            authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.CURRENT_USER_LOGIN_SUCCESS));
-                            signedInUserNotifier.setValue(new LiveEvent<>(getCurrentUserModel()));
-                        } else {
-                            authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.LOGIN_FAILURE));
-                        }
+                    if(!documentSnapshot.exists()) {
+                        resultLiveData.setValue(false);
+                        return;
+                    }
+                    OrganizationModelRemoteDB modelRemoteDB = documentSnapshot.toObject(OrganizationModelRemoteDB.class);
+                    if (modelRemoteDB != null) {
+                        modelRemoteDB.setId(documentSnapshot.getId());
+                        signedInUser = new MutableOrganizationModel(
+                                organizationModelConverter.convertRemoteDBToExternalModel(modelRemoteDB)
+                        );
+                        Log.e("Auth", "Retrieved user data from Source.CACHE");
+                        authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.LOGIN_SUCCESS));
+                        signedInUserNotifier.setValue(new LiveEvent<>(getCurrentUserModel()));
+                        resultLiveData.setValue(true);
+                    } else {
+                        resultLiveData.setValue(false);
+                    }
 
-                    })
-                    .addOnFailureListener(e -> authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.LOGIN_FAILURE)));
+                })
+                .addOnFailureListener(e -> {
+                    resultLiveData.setValue(false);
+                });
 
-        } else {
-            authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.CURRENT_USER_LOGIN_FAILURE));
-        }
-
+        return resultLiveData;
     }
 
     public void signOutCurrentUser() {
@@ -295,9 +313,7 @@ public class UserDataHandler extends BaseDataHandler {
                 .update(updates)
                 .addOnSuccessListener(aVoid -> {
 
-                    Log.e("Update", "success");
-                    Log.e("Update", "institute " + updates.get("institute"));
-                    Log.e("Update", "success");
+                    Log.e("User", "Updated details successfully");
                     signedInUser.setInstitute((String) updates.get("institute"));
                     signedInUser.setName((String) updates.get("name"));
 
@@ -309,7 +325,7 @@ public class UserDataHandler extends BaseDataHandler {
                     authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.UPDATE_USER_DETAILS_SUCCESS));
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("Update", e.getMessage());
+                    Log.e("User", "Updated details in database");
                     authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.UPDATE_USER_DETAILS_FAILURE));
                 });
     }

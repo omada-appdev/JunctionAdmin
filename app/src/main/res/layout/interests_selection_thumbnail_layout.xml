@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_margin="8dp"
-            android:textColor="@color/White"
+            android:textColor="@color/white"
             android:textStyle="bold"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
             android:gravity="bottom|end"/>

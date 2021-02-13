@@ -1,12 +1,12 @@
 package com.omada.junctionadmin.data.models.external;
 
 import android.os.Parcel;
-import android.os.Parcelable;
 
-import com.google.firebase.Timestamp;
-import com.omada.junctionadmin.data.models.internal.remote.MemberModelRemoteDB;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 
-import java.util.Date;
 
 public class MemberModel extends BaseModel {
 
@@ -14,7 +14,7 @@ public class MemberModel extends BaseModel {
     protected String name;
     protected String photo;
 
-    protected Date dateJoined;
+    protected LocalDateTime dateJoined;
 
     protected String position;
 
@@ -26,7 +26,7 @@ public class MemberModel extends BaseModel {
         user = in.readString();
         name = in.readString();
         photo = in.readString();
-        dateJoined = new Date(in.readLong());
+        dateJoined = Instant.ofEpochSecond(in.readLong()).atZone(ZoneId.of("UTC")).toLocalDateTime();
         position = in.readString();
     }
 
@@ -54,7 +54,7 @@ public class MemberModel extends BaseModel {
         return photo;
     }
 
-    public Date getDateJoined() {
+    public LocalDateTime getDateJoined() {
         return dateJoined;
     }
 
@@ -74,7 +74,7 @@ public class MemberModel extends BaseModel {
         dest.writeString(user);
         dest.writeString(name);
         dest.writeString(photo);
-        dest.writeLong(dateJoined.getTime());
+        dest.writeLong(dateJoined.toEpochSecond(ZoneOffset.UTC));
         dest.writeString(position);
     }
 }

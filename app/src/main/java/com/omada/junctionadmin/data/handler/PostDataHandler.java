@@ -8,12 +8,14 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.android.gms.common.api.Batch;
 import com.google.common.collect.ImmutableList;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.storage.FirebaseStorage;
 import com.omada.junctionadmin.data.BaseDataHandler;
 import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.models.converter.ArticleModelConverter;
@@ -378,6 +380,24 @@ public class PostDataHandler extends BaseDataHandler {
 
         batch.commit()
                 .addOnSuccessListener(aVoid -> {
+
+                    FirebaseStorage
+                            .getInstance()
+                            .getReference()
+                            .child("organizationFiles")
+                            .child(eventModel.getCreator())
+                            .child("posts")
+                            .child(eventModel.getId())
+                            .delete()
+                            .addOnCompleteListener(aVoid2 -> {
+                               Log.e("Posts", "Post image deletion successful");
+                            });
+
+                    DataRepository
+                            .getInstance()
+                            .getUserDataHandler()
+                            .decrementHeldEventsNumber();
+
                     resultLiveData.setValue(new LiveEvent<>(true));
                 })
                 .addOnFailureListener(e -> {

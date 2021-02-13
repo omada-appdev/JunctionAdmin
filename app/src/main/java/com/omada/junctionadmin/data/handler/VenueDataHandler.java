@@ -152,13 +152,13 @@ public class VenueDataHandler extends BaseDataHandler {
 
         // getting only date because that is how it will be stored
         LocalDate date =
-                bookingModel.getStartTime().toDate().toInstant().atZone(ZoneId.of("UTC")).toLocalDate();
+                bookingModel.getStartTime().atZone(ZoneId.of("UTC")).toLocalDate();
 
         batch.set(docRef, bookingModelConverter.convertExternalToRemoteDBModel(bookingModel));
 
         Map<String, Long> bookingData = new HashMap<>();
-        bookingData.put("startTime", bookingModel.getStartTime().toDate().toInstant().getEpochSecond());
-        bookingData.put("endTime", bookingModel.getEndTime().toDate().toInstant().getEpochSecond());
+        bookingData.put("startTime", bookingModel.getStartTime().atZone(ZoneId.of("UTC")).toInstant().getEpochSecond());
+        bookingData.put("endTime", bookingModel.getEndTime().atZone(ZoneId.of("UTC")).toInstant().getEpochSecond());
 
         // Writing booking into JSON database for fast and cheap querying
         // TODO add listeners to handle database failures
@@ -166,9 +166,9 @@ public class VenueDataHandler extends BaseDataHandler {
                 .getInstance()
                 .getReference()
                 .child("bookings")
-                .child(bookingModel.getVenue())
                 .child(date.format(DateTimeFormatter.ISO_DATE))
-                .push()
+                .child(bookingModel.getVenue())
+                .child(bookingModel.getId())
                 .setValue(bookingData);
 
     }
@@ -181,6 +181,19 @@ public class VenueDataHandler extends BaseDataHandler {
                 .document(eventModel.getVenue())
                 .collection("bookings")
                 .document(eventModel.getId());
+
+        LocalDate date =
+                eventModel.getStartTime().atZone(ZoneId.of("UTC")).toLocalDate();
+
+        FirebaseDatabase
+                .getInstance()
+                .getReference()
+                .child("bookings")
+                .child(date.format(DateTimeFormatter.ISO_DATE))
+                .child(eventModel.getVenue())
+                .child(eventModel.getId())
+                .removeValue()
+                .addOnCompleteListener(aVoid -> Log.e("Booking", "Removed booking from Realtime database"));
 
         batch.delete(documentReference);
     }

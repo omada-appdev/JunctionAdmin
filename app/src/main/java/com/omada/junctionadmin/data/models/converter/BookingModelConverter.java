@@ -1,8 +1,10 @@
 package com.omada.junctionadmin.data.models.converter;
 
+import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.external.BookingModel;
 import com.omada.junctionadmin.data.models.internal.remote.BookingModelRemoteDB;
 import com.omada.junctionadmin.data.models.mutable.MutableBookingModel;
+import com.omada.junctionadmin.utils.TransformUtilities;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,8 +27,8 @@ public class BookingModelConverter extends BaseConverter <BookingModel, BookingM
         model.setImage(remoteModel.getImage());
 
         model.setVenue(remoteModel.getVenue());
-        model.setStartTime(remoteModel.getStartTime());
-        model.setEndTime(remoteModel.getEndTime());
+        model.setStartTime(TransformUtilities.convertTimestampToLocalDateTime(remoteModel.getStartTime()));
+        model.setEndTime(TransformUtilities.convertTimestampToLocalDateTime(remoteModel.getEndTime()));
         model.setTimeCreated(remoteModel.getTimeCreated());
 
         model.setCreator(remoteModel.getCreator());
@@ -56,8 +58,8 @@ public class BookingModelConverter extends BaseConverter <BookingModel, BookingM
         model.setEvent(externalModel.getEvent());
         model.setEventName(externalModel.getEventName());
         model.setTimeCreated(externalModel.getTimeCreated());
-        model.setStartTime(externalModel.getStartTime());
-        model.setEndTime(externalModel.getEndTime());
+        model.setStartTime(TransformUtilities.convertUtcLocalDateTimeToTimestamp(externalModel.getStartTime()));
+        model.setEndTime(TransformUtilities.convertUtcLocalDateTimeToTimestamp(externalModel.getEndTime()));
         model.setCreator(externalModel.getCreator());
         model.setImage(externalModel.getImage());
 

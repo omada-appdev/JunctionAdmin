@@ -92,7 +92,7 @@ public class DataRepository {
     }
 
 
-    public Object getAccessorDataOfHandlerWithKey(DataRepositoryAccessIdentifier accessIdentifier, DataRepositoryHandlerIdentifier handlerIdentifier, String key) {
+    public Object getAccessorDataForHandlerWithKey(DataRepositoryAccessIdentifier accessIdentifier, DataRepositoryHandlerIdentifier handlerIdentifier, String key) {
         DataRepositoryAccessorData data = accessTracker.get(accessIdentifier);
         if(data == null) {
             throw new RuntimeException("Attempt to get accessor data of a non-existent or de-registered access identifier");

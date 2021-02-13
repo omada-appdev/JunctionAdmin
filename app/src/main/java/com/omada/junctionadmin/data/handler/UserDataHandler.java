@@ -371,6 +371,28 @@ public class UserDataHandler extends BaseDataHandler {
                 });
     }
 
+    public void decrementHeldEventsNumber() {
+
+        String id = DataRepository.getInstance()
+                .getUserDataHandler()
+                .getCurrentUserModel()
+                .getId();
+
+        FirebaseFirestore
+                .getInstance()
+                .collection("organizations")
+                .document(id)
+                .update("heldEventsNumber", FieldValue.increment(-1))
+                .addOnSuccessListener(aVoid -> {
+                    signedInUser.setHeldEventsNumber(signedInUser.getHeldEventsNumber() - 1);
+                    signedInUserNotifier.setValue(new LiveEvent<>(getCurrentUserModel()));
+                    Log.e("Organization", "Events decrement success");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Organization", "Events decrement failure");
+                });
+    }
+
     public static final class MutableUserOrganizationModel extends MutableOrganizationModel {
 
         private Uri profilePicturePath;

@@ -17,12 +17,14 @@ import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.external.VenueModel;
 import com.omada.junctionadmin.data.models.testdummy.TestVenueModel;
 import com.omada.junctionadmin.utils.FileUtilities;
+import com.omada.junctionadmin.utils.TransformUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -31,10 +33,11 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-
+/*
+    For all dates and times all OUTPUTS are in system zone, all INPUTS are in UTC zone
+    Everything that the View layer directly interacts with must be in system zone by default
+ */
 public class CreatePostViewModel extends BaseViewModel {
-
-
 
     private enum CurrentState {
         CURRENT_STATE_IDLE,
@@ -166,10 +169,14 @@ public class CreatePostViewModel extends BaseViewModel {
 
             // TODO check how exactly parsing is done
             eventModel.setStartTime(
-                    LocalDateTime.parse(eventCreator.startTime.getValue()).atZone(ZoneId.of("UTC")).toLocalDateTime()
+                    TransformUtilities.convertSystemZoneLocalDateTimeToUtc(
+                            LocalDateTime.parse(eventCreator.startTime.getValue()).atZone(ZoneId.systemDefault())
+                    )
             );
             eventModel.setEndTime(
-                    LocalDateTime.parse(eventCreator.endTime.getValue()).atZone(ZoneId.of("UTC")).toLocalDateTime()
+                    TransformUtilities.convertSystemZoneLocalDateTimeToUtc(
+                            LocalDateTime.parse(eventCreator.endTime.getValue()).atZone(ZoneId.systemDefault())
+                    )
             );
 
             //VenueModel venueModel = eventCreator.getVenueModel();
@@ -287,15 +294,14 @@ public class CreatePostViewModel extends BaseViewModel {
 
     private void initCalendar() {
 
-        long today = Instant.now().toEpochMilli();
+        long today = ZonedDateTime.now(ZoneId.systemDefault()).toInstant().toEpochMilli();
         Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
         calendar.clear();
         calendar.setTimeInMillis(today);
 
         startTime = calendar.getTimeInMillis();
 
-        calendar.roll(Calendar.DATE, -1);
-        invalidUpTo = calendar.getTimeInMillis();
+        invalidUpTo = startTime;
 
         calendar.roll(Calendar.YEAR, 2);
         endTime = calendar.getTimeInMillis();
@@ -336,7 +342,9 @@ public class CreatePostViewModel extends BaseViewModel {
 
         protected Uri imagePath;
 
+        // in system zone
         public final MutableLiveData<String> startTime = new MutableLiveData<>();
+        // in system zone
         public final MutableLiveData<String> endTime = new MutableLiveData<>();
 
         protected VenueModel venueModel;

@@ -10,8 +10,20 @@ public class InstituteModel extends BaseModel {
     protected String handle;
     protected String name;
 
+    protected String profilePicture;
+
     protected InstituteModel(){
     }
+
+    protected InstituteModel(InstituteModel externalModel){
+        id=externalModel.getId();
+        name=externalModel.getName();
+        handle=externalModel.getHandle();
+        profilePicture=externalModel.getProfilePicture();
+    }
+
+
+
 
     protected InstituteModel(Parcel in) {
         id = in.readString();
@@ -37,6 +49,14 @@ public class InstituteModel extends BaseModel {
 
     public String getName(){
         return name;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
     }
 
     @Override

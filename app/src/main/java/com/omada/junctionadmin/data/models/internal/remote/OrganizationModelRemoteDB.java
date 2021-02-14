@@ -20,6 +20,7 @@ public class OrganizationModelRemoteDB extends BaseModelInternal {
     private String phone;
 
     private String type;
+    private Boolean isInstituteAdmin;
 
     public OrganizationModelRemoteDB(String id) {
         super(id);
@@ -73,6 +74,10 @@ public class OrganizationModelRemoteDB extends BaseModelInternal {
         return profilePicture;
     }
 
+    @PropertyName("isInstituteAdmin")
+    public Boolean getIsInstituteAdmin() {
+        return isInstituteAdmin;
+    }
 
 
     @PropertyName("name")
@@ -118,5 +123,10 @@ public class OrganizationModelRemoteDB extends BaseModelInternal {
     @PropertyName("profilePicture")
     public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
+    }
+
+    @PropertyName("isInstituteAdmin")
+    public void setIsInstituteAdmin(Boolean isInstituteAdmin) {
+        this.isInstituteAdmin = isInstituteAdmin;
     }
 }

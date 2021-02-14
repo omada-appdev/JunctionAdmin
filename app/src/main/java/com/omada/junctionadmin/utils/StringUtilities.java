@@ -1,5 +1,7 @@
 package com.omada.junctionadmin.utils;
 
+import androidx.annotation.Nullable;
+
 import java.util.Random;
 
 public final class StringUtilities {
@@ -10,7 +12,7 @@ public final class StringUtilities {
     }
 
     public static String randomStringGenerator(int size, boolean includeLetters,
-                                               boolean includeNumbers, String specialCharacters){
+                                               boolean includeNumbers, @Nullable String specialCharacters){
 
         String SALTCHARS = "";
         if(includeLetters){

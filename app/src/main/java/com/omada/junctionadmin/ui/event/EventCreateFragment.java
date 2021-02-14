@@ -143,7 +143,6 @@ public class EventCreateFragment extends Fragment {
         });
 
         binding.eventPosterImage.setOnClickListener(v -> {
-
             if(filePickerOpened.get()) {
                 return;
             }

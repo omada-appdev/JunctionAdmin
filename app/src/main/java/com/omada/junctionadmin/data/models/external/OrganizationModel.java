@@ -20,6 +20,7 @@ public class OrganizationModel extends BaseModel {
     protected String phone;
 
     protected String type;
+    protected Boolean isInstituteAdmin;
 
     protected OrganizationModel(){
     }
@@ -45,6 +46,7 @@ public class OrganizationModel extends BaseModel {
         attendedUsersNumber = externalModel.getAttendedUsersNumber();
         heldEventsNumber = externalModel.getHeldEventsNumber();
 
+        isInstituteAdmin = externalModel.isInstituteAdmin();
     }
 
     protected OrganizationModel(Parcel in) {
@@ -66,6 +68,7 @@ public class OrganizationModel extends BaseModel {
         mail = in.readString();
         phone = in.readString();
         type = in.readString();
+        isInstituteAdmin = in.readInt() == 1;
     }
 
     public static final Creator<OrganizationModel> CREATOR = new Creator<OrganizationModel>() {
@@ -116,6 +119,10 @@ public class OrganizationModel extends BaseModel {
         return profilePicture;
     }
 
+    public Boolean isInstituteAdmin() {
+        return isInstituteAdmin;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -143,5 +150,6 @@ public class OrganizationModel extends BaseModel {
         dest.writeString(mail);
         dest.writeString(phone);
         dest.writeString(type);
+        dest.writeInt(isInstituteAdmin ? 1 : 0);
     }
 }

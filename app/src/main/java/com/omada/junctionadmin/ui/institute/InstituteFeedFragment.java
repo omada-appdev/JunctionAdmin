@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,8 +15,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.textview.MaterialTextView;
 import com.mancj.materialsearchbar.MaterialSearchBar;
 import com.omada.junctionadmin.R;
+import com.omada.junctionadmin.data.models.external.InstituteModel;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.external.PostModel;
 import com.omada.junctionadmin.data.models.mutable.MutableOrganizationModel;
@@ -90,10 +93,21 @@ public class InstituteFeedFragment extends Fragment {
         MaterialSearchBar searchBar = view.findViewById(R.id.institute_search_bar);
         AppBarLayout appBarLayout = view.findViewById(R.id.appbar);
 
-        CustomBindings.loadImageGs(
-                view.findViewById(R.id.institute_banner),
-                "gs://junction-b7b44.appspot.com/instituteFiles/nitw.jpg"
-        );
+        MaterialTextView instituteName = view.findViewById(R.id.institute_name);
+        ImageView instituteImage = view.findViewById(R.id.institute_image);
+
+        instituteViewModel.getInstituteDetails()
+                .observe(getViewLifecycleOwner(), instituteModelLiveEvent -> {
+                    if(instituteModelLiveEvent == null) {
+                        return;
+                    }
+                    InstituteModel model = instituteModelLiveEvent.getDataOnceAndReset();
+                    if(model == null) {
+                        return;
+                    }
+                    instituteName.setText(model.getName());
+                    CustomBindings.loadImageGs(instituteImage, model.getImage());
+                });
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(view.getContext());
         recyclerView.setLayoutManager(linearLayoutManager);
@@ -103,7 +117,7 @@ public class InstituteFeedFragment extends Fragment {
         instituteViewModel.getLoadedInstituteHighlights()
                 .observe(getViewLifecycleOwner(), postModels-> {
                     onHighlightsLoaded(postModels);
-                    Log.e("Institute", "Highlights loaded :" + String.valueOf(postModels.size()));
+                    Log.e("Institute", "Highlights loaded :" + postModels.size());
                 });
 
         instituteViewModel.getLoadedInstituteOrganizations()

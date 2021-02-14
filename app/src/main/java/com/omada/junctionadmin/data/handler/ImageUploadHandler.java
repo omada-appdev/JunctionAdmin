@@ -8,6 +8,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.omada.junctionadmin.data.BaseDataHandler;
 import com.omada.junctionadmin.utils.FileUtilities;
+import com.omada.junctionadmin.utils.StringUtilities;
 
 public class ImageUploadHandler extends BaseDataHandler {
 
@@ -29,6 +30,19 @@ public class ImageUploadHandler extends BaseDataHandler {
                 .child(uid)
                 .child("posts")
                 .child(postId);
+
+        return reference.putFile(path);
+    }
+
+    public UploadTask uploadInstituteImage(Uri path, String instituteId) {
+
+        StorageReference reference = FirebaseStorage
+                .getInstance()
+                .getReference()
+                .child("instituteFiles")
+                .child(instituteId)
+                .child("images")
+                .child(StringUtilities.randomStringGenerator(9, true, true, null));
 
         return reference.putFile(path);
     }

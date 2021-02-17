@@ -9,6 +9,9 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
 import com.omada.junctionadmin.data.DataRepository;
+import com.omada.junctionadmin.data.models.external.NotificationModel;
+import com.omada.junctionadmin.data.models.mutable.MutableInstituteModel;
+import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.handler.InstituteDataHandler;
 import com.omada.junctionadmin.data.models.external.InstituteModel;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
@@ -25,6 +28,9 @@ import javax.annotation.Nonnull;
 
 public class InstituteViewModel extends BaseViewModel {
 
+    private static final int INSTITUTE_HANDLE_MIN_LENGTH = 4;
+    private static final int INSTITUTE_HANDLE_MAX_LENGTH = 8;
+
     private final InstituteUpdater instituteUpdater = new InstituteUpdater();
 
     private String instituteId;
@@ -33,6 +39,7 @@ public class InstituteViewModel extends BaseViewModel {
     private MediatorLiveData<List<PostModel>> loadedInstituteHighlights = new MediatorLiveData<>();
     private MediatorLiveData<List<OrganizationModel>> loadedInstituteOrganizations = new MediatorLiveData<>();
     private MediatorLiveData<List<VenueModel>> loadedInstituteVenues = new MediatorLiveData<>();
+    private MediatorLiveData<List<NotificationModel>> loadedInstituteNotifications = new MediatorLiveData<>();
 
     private final MutableLiveData<LiveEvent<Boolean>> editInstituteTrigger = new MutableLiveData<>();
 
@@ -50,7 +57,7 @@ public class InstituteViewModel extends BaseViewModel {
     private void distributeLoadedData() {
 
         loadedInstituteHighlights.addSource(
-                DataRepository.getInstance().getPostDataHandler().getLoadedInstituteHighlightsNotifier(),
+                MainDataRepository.getInstance().getPostDataHandler().getLoadedInstituteHighlightsNotifier(),
                 input -> {
                     if (input != null) {
 
@@ -70,7 +77,7 @@ public class InstituteViewModel extends BaseViewModel {
         );
 
         loadedInstituteOrganizations.addSource(
-                DataRepository.getInstance().getOrganizationDataHandler().getLoadedInstituteOrganizationsNotifier(),
+                MainDataRepository.getInstance().getOrganizationDataHandler().getLoadedInstituteOrganizationsNotifier(),
                 input -> {
                     if (input != null) {
 
@@ -121,30 +128,42 @@ public class InstituteViewModel extends BaseViewModel {
             notifyValidity(dataValidationInformation);
         });
 
-        dataValidator.validateInstitute(instituteUpdater.handle.getValue(), dataValidationInformation -> {
-            if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
-                mutableUserInstituteModel.setHandle(
-                        instituteUpdater.handle.getValue()
-                );
-            }
+        if (instituteUpdater.handle.getValue() != null && instituteUpdater.handle.getValue().length() >= INSTITUTE_HANDLE_MIN_LENGTH && instituteUpdater.handle.getValue().length() <= INSTITUTE_HANDLE_MAX_LENGTH) {
+            mutableUserInstituteModel.setHandle(
+                    instituteUpdater.handle.getValue()
+            );
+            DataValidator.DataValidationInformation dataValidationInformation = new DataValidator.DataValidationInformation(
+                    DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                    DataValidator.DataValidationResult.VALIDATION_RESULT_VALID
+            );
             validationAggregator.holdData(
                     DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
                     dataValidationInformation
             );
             notifyValidity(dataValidationInformation);
-        });
+        } else {
+            DataValidator.DataValidationInformation dataValidationInformation = new DataValidator.DataValidationInformation(
+                    DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                    DataValidator.DataValidationResult.VALIDATION_RESULT_INVALID
+            );
+            validationAggregator.holdData(
+                    DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                    dataValidationInformation
+            );
+            notifyValidity(dataValidationInformation);
+        }
 
         LiveData<LiveEvent<Boolean>> validationResultLiveData = Transformations.switchMap(
                 anyDetailsEntryInvalid,
                 input -> {
-                    if(input == null) {
+                    if (input == null) {
                         return null;
                     }
                     Log.e("Institute", "All details " + input.getDataValidationResult());
                     notifyValidity(input);
                     DataValidator.DataValidationResult dataValidationResult = input.getDataValidationResult();
-                    if(dataValidationResult == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
-                        return DataRepository.getInstance()
+                    if (dataValidationResult == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                        return MainDataRepository.getInstance()
                                 .getInstituteDataHandler()
                                 .updateInstituteDetails(mutableUserInstituteModel);
                     }
@@ -154,16 +173,19 @@ public class InstituteViewModel extends BaseViewModel {
 
         return Transformations.map(
                 validationResultLiveData,
-                input -> {
-                    if(input == null) {
+                input ->
+
+                {
+                    if (input == null) {
                         return null;
                     }
                     updatingDetails = false;
-                    Boolean result  = input.getDataOnceAndReset();
-                    if(result == null) {
+                    Boolean result = input.getDataOnceAndReset();
+                    if (result == null) {
                         return null;
                     }
-                    if(result) {
+                    if (result) {
+                        instituteModel = null;
                         return new LiveEvent<>(true);
                     } else {
                         return new LiveEvent<>(false);
@@ -177,13 +199,14 @@ public class InstituteViewModel extends BaseViewModel {
         editInstituteTrigger.setValue(new LiveEvent<>(true));
     }
 
-    public void resetInstituteUpdater() {
+    public void exitAdminConsole() {
         instituteUpdater.setValues(instituteModel);
+        loadedInstituteNotifications.setValue(null);
     }
 
     public LiveData<LiveEvent<InstituteModel>> getInstituteDetails() {
 
-        instituteId = DataRepository
+        instituteId = MainDataRepository
                 .getInstance()
                 .getUserDataHandler()
                 .getCurrentUserModel()
@@ -194,7 +217,7 @@ public class InstituteViewModel extends BaseViewModel {
         }
 
         return Transformations.map(
-                DataRepository.getInstance()
+                MainDataRepository.getInstance()
                         .getInstituteDataHandler()
                         .getInstituteDetails(instituteId),
 
@@ -206,6 +229,7 @@ public class InstituteViewModel extends BaseViewModel {
                     if (instituteModel == null) {
                         return null;
                     }
+                    this.instituteModel = instituteModel;
                     instituteUpdater.setValues(instituteModel);
                     return new LiveEvent<>(instituteModel);
                 }
@@ -217,14 +241,14 @@ public class InstituteViewModel extends BaseViewModel {
     }
 
     public void loadInstituteHighlights() {
-        DataRepository
+        MainDataRepository
                 .getInstance()
                 .getPostDataHandler()
                 .getInstituteHighlights(getDataRepositoryAccessIdentifier());
     }
 
     public void loadInstituteOrganizations() {
-        DataRepository
+        MainDataRepository
                 .getInstance()
                 .getOrganizationDataHandler()
                 .getInstituteOrganizations(getDataRepositoryAccessIdentifier());
@@ -232,12 +256,12 @@ public class InstituteViewModel extends BaseViewModel {
 
     public void loadAllVenues() {
 
-        String instituteId = DataRepository.getInstance()
+        String instituteId = MainDataRepository.getInstance()
                 .getUserDataHandler()
                 .getCurrentUserModel()
                 .getInstitute();
 
-        LiveData<LiveEvent<List<VenueModel>>> source = DataRepository
+        LiveData<LiveEvent<List<VenueModel>>> source = MainDataRepository
                 .getInstance()
                 .getVenueDataHandler()
                 .getAllVenues(getDataRepositoryAccessIdentifier(), instituteId);
@@ -265,6 +289,41 @@ public class InstituteViewModel extends BaseViewModel {
 
     }
 
+    public void loadInstituteNotifications() {
+
+        LiveData<LiveEvent<List<NotificationModel>>> source = MainDataRepository.getInstance()
+                .getInstituteDataHandler()
+                .getInstituteNotifications();
+
+        loadedInstituteNotifications.addSource(
+                source,
+                listLiveEvent -> {
+                    if (listLiveEvent == null) {
+                        return;
+                    }
+                    List<NotificationModel> notifications = listLiveEvent.getDataOnceAndReset();
+                    if (notifications == null) {
+                        return;
+                    }
+                    loadedInstituteNotifications.setValue(notifications);
+                    loadedInstituteNotifications.removeSource(source);
+                }
+        );
+    }
+
+    public LiveData<LiveEvent<Boolean>> handleJoinRequest(NotificationModel model, Boolean response) {
+        return Transformations.map(
+                MainDataRepository.getInstance()
+                        .getInstituteDataHandler()
+                        .handleNotification(model, response),
+                input -> input
+        );
+    }
+
+    public MediatorLiveData<List<NotificationModel>> getLoadedInstituteNotifications() {
+        return loadedInstituteNotifications;
+    }
+
     public MediatorLiveData<List<OrganizationModel>> getLoadedInstituteOrganizations() {
         return loadedInstituteOrganizations;
     }
@@ -285,10 +344,6 @@ public class InstituteViewModel extends BaseViewModel {
 
     }
 
-    public void updateInstituteDetails(@Nonnull InstituteModel instituteModel) {
-
-    }
-
     public final boolean checkInstituteContentLoaded() {
         return loadedInstituteHighlights.getValue() != null && loadedInstituteHighlights.getValue().size() != 0
                 && loadedInstituteOrganizations.getValue() != null && loadedInstituteOrganizations.getValue().size() != 0;
@@ -305,9 +360,17 @@ public class InstituteViewModel extends BaseViewModel {
         }
 
         private void setValues(InstituteModel model) {
+            if (model == null) {
+                name.setValue(null);
+                handle.setValue(null);
+                imagePath = null;
+                image = null;
+                return;
+            }
             name.setValue(model.getName());
             handle.setValue(model.getHandle());
             setImage(model.getImage());
+            imagePath = null;
         }
 
         public String getImage() {

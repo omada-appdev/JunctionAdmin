@@ -9,12 +9,14 @@ import androidx.lifecycle.Observer;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Source;
 import com.omada.junctionadmin.BuildConfig;
 import com.omada.junctionadmin.data.BaseDataHandler;
-import com.omada.junctionadmin.data.DataRepository;
+import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.models.converter.OrganizationModelConverter;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.internal.remote.OrganizationModelRemoteDB;
@@ -70,7 +72,6 @@ public class UserDataHandler extends BaseDataHandler {
                         signedInUser = null;
                         authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.USER_SIGNED_OUT));
                     }
-
                 });
     }
 
@@ -124,7 +125,7 @@ public class UserDataHandler extends BaseDataHandler {
             auth state listener and do not update it from here because the auth state listener will take care of it
             */
 
-            DataRepository
+            MainDataRepository
                     .getInstance()
                     .getImageUploadHandler()
                     .uploadProfilePictureWithTask(profilePicturePath, user.getUid())
@@ -136,6 +137,28 @@ public class UserDataHandler extends BaseDataHandler {
                                 .document(user.getUid())
                                 .set(details)
                                 .addOnSuccessListener(task -> {
+
+                                    // TODO move to NotificationDataHandler and use admin SDK
+                                    DatabaseReference reference = FirebaseDatabase.getInstance()
+                                            .getReference()
+                                            .child("notifications")
+                                            .child(details.getInstitute())
+                                            .push();
+
+                                    Map<String, Object> notificationPayload = new HashMap<>();
+                                    notificationPayload.put("notificationType", "instituteJoinRequest");
+                                    notificationPayload.put("sourceType", "organization");
+                                    notificationPayload.put("source", user.getUid());
+                                    notificationPayload.put("title", "");
+
+                                    Map<String, Object> data = new HashMap<>();
+                                    data.put("name", details.getName());
+                                    data.put("email", details.getMail());
+                                    data.put("profilePicture", details.getProfilePicture());
+                                    notificationPayload.put("data", data);
+                                    notificationPayload.put("status", "pending");
+                                    reference.setValue(notificationPayload);
+
                                     authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.ADD_EXTRA_DETAILS_SUCCESS));
                                 })
                                 .addOnFailureListener(task -> {
@@ -171,7 +194,7 @@ public class UserDataHandler extends BaseDataHandler {
             localResultLiveData.observeForever(new Observer<Boolean>() {
                 @Override
                 public void onChanged(Boolean result) {
-                    if(result != null) {
+                    if (result != null) {
                         if (!result) {
                             getUserDetailsFromRemote(user.getUid());
                         }
@@ -198,7 +221,7 @@ public class UserDataHandler extends BaseDataHandler {
                 .get(Source.SERVER)
                 .addOnSuccessListener(documentSnapshot -> {
 
-                    if(!documentSnapshot.exists()) {
+                    if (!documentSnapshot.exists()) {
                         resultLiveData.setValue(false);
                         authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.USER_TOKEN_EXPIRED));
                         return;
@@ -242,7 +265,7 @@ public class UserDataHandler extends BaseDataHandler {
                 .get(Source.CACHE)
                 .addOnSuccessListener(documentSnapshot -> {
 
-                    if(!documentSnapshot.exists()) {
+                    if (!documentSnapshot.exists()) {
                         resultLiveData.setValue(false);
                         return;
                     }
@@ -291,7 +314,7 @@ public class UserDataHandler extends BaseDataHandler {
         // Filesystem path
         Uri newProfilePicture = updatedUserModel.getProfilePicturePath();
         if (newProfilePicture != null) {
-            DataRepository.getInstance()
+            MainDataRepository.getInstance()
                     .getImageUploadHandler()
                     .uploadProfilePictureWithTask(newProfilePicture, user.getUid())
                     .addOnCompleteListener(uri -> {
@@ -299,8 +322,7 @@ public class UserDataHandler extends BaseDataHandler {
                         updates.put("profilePicture", httpUrl);
                         updateDatabaseDetails(updates);
                     });
-        }
-        else {
+        } else {
             updateDatabaseDetails(updates);
         }
 
@@ -319,7 +341,7 @@ public class UserDataHandler extends BaseDataHandler {
                     signedInUser.setName((String) updates.get("name"));
                     signedInUser.setPhone((String) updates.get("phone"));
 
-                    if(updates.get("profilePicture") != null) {
+                    if (updates.get("profilePicture") != null) {
                         signedInUser.setProfilePicture((String) updates.get("profilePicture"));
                     }
 
@@ -351,7 +373,7 @@ public class UserDataHandler extends BaseDataHandler {
 
     public void incrementHeldEventsNumber() {
 
-        String id = DataRepository.getInstance()
+        String id = MainDataRepository.getInstance()
                 .getUserDataHandler()
                 .getCurrentUserModel()
                 .getId();
@@ -373,7 +395,7 @@ public class UserDataHandler extends BaseDataHandler {
 
     public void decrementHeldEventsNumber() {
 
-        String id = DataRepository.getInstance()
+        String id = MainDataRepository.getInstance()
                 .getUserDataHandler()
                 .getCurrentUserModel()
                 .getId();

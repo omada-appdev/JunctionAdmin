@@ -11,17 +11,15 @@ import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.common.collect.ImmutableList;
-import com.omada.junctionadmin.data.DataRepository;
+import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.handler.PostDataHandler;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.external.VenueModel;
 import com.omada.junctionadmin.data.models.testdummy.TestVenueModel;
-import com.omada.junctionadmin.utils.FileUtilities;
 import com.omada.junctionadmin.utils.TransformUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -153,7 +151,7 @@ public class CreatePostViewModel extends BaseViewModel {
         }
 
 
-        OrganizationModel organizationModel = DataRepository
+        OrganizationModel organizationModel = MainDataRepository
                 .getInstance()
                 .getUserDataHandler()
                 .getCurrentUserModel();
@@ -193,7 +191,7 @@ public class CreatePostViewModel extends BaseViewModel {
 
         currentState = CurrentState.CURRENT_STATE_UPLOADING;
         return Transformations.map(
-                DataRepository
+                MainDataRepository
                     .getInstance()
                     .getPostDataHandler()
                     .createPost(eventModel),
@@ -216,7 +214,7 @@ public class CreatePostViewModel extends BaseViewModel {
 
     public LiveData<LiveEvent<Boolean>> createArticle() {
 
-        OrganizationModel organizationModel = DataRepository
+        OrganizationModel organizationModel = MainDataRepository
                 .getInstance()
                 .getUserDataHandler()
                 .getCurrentUserModel();
@@ -253,7 +251,7 @@ public class CreatePostViewModel extends BaseViewModel {
         }
 
         return Transformations.map(
-                DataRepository
+                MainDataRepository
                         .getInstance()
                         .getPostDataHandler()
                         .createPost(articleModel),

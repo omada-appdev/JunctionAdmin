@@ -7,7 +7,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.Transformations;
 
-import com.omada.junctionadmin.data.DataRepository;
+import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.models.external.VenueModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 import com.omada.junctionadmin.utils.TransformUtilities;
@@ -56,12 +56,12 @@ public class BookingViewModel extends BaseViewModel {
 
     public void loadAllVenues() {
 
-        String instituteId = DataRepository.getInstance()
+        String instituteId = MainDataRepository.getInstance()
                 .getUserDataHandler()
                 .getCurrentUserModel()
                 .getInstitute();
 
-        LiveData<LiveEvent<List<VenueModel>>> source = DataRepository
+        LiveData<LiveEvent<List<VenueModel>>> source = MainDataRepository
                 .getInstance()
                 .getVenueDataHandler()
                 .getAllVenues(getDataRepositoryAccessIdentifier(), instituteId);
@@ -123,7 +123,7 @@ public class BookingViewModel extends BaseViewModel {
         }
 
         LiveData<LiveEvent<List<Pair<LocalDateTime, LocalDateTime>>>> allBookingsOnDate =
-                DataRepository.getInstance()
+                MainDataRepository.getInstance()
                 .getVenueDataHandler()
                 .getVenueBookingsOn(getDataRepositoryAccessIdentifier(), bookingDate, venue);
 

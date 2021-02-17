@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 
-import com.omada.junctionadmin.data.DataRepository;
+import com.omada.junctionadmin.data.repository.MainDataRepository;
 
 import java.time.LocalDateTime;
 
@@ -236,7 +236,7 @@ public class DataValidator {
         }
 
         return Transformations.map(
-                DataRepository
+                MainDataRepository
                         .getInstance()
                         .getInstituteDataHandler()
                         .checkInstituteCodeValidity(institute),

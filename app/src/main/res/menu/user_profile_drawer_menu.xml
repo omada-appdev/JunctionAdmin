@@ -13,10 +13,6 @@
             android:title="Settings"
             android:icon="@drawable/ic_settings"/>
         <item
-            android:id="@+id/create_institute_button"
-            android:title="Institute Options"
-            android:icon="@drawable/ic_institute"/>
-        <item
             android:id="@+id/feedback_button"
             android:title="Feedback"
             android:icon="@drawable/ic_feedback"/>

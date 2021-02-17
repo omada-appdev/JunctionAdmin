@@ -13,15 +13,11 @@ import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
-import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.databinding.UserProfileFragmentLayoutBinding;
-import com.omada.junctionadmin.ui.institute.InstituteProfileEditDetailsFragment;
+import com.omada.junctionadmin.ui.institute.InstituteAdminFragment;
 import com.omada.junctionadmin.ui.uicomponents.CustomBindings;
-import com.omada.junctionadmin.utils.taskhandler.DefaultExecutorSupplier;
 import com.omada.junctionadmin.viewmodels.UserProfileViewModel;
 
 import static com.omada.junctionadmin.R.*;
@@ -69,12 +65,6 @@ public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetCh
             binding.drawerLayout.openDrawer(binding.navigationView, true);
         });
 
-        Boolean isInstituteAdmin = binding.getViewModel().getOrganizationDetails().isInstituteAdmin();
-        if(isInstituteAdmin == null || !isInstituteAdmin) {
-            Log.e("Profile", "Not an admin");
-            binding.navigationView.getMenu().removeItem(id.create_institute_button);
-        }
-
         binding.drawerLayout.closeDrawer(binding.navigationView);
 
         binding.navigationView.setNavigationItemSelectedListener(item -> {
@@ -85,14 +75,7 @@ public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetCh
 
             // delay to let the drawer close
             handler.postDelayed(() -> {
-                if (itemId == id.create_institute_button) {
-                    requireActivity()
-                            .getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(id.profile_content_placeholder, new InstituteProfileEditDetailsFragment())
-                            .addToBackStack(null)
-                            .commit();
-                } else if (itemId == id.members_button) {
+                if (itemId == id.members_button) {
                 } else if (itemId == id.settings_button) {
                 } else if (itemId == id.feedback_button) {
                 } else {

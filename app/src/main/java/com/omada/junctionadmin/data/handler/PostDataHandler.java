@@ -6,18 +6,16 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.gms.common.api.Batch;
 import com.google.common.collect.ImmutableList;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.omada.junctionadmin.data.BaseDataHandler;
-import com.omada.junctionadmin.data.DataRepository;
+import com.omada.junctionadmin.data.repository.DataRepositoryAccessIdentifier;
+import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.models.converter.ArticleModelConverter;
 import com.omada.junctionadmin.data.models.converter.EventModelConverter;
 import com.omada.junctionadmin.data.models.converter.RegistrationModelConverter;
@@ -31,7 +29,6 @@ import com.omada.junctionadmin.data.models.internal.remote.RegistrationModelRemo
 import com.omada.junctionadmin.data.models.mutable.MutableArticleModel;
 import com.omada.junctionadmin.data.models.mutable.MutableBookingModel;
 import com.omada.junctionadmin.data.models.mutable.MutableEventModel;
-import com.omada.junctionadmin.utils.FileUtilities;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.util.ArrayList;
@@ -48,7 +45,7 @@ public class PostDataHandler extends BaseDataHandler {
 
 
     public LiveData<LiveEvent<List<PostModel>>> getOrganizationHighlights(
-            DataRepository.DataRepositoryAccessIdentifier accessIdentifier, String organizationID){
+            DataRepositoryAccessIdentifier accessIdentifier, String organizationID){
 
         MutableLiveData<LiveEvent<List<PostModel>>> loadedOrganizationHighlights = new MutableLiveData<>();
 
@@ -81,10 +78,10 @@ public class PostDataHandler extends BaseDataHandler {
     }
 
     public void getInstituteHighlights(
-            DataRepository.DataRepositoryAccessIdentifier identifier){
+            DataRepositoryAccessIdentifier identifier){
 
 
-        String instituteId = DataRepository
+        String instituteId = MainDataRepository
                 .getInstance()
                 .getUserDataHandler()
                 .getCurrentUserModel()
@@ -120,10 +117,10 @@ public class PostDataHandler extends BaseDataHandler {
     }
 
     public void getAllInstitutePosts(
-            DataRepository.DataRepositoryAccessIdentifier identifier){
+            DataRepositoryAccessIdentifier identifier){
 
 
-        String instituteId = DataRepository
+        String instituteId = MainDataRepository
                 .getInstance()
                 .getUserDataHandler()
                 .getCurrentUserModel()
@@ -157,7 +154,7 @@ public class PostDataHandler extends BaseDataHandler {
     }
 
     public void getAllOrganizationPosts(
-            DataRepository.DataRepositoryAccessIdentifier identifier, String organizationID){
+            DataRepositoryAccessIdentifier identifier, String organizationID){
 
         FirebaseFirestore
                 .getInstance()
@@ -186,7 +183,7 @@ public class PostDataHandler extends BaseDataHandler {
     }
 
     public LiveData<LiveEvent<List<PostModel>>> getShowcasePosts(
-            DataRepository.DataRepositoryAccessIdentifier identifier, String showcaseId) {
+            DataRepositoryAccessIdentifier identifier, String showcaseId) {
 
         MutableLiveData<LiveEvent<List<PostModel>>> loadedShowcasePostsLiveData = new MutableLiveData<>();
 
@@ -301,7 +298,7 @@ public class PostDataHandler extends BaseDataHandler {
              Creating a new booking in the write batch
              fixme not checking the success of database operation might have bad consequences
             */
-            DataRepository
+            MainDataRepository
                     .getInstance()
                     .getVenueDataHandler()
                     .createNewBooking(MutableBookingModel.fromEventModel(eventModel), batch);
@@ -328,7 +325,7 @@ public class PostDataHandler extends BaseDataHandler {
         // for lambda
         Object finalData = data;
         Uri finalImagePath = imagePath;
-        DataRepository.getInstance()
+        MainDataRepository.getInstance()
                 .getImageUploadHandler()
                 .uploadPostImage(imagePath, generatedEventId, postModel.getCreator())
                 .addOnCompleteListener(task -> {
@@ -342,7 +339,7 @@ public class PostDataHandler extends BaseDataHandler {
                                     resultLiveData.setValue(new LiveEvent<>(true));
                                     Log.e("Post", "Create post success");
 
-                                    DataRepository
+                                    MainDataRepository
                                             .getInstance()
                                             .getUserDataHandler()
                                             .incrementHeldEventsNumber();
@@ -375,7 +372,7 @@ public class PostDataHandler extends BaseDataHandler {
 
         batch.delete(eventDocRef);
 
-        DataRepository.getInstance().getVenueDataHandler()
+        MainDataRepository.getInstance().getVenueDataHandler()
                 .deleteBooking(eventModel, batch);
 
         batch.commit()
@@ -393,7 +390,7 @@ public class PostDataHandler extends BaseDataHandler {
                                Log.e("Posts", "Post image deletion successful");
                             });
 
-                    DataRepository
+                    MainDataRepository
                             .getInstance()
                             .getUserDataHandler()
                             .decrementHeldEventsNumber();
@@ -420,7 +417,7 @@ public class PostDataHandler extends BaseDataHandler {
     }
 
     public LiveData<LiveEvent<List<RegistrationModel>>> getEventRegistrations(
-            DataRepository.DataRepositoryAccessIdentifier identifier, String eventId){
+            DataRepositoryAccessIdentifier identifier, String eventId){
 
         MutableLiveData<LiveEvent<List<RegistrationModel>>> registrationsLiveData = new MutableLiveData<>();
 

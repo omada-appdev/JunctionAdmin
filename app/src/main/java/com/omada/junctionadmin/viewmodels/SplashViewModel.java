@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 
 import com.omada.junctionadmin.application.JunctionAdminApplication;
-import com.omada.junctionadmin.data.DataRepository;
+import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.handler.UserDataHandler;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.utils.FileUtilities;
@@ -25,7 +25,7 @@ public class SplashViewModel extends BaseViewModel {
         FileUtilities.Companion.clearTemporaryFiles();
 
         authResultAction = Transformations.map(
-                DataRepository.getInstance()
+                MainDataRepository.getInstance()
                         .getUserDataHandler()
                         .getAuthResponseNotifier(),
 
@@ -49,7 +49,7 @@ public class SplashViewModel extends BaseViewModel {
                 });
 
         signedInUserAction = Transformations.map(
-                DataRepository.getInstance()
+                MainDataRepository.getInstance()
                         .getUserDataHandler()
                         .getSignedInUserNotifier(),
 
@@ -65,7 +65,7 @@ public class SplashViewModel extends BaseViewModel {
     }
 
     public void getCurrentUser(){
-        DataRepository.getInstance()
+        MainDataRepository.getInstance()
                 .getUserDataHandler()
                 .getCurrentUserDetails();
     }

@@ -24,11 +24,15 @@ import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.data.models.external.InstituteModel;
+import com.omada.junctionadmin.data.models.external.NotificationModel;
 import com.omada.junctionadmin.databinding.InstituteProfileEditDetailsBinding;
 import com.omada.junctionadmin.ui.uicomponents.CustomBindings;
+import com.omada.junctionadmin.ui.uicomponents.binders.notifications.InstituteJoinRequestNotificationItemBinder;
 import com.omada.junctionadmin.utils.ImageUtilities;
 import com.omada.junctionadmin.utils.image.GlideApp;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
@@ -38,7 +42,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class InstituteProfileEditDetailsFragment extends Fragment {
+import mva3.adapter.ListSection;
+import mva3.adapter.MultiViewAdapter;
+
+public class InstituteAdminFragment extends Fragment {
 
     private static final int REQUEST_CODE_PROFILE_PICTURE_CHOOSER = 3;
     private final AtomicBoolean compressingImage = new AtomicBoolean(false);
@@ -50,6 +57,9 @@ public class InstituteProfileEditDetailsFragment extends Fragment {
                     startFilePicker();
                 }
             });
+
+    private MultiViewAdapter adapter;
+    private ListSection<NotificationModel> notificationsListSection;
 
     private InstituteProfileEditDetailsBinding binding;
     private InstituteViewModel instituteViewModel;
@@ -70,8 +80,14 @@ public class InstituteProfileEditDetailsFragment extends Fragment {
         this.binding = binding;
 
         // ViewModel is tied to the fragment lifecycle
-        instituteViewModel = new ViewModelProvider(this).get(InstituteViewModel.class);
+        instituteViewModel = new ViewModelProvider(requireActivity()).get(InstituteViewModel.class);
         binding.setViewModel(instituteViewModel);
+
+        if (savedInstanceState == null
+                || instituteViewModel.getLoadedInstituteNotifications().getValue() == null
+                || instituteViewModel.getLoadedInstituteNotifications().getValue().size() == 0 ) {
+            instituteViewModel.loadInstituteNotifications();
+        }
 
         binding.setLifecycleOwner(this);
         return binding.getRoot();
@@ -79,6 +95,27 @@ public class InstituteProfileEditDetailsFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
+        adapter = new MultiViewAdapter();
+        notificationsListSection = new ListSection<>();
+
+        adapter.registerItemBinders(
+                new InstituteJoinRequestNotificationItemBinder(instituteViewModel, getViewLifecycleOwner())
+        );
+
+        notificationsListSection.setOnSelectionChangedListener((item, isSelected, selectedItems) -> {
+            notificationsListSection.remove(notificationsListSection.getData().indexOf(item));
+            notificationsListSection.clearSelections();
+        });
+
+        instituteViewModel
+                .getLoadedInstituteNotifications()
+                .observe(getViewLifecycleOwner(), notificationModels -> {
+                    if(notificationModels == null) {
+                        return;
+                    }
+                    notificationsListSection.addAll(notificationModels.subList(notificationsListSection.size(), notificationModels.size()));
+                });
 
         instituteViewModel.getInstituteDetails().observe(getViewLifecycleOwner(), instituteModelLiveEvent -> {
             if (instituteModelLiveEvent == null) {
@@ -88,11 +125,16 @@ public class InstituteProfileEditDetailsFragment extends Fragment {
             if (model != null) {
                 Log.e("Institute", "Non null model");
                 Log.e("Institute", "Image path: " + model.getImage());
-                if(instituteViewModel.getInstituteUpdater().getImagePath() == null && model.getImage() != null) {
+                if (instituteViewModel.getInstituteUpdater().getImagePath() == null && model.getImage() != null) {
                     CustomBindings.loadImageGs(binding.profilePictureImage, model.getImage());
                 }
             }
         });
+
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.VERTICAL, false));
+        binding.recyclerView.setAdapter(adapter);
+
+        adapter.addSection(notificationsListSection);
 
         binding.doneButton.setOnClickListener(v -> {
             if (!v.isEnabled()) {
@@ -106,7 +148,7 @@ public class InstituteProfileEditDetailsFragment extends Fragment {
                             return;
                         }
                         Boolean result = booleanLiveEvent.getDataOnceAndReset();
-                        if(result != null) {
+                        if (result != null) {
                             if (result) {
                                 Toast.makeText(requireActivity(), "Updated details successfully", Toast.LENGTH_SHORT).show();
                                 requireActivity().getSupportFragmentManager().popBackStack();
@@ -167,6 +209,7 @@ public class InstituteProfileEditDetailsFragment extends Fragment {
 
             }
         });
+
 
         instituteViewModel
                 .getDataValidationAction()
@@ -240,7 +283,7 @@ public class InstituteProfileEditDetailsFragment extends Fragment {
 
             Uri selectedImage = data.getData();
 
-            if(selectedImage == null) {
+            if (selectedImage == null) {
                 return;
             }
 
@@ -255,7 +298,7 @@ public class InstituteProfileEditDetailsFragment extends Fragment {
 
             Log.e("Details", "Compressing image...." + bitmap.getWidth() + " " + bitmap.getHeight());
             ImageUtilities
-                    .scaleToProfilePictureGetBitmap(requireActivity(), bitmap)
+                    .scaleToInstituteImageGetBitmap(requireActivity(), bitmap)
                     .observe(getViewLifecycleOwner(), bitmapLiveEvent -> {
                         if (bitmapLiveEvent != null) {
                             Bitmap picture = bitmapLiveEvent.getDataOnceAndReset();
@@ -280,14 +323,14 @@ public class InstituteProfileEditDetailsFragment extends Fragment {
             }
 
             ImageUtilities
-                    .scaleToProfilePictureGetFile(requireActivity(), bitmap)
+                    .scaleToInstituteImageGetFile(requireActivity(), bitmap)
                     .observe(getViewLifecycleOwner(), fileLiveEvent -> {
                         compressingImage.set(false);
                         if (fileLiveEvent != null) {
                             File file = fileLiveEvent.getDataOnceAndReset();
                             if (file != null) {
-                               instituteViewModel.getInstituteUpdater()
-                                       .setImagePath(Uri.fromFile(file));
+                                instituteViewModel.getInstituteUpdater()
+                                        .setImagePath(Uri.fromFile(file));
                             } else {
                             }
                         } else {
@@ -301,7 +344,7 @@ public class InstituteProfileEditDetailsFragment extends Fragment {
     public void onResume() {
 
         super.onResume();
-        if(instituteViewModel.getInstituteUpdater().getImagePath() != null && !filePickerOpened.get()) {
+        if (instituteViewModel.getInstituteUpdater().getImagePath() != null && !filePickerOpened.get()) {
             Log.e("Create", "Image path is non null. Preparing to set image");
             binding.profilePictureImage.setColorFilter(getResources().getColor(R.color.transparent, requireActivity().getTheme()));
             binding.profilePictureImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -311,7 +354,7 @@ public class InstituteProfileEditDetailsFragment extends Fragment {
                     .load(uri)
                     .into(binding.profilePictureImage);
 
-        } else if (instituteViewModel.getInstituteUpdater().getImage() != null && !filePickerOpened.get()){
+        } else if (instituteViewModel.getInstituteUpdater().getImage() != null && !filePickerOpened.get()) {
             binding.profilePictureImage.setColorFilter(getResources().getColor(R.color.transparent, requireActivity().getTheme()));
             binding.profilePictureImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
             CustomBindings.loadImageGs(binding.profilePictureImage, instituteViewModel.getInstituteUpdater().getImage());
@@ -329,5 +372,6 @@ public class InstituteProfileEditDetailsFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        instituteViewModel.exitAdminConsole();
     }
 }

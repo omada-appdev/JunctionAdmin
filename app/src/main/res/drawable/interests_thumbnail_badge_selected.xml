@@ -18,7 +18,7 @@
         android:top="8dp">
         <shape android:shape="oval">
             <solid
-                android:color="#388E3C"/>
+                android:color="@color/green"/>
             <size
                 android:width="40dp"
                 android:height="40dp"/>

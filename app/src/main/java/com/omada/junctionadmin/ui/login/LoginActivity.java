@@ -2,21 +2,14 @@ package com.omada.junctionadmin.ui.login;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldPath;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.ui.profile.ProfileActivity;
 import com.omada.junctionadmin.viewmodels.LoginViewModel;
-
-import java.util.Arrays;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -25,10 +18,10 @@ public class LoginActivity extends AppCompatActivity {
     //public enum identifying fragments
     public enum FragmentIdentifier {
         LOGIN_START_FRAGMENT,
-        LOGIN_SIGNIN_FRAGMENT,
+        LOGIN_SIGN_IN_FRAGMENT,
         LOGIN_DETAILS_FRAGMENT,
         LOGIN_INTERESTS_FRAGMENT,
-        LOGIN_FORGOTPASSWORD_FRAGMENT
+        LOGIN_FORGOT_PASSWORD_FRAGMENT
     }
 
     private FragmentIdentifier currentFragment;
@@ -58,14 +51,14 @@ public class LoginActivity extends AppCompatActivity {
             }
             currentFragment = id;
             switch(currentFragment){
-                case LOGIN_SIGNIN_FRAGMENT:
+                case LOGIN_SIGN_IN_FRAGMENT:
                     getSupportFragmentManager()
                             .beginTransaction()
                             .replace(R.id.login_activity_placeholder, SignInFragment.getInstance())
                             .addToBackStack("signin")
                             .commit();
                     break;
-                case LOGIN_FORGOTPASSWORD_FRAGMENT:
+                case LOGIN_FORGOT_PASSWORD_FRAGMENT:
                     getSupportFragmentManager()
                             .beginTransaction()
                             .replace(R.id.login_activity_placeholder, ForgotPasswordFragment.newInstance())
@@ -90,10 +83,10 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         loginViewModel.getGoToFeedAction().observe(this, goToFeed -> {
-            if(goToFeed.getDataOnceAndReset()){
+            if(goToFeed.getDataOnceAndReset() == true){
                 Intent i = new Intent(LoginActivity.this, ProfileActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(i);
-                finish();
             }
         });
 
@@ -113,7 +106,7 @@ public class LoginActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
         switch (currentFragment){
-            case LOGIN_SIGNIN_FRAGMENT:
+            case LOGIN_SIGN_IN_FRAGMENT:
                 currentFragment = FragmentIdentifier.LOGIN_START_FRAGMENT;
                 loginViewModel.exitSignInScreen();
                 break;

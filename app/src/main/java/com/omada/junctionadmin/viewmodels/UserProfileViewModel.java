@@ -11,7 +11,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.google.common.collect.ImmutableList;
-import com.omada.junctionadmin.data.DataRepository;
+import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.handler.UserDataHandler;
 import com.omada.junctionadmin.data.models.external.ArticleModel;
 import com.omada.junctionadmin.data.models.external.EventModel;
@@ -20,14 +20,11 @@ import com.omada.junctionadmin.data.models.external.PostModel;
 import com.omada.junctionadmin.data.models.external.ShowcaseModel;
 import com.omada.junctionadmin.data.models.mutable.MutableArticleModel;
 import com.omada.junctionadmin.data.models.mutable.MutableEventModel;
-import com.omada.junctionadmin.utils.FileUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Predicate;
 
 
 /*
@@ -60,7 +57,7 @@ public class UserProfileViewModel extends BaseViewModel {
     public UserProfileViewModel() {
 
         authStatusTrigger = Transformations.map(
-                DataRepository.getInstance()
+                MainDataRepository.getInstance()
                         .getUserDataHandler()
                         .getAuthResponseNotifier(),
 
@@ -69,7 +66,7 @@ public class UserProfileViewModel extends BaseViewModel {
 
         // TODO since multiple possible observers, remember to make it thread safe just in case
         userUpdateAction = Transformations.map(
-                DataRepository.getInstance()
+                MainDataRepository.getInstance()
                 .getUserDataHandler()
                 .getSignedInUserNotifier(),
 
@@ -89,7 +86,7 @@ public class UserProfileViewModel extends BaseViewModel {
 
         editDetailsTrigger = new MutableLiveData<>();
 
-        organizationModel = DataRepository.getInstance()
+        organizationModel = MainDataRepository.getInstance()
                 .getUserDataHandler()
                 .getCurrentUserModel();
         organizationId = organizationModel.getId();
@@ -138,7 +135,7 @@ public class UserProfileViewModel extends BaseViewModel {
                 DataValidator.DataValidationResult.VALIDATION_RESULT_VALID
         ));
         return Transformations.map(
-                DataRepository.getInstance()
+                MainDataRepository.getInstance()
                 .getPostDataHandler()
                 .updatePost(updater.getId(), mutableEventModel),
 
@@ -163,7 +160,7 @@ public class UserProfileViewModel extends BaseViewModel {
         mutableArticleModel.setTags(ImmutableList.copyOf(updater.tags.getValue()));
 
         return Transformations.map(
-                DataRepository.getInstance()
+                MainDataRepository.getInstance()
                         .getPostDataHandler()
                         .updatePost(updater.getId(), mutableArticleModel),
 
@@ -182,7 +179,7 @@ public class UserProfileViewModel extends BaseViewModel {
 
     public LiveData<Boolean> deletePost(EventModel eventModel) {
 
-        return Transformations.map(DataRepository
+        return Transformations.map(MainDataRepository
                         .getInstance()
                         .getPostDataHandler()
                         .deletePost(eventModel),
@@ -211,7 +208,7 @@ public class UserProfileViewModel extends BaseViewModel {
     public void loadOrganizationHighlights() {
 
         LiveData<LiveEvent<List<PostModel>>> source =
-                DataRepository
+                MainDataRepository
                         .getInstance()
                         .getPostDataHandler()
                         .getOrganizationHighlights(getDataRepositoryAccessIdentifier(), organizationId);
@@ -247,7 +244,7 @@ public class UserProfileViewModel extends BaseViewModel {
     public void loadOrganizationShowcases() {
 
         LiveData<LiveEvent<List<ShowcaseModel>>> source =
-                DataRepository
+                MainDataRepository
                         .getInstance()
                         .getShowcaseDataHandler()
                         .getOrganizationShowcases(getDataRepositoryAccessIdentifier(), organizationId);
@@ -289,7 +286,7 @@ public class UserProfileViewModel extends BaseViewModel {
     }
 
     public void signOutUser() {
-        DataRepository.getInstance().getUserDataHandler().signOutCurrentUser();
+        MainDataRepository.getInstance().getUserDataHandler().signOutCurrentUser();
     }
 
     public void goToEditDetails() {
@@ -327,7 +324,7 @@ public class UserProfileViewModel extends BaseViewModel {
         dataValidator.validateInstitute(organizationUpdater.instituteHandle.getValue(), dataValidationInformation -> {
 
             if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
-                LiveData<LiveEvent<String>> instituteId = DataRepository
+                LiveData<LiveEvent<String>> instituteId = MainDataRepository
                         .getInstance()
                         .getInstituteDataHandler()
                         .getInstituteId(organizationUpdater.instituteHandle.getValue());
@@ -400,7 +397,7 @@ public class UserProfileViewModel extends BaseViewModel {
                     if (dataValidationInformation.getValidationPoint() == DataValidator.DataValidationPoint.VALIDATION_POINT_ALL
                             && dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                         updatingDetails = false;
-                        DataRepository.getInstance()
+                        MainDataRepository.getInstance()
                                 .getUserDataHandler()
                                 .updateCurrentUserDetails(userOrganizationModel);
                     } else {
@@ -414,7 +411,7 @@ public class UserProfileViewModel extends BaseViewModel {
 
     /**
      * No possibility of exceptions because {@link OrganizationUpdater} gets set automatically after
-     * setting model or loading model from {@link DataRepository}
+     * setting model or loading model from {@link MainDataRepository}
      */
 
     public OrganizationUpdater getOrganizationUpdater() {
@@ -469,7 +466,7 @@ public class UserProfileViewModel extends BaseViewModel {
             name.setValue(model.getName());
             phone.setValue(model.getPhone());
 
-            LiveData<LiveEvent<String>> handleLiveData = DataRepository.getInstance()
+            LiveData<LiveEvent<String>> handleLiveData = MainDataRepository.getInstance()
                     .getInstituteDataHandler()
                     .getInstituteHandle(model.getInstitute());
 

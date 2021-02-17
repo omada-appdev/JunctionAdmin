@@ -18,7 +18,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 import com.omada.junctionadmin.data.BaseDataHandler;
-import com.omada.junctionadmin.data.DataRepository;
+import com.omada.junctionadmin.data.repository.DataRepositoryAccessIdentifier;
 import com.omada.junctionadmin.data.models.converter.BookingModelConverter;
 import com.omada.junctionadmin.data.models.converter.VenueModelConverter;
 import com.omada.junctionadmin.data.models.external.BookingModel;
@@ -48,7 +48,7 @@ public class VenueDataHandler extends BaseDataHandler {
     // TODO a more efficient query that orders venues by number of bookings they have on a given day
 
     public LiveData<LiveEvent<List<VenueModel>>> getAllVenues(
-            DataRepository.DataRepositoryAccessIdentifier identifier, String instituteID) {
+            DataRepositoryAccessIdentifier identifier, String instituteID) {
 
         MutableLiveData<LiveEvent<List<VenueModel>>> venueModelsLiveData = new MutableLiveData<>();
 
@@ -83,7 +83,7 @@ public class VenueDataHandler extends BaseDataHandler {
 
     // Gets all bookings on a given day and all bookings one day before and after it
     public LiveData<LiveEvent<List<Pair<LocalDateTime, LocalDateTime>>>> getVenueBookingsOn(
-            DataRepository.DataRepositoryAccessIdentifier identifier, LocalDateTime date, String venueId) {
+            DataRepositoryAccessIdentifier identifier, LocalDateTime date, String venueId) {
 
         MediatorLiveData<LiveEvent<List<Pair<LocalDateTime, LocalDateTime>>>> venueBookingsLiveData = new MediatorLiveData<>();
         BookingsAggregator aggregator = new BookingsAggregator(venueBookingsLiveData);

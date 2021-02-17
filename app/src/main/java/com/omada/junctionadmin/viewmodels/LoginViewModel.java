@@ -11,24 +11,20 @@ import androidx.lifecycle.Transformations;
 
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.MaterialDatePicker;
-import com.omada.junctionadmin.data.DataRepository;
-import com.omada.junctionadmin.data.handler.InstituteDataHandler;
+import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.handler.UserDataHandler;
 import com.omada.junctionadmin.data.models.external.InterestModel;
 import com.omada.junctionadmin.ui.login.LoginActivity;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
-import com.omada.junctionadmin.utils.taskhandler.LiveDataAggregator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.omada.junctionadmin.data.DataRepository.getInstance;
+import static com.omada.junctionadmin.data.repository.MainDataRepository.getInstance;
 
 
 public class LoginViewModel extends BaseViewModel {
@@ -88,6 +84,7 @@ public class LoginViewModel extends BaseViewModel {
                             Log.e("Login", "Sign up failure");
                             email.setValue(null);
                             password.setValue(null);
+                            toastMessageAction.setValue(new LiveEvent<>("Signed up successfully"));
 
                             break;
                         case ADD_EXTRA_DETAILS_SUCCESS:
@@ -112,7 +109,7 @@ public class LoginViewModel extends BaseViewModel {
     }
 
     public void startSignIn(){
-        fragmentChangeAction.setValue(new LiveEvent<>(LoginActivity.FragmentIdentifier.LOGIN_SIGNIN_FRAGMENT));
+        fragmentChangeAction.setValue(new LiveEvent<>(LoginActivity.FragmentIdentifier.LOGIN_SIGN_IN_FRAGMENT));
     }
 
     public void startSignUp(){
@@ -152,7 +149,7 @@ public class LoginViewModel extends BaseViewModel {
     public void forgotPassword(){
         password.setValue(null);
         email.setValue(null);
-        fragmentChangeAction.setValue(new LiveEvent<>(LoginActivity.FragmentIdentifier.LOGIN_FORGOTPASSWORD_FRAGMENT));
+        fragmentChangeAction.setValue(new LiveEvent<>(LoginActivity.FragmentIdentifier.LOGIN_FORGOT_PASSWORD_FRAGMENT));
     }
 
     /*
@@ -196,7 +193,7 @@ public class LoginViewModel extends BaseViewModel {
         dataValidator.validateInstitute(institute.getValue(), dataValidationInformation -> {
 
             if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
-                LiveData<LiveEvent<String>> instituteId = DataRepository
+                LiveData<LiveEvent<String>> instituteId = MainDataRepository
                         .getInstance()
                         .getInstituteDataHandler()
                         .getInstituteId(institute.getValue());

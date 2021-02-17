@@ -7,12 +7,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.omada.junctionadmin.data.BaseDataHandler;
-import com.omada.junctionadmin.data.DataRepository;
+import com.omada.junctionadmin.data.repository.DataRepositoryAccessIdentifier;
+import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.models.converter.OrganizationModelConverter;
-import com.omada.junctionadmin.data.models.external.InstituteModel;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.internal.remote.OrganizationModelRemoteDB;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
@@ -58,9 +57,9 @@ public class OrganizationDataHandler extends BaseDataHandler {
     }
 
 
-    public void getInstituteOrganizations(DataRepository.DataRepositoryAccessIdentifier identifier) {
+    public void getInstituteOrganizations(DataRepositoryAccessIdentifier identifier) {
 
-        String instituteId = DataRepository.getInstance()
+        String instituteId = MainDataRepository.getInstance()
                 .getUserDataHandler()
                 .getCurrentUserModel()
                 .getInstitute();

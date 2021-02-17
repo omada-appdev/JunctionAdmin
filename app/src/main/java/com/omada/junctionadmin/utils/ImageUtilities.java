@@ -45,7 +45,7 @@ public final class ImageUtilities {
         MutableLiveData<LiveEvent<Bitmap>> bitmapLiveData = new MutableLiveData<>();
 
         Compress.Companion
-                .with(context, cropToSquare(bitmap))
+                .with(context, cropToRatio(bitmap, 4/3f))
                 .setQuality(100)
                 .setTargetDir(PathUtils.getInternalAppFilesPath())
                 .setCompressListener(new CompressListener() {
@@ -104,7 +104,7 @@ public final class ImageUtilities {
         MutableLiveData<LiveEvent<File>> fileLiveData = new MutableLiveData<>();
 
         Compress.Companion
-                .with(context, cropToSquare(bitmap))
+                .with(context, cropToRatio(bitmap, 4/3f))
                 .setQuality(100)
                 .setTargetDir(PathUtils.getInternalAppFilesPath())
                 .setCompressListener(new CompressListener() {
@@ -145,7 +145,7 @@ public final class ImageUtilities {
         MutableLiveData<LiveEvent<Bitmap>> bitmapLiveData = new MutableLiveData<>();
 
         Compress.Companion
-                .with(context, cropToRatio(bitmap, 4/3f))
+                .with(context, cropToSquare(bitmap))
                 .setQuality(100)
                 .setTargetDir(PathUtils.getInternalAppFilesPath())
                 .setCompressListener(new CompressListener() {
@@ -204,7 +204,7 @@ public final class ImageUtilities {
         MutableLiveData<LiveEvent<File>> fileLiveData = new MutableLiveData<>();
 
         Compress.Companion
-                .with(context, cropToRatio(bitmap, 4/3f))
+                .with(context, cropToSquare(bitmap))
                 .setQuality(100)
                 .setTargetDir(PathUtils.getInternalAppFilesPath())
                 .setCompressListener(new CompressListener() {

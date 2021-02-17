@@ -68,6 +68,7 @@ public class OrganizationDataHandler extends BaseDataHandler {
                 .getInstance()
                 .collection("organizations")
                 .whereEqualTo("institute", instituteId)
+                .whereEqualTo("instituteVerified", true)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
 

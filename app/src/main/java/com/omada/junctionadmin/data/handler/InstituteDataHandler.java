@@ -1,5 +1,6 @@
 package com.omada.junctionadmin.data.handler;
 
+import android.app.Activity;
 import android.net.Uri;
 import android.util.Log;
 
@@ -8,7 +9,10 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -18,6 +22,7 @@ import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.UploadTask;
 import com.omada.junctionadmin.data.BaseDataHandler;
 import com.omada.junctionadmin.data.DataRepository;
@@ -35,6 +40,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 import javax.annotation.Nonnull;
 
@@ -112,7 +118,7 @@ public class InstituteDataHandler extends BaseDataHandler {
                     updatedInstituteData.put("/instituteHandles/" + changedInstituteModel.getHandle(), instituteId);
 
                     String existingHandle = getCachedInstituteHandle(instituteId);
-                    if(existingHandle != null) {
+                    if (existingHandle != null) {
                         updatedInstituteData.put("/instituteHandles/" + existingHandle, null);
                     }
                     FirebaseDatabase.getInstance()
@@ -313,22 +319,48 @@ public class InstituteDataHandler extends BaseDataHandler {
         switch (model.getNotificationType()) {
             case "instituteJoinRequest":
                 if (response instanceof Boolean) {
-                    FirebaseDatabase
-                            .getInstance()
-                            .getReference()
-                            .child("notifications")
-                            .child(instituteId)
-                            .child(model.getId())
-                            .child("status")
-                            .setValue((Boolean) response ? "accepted" : "declined")
-                            .addOnSuccessListener(aVoid -> {
+
+                    Task<Void> updateTask;
+
+                    if ((Boolean) response) {
+
+                        WriteBatch batch = FirebaseFirestore.getInstance().batch();
+
+                        batch.update(
                                 FirebaseFirestore.getInstance()
                                         .collection("institutes")
                                         .document(instituteId)
                                         .collection("private")
-                                        .document("config")
-                                        .update("organizations", FieldValue.arrayUnion(model.getSource()));
-                                resultLiveData.setValue(new LiveEvent<>(true));
+                                        .document("config"),
+                                "organizations", FieldValue.arrayUnion(model.getSource())
+                        );
+                        batch.update(
+                                FirebaseFirestore.getInstance()
+                                        .collection("organizations")
+                                        .document(model.getSource()),
+                                "instituteVerified", true
+                        );
+                        updateTask = batch.commit();
+                    } else {
+                        updateTask = Tasks.forResult(null);
+                    }
+
+                    updateTask
+                            .addOnSuccessListener(aVoid -> {
+                                FirebaseDatabase
+                                        .getInstance()
+                                        .getReference()
+                                        .child("notifications")
+                                        .child(instituteId)
+                                        .child(model.getId())
+                                        .child("status")
+                                        .setValue((Boolean) response ? "accepted" : "declined")
+                                        .addOnSuccessListener(aVoid1 -> {
+                                            resultLiveData.setValue(new LiveEvent<>(true));
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            resultLiveData.setValue(new LiveEvent<>(false));
+                                        });
                             })
                             .addOnFailureListener(e -> {
                                 resultLiveData.setValue(new LiveEvent<>(false));

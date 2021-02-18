@@ -1,7 +1,9 @@
-package com.omada.junctionadmin.data.models.internal;
+package com.omada.junctionadmin.data.models.internal.remote;
 
 import com.google.firebase.database.IgnoreExtraProperties;
+import com.omada.junctionadmin.data.models.internal.BaseModelInternal;
 
+import java.time.Instant;
 import java.util.Map;
 
 public class NotificationModelRemoteDB extends BaseModelInternal {
@@ -9,13 +11,17 @@ public class NotificationModelRemoteDB extends BaseModelInternal {
     protected String notificationType;
     protected String sourceType;
     protected String source;
+    protected String destination;
     protected String title;
     protected String text;
     protected String status;
     protected Map<String , Object> data;
 
-    public NotificationModelRemoteDB() {
+    protected Long timeUpdated;
 
+    // set default values here
+    public NotificationModelRemoteDB() {
+        timeUpdated = Instant.now().toEpochMilli();
     }
 
     public String getNotificationType() {
@@ -30,6 +36,10 @@ public class NotificationModelRemoteDB extends BaseModelInternal {
         return source;
     }
 
+    public String getDestination() {
+        return destination;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -40,6 +50,10 @@ public class NotificationModelRemoteDB extends BaseModelInternal {
 
     public String getStatus() {
         return status;
+    }
+
+    public Long getTimeUpdated() {
+        return timeUpdated;
     }
 
     public Map<String, Object> getData() {
@@ -59,6 +73,10 @@ public class NotificationModelRemoteDB extends BaseModelInternal {
         this.source = source;
     }
 
+    public void setDestination(String destination) {
+        this.destination = destination;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -73,5 +91,9 @@ public class NotificationModelRemoteDB extends BaseModelInternal {
 
     public void setData(Map<String, Object> data) {
         this.data = data;
+    }
+
+    public void setTimeUpdated(Long timeUpdated) {
+        this.timeUpdated = timeUpdated;
     }
 }

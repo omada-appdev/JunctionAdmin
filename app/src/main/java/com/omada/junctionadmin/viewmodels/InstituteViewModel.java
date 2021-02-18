@@ -128,30 +128,44 @@ public class InstituteViewModel extends BaseViewModel {
             notifyValidity(dataValidationInformation);
         });
 
-        if (instituteUpdater.handle.getValue() != null && instituteUpdater.handle.getValue().length() >= INSTITUTE_HANDLE_MIN_LENGTH && instituteUpdater.handle.getValue().length() <= INSTITUTE_HANDLE_MAX_LENGTH) {
-            mutableUserInstituteModel.setHandle(
-                    instituteUpdater.handle.getValue()
-            );
-            DataValidator.DataValidationInformation dataValidationInformation = new DataValidator.DataValidationInformation(
-                    DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
-                    DataValidator.DataValidationResult.VALIDATION_RESULT_VALID
-            );
-            validationAggregator.holdData(
-                    DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
-                    dataValidationInformation
-            );
-            notifyValidity(dataValidationInformation);
-        } else {
-            DataValidator.DataValidationInformation dataValidationInformation = new DataValidator.DataValidationInformation(
-                    DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
-                    DataValidator.DataValidationResult.VALIDATION_RESULT_INVALID
-            );
-            validationAggregator.holdData(
-                    DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
-                    dataValidationInformation
-            );
-            notifyValidity(dataValidationInformation);
-        }
+        dataValidator.validateInstitute(instituteUpdater.handle.getValue(), validationInformation -> {
+
+            if (validationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                // invalid if the handle is valid (ie if the handle is already taken)
+                DataValidator.DataValidationInformation dataValidationInformation = new DataValidator.DataValidationInformation(
+                        DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                        DataValidator.DataValidationResult.VALIDATION_RESULT_INVALID
+                );
+                validationAggregator.holdData(
+                        DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                        dataValidationInformation
+                );
+                notifyValidity(dataValidationInformation);
+            } else if (instituteUpdater.handle.getValue() != null && instituteUpdater.handle.getValue().length() >= INSTITUTE_HANDLE_MIN_LENGTH && instituteUpdater.handle.getValue().length() <= INSTITUTE_HANDLE_MAX_LENGTH) {
+                mutableUserInstituteModel.setHandle(
+                        instituteUpdater.handle.getValue()
+                );
+                DataValidator.DataValidationInformation dataValidationInformation = new DataValidator.DataValidationInformation(
+                        DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                        DataValidator.DataValidationResult.VALIDATION_RESULT_VALID
+                );
+                validationAggregator.holdData(
+                        DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                        dataValidationInformation
+                );
+                notifyValidity(dataValidationInformation);
+            } else {
+                DataValidator.DataValidationInformation dataValidationInformation = new DataValidator.DataValidationInformation(
+                        DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                        DataValidator.DataValidationResult.VALIDATION_RESULT_INVALID
+                );
+                validationAggregator.holdData(
+                        DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
+                        dataValidationInformation
+                );
+                notifyValidity(dataValidationInformation);
+            }
+        });
 
         LiveData<LiveEvent<Boolean>> validationResultLiveData = Transformations.switchMap(
                 anyDetailsEntryInvalid,

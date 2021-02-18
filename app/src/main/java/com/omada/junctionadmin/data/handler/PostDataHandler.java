@@ -7,10 +7,12 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.common.collect.ImmutableList;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.omada.junctionadmin.data.BaseDataHandler;
@@ -53,7 +55,10 @@ public class PostDataHandler extends BaseDataHandler {
                 .getInstance()
                 .collection("posts")
                 .whereEqualTo("creator", organizationID)
-                .whereEqualTo("organizationHighlight", true)
+                .whereNotEqualTo("organizationHighlight", false)
+                .orderBy("organizationHighlight")
+                .orderBy("timeCreated", Query.Direction.ASCENDING)
+                .limit(5)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
 
@@ -80,19 +85,20 @@ public class PostDataHandler extends BaseDataHandler {
     public void getInstituteHighlights(
             DataRepositoryAccessIdentifier identifier){
 
-
         String instituteId = MainDataRepository
                 .getInstance()
                 .getUserDataHandler()
                 .getCurrentUserModel()
                 .getInstitute();
 
-
         FirebaseFirestore
                 .getInstance()
                 .collection("posts")
+                .whereEqualTo("type", "event")
                 .whereEqualTo("creatorCache.institute", instituteId)
-                .whereEqualTo("instituteHighlight", true)
+                .whereGreaterThanOrEqualTo("startTime", Timestamp.now())
+                .orderBy("startTime", Query.Direction.ASCENDING)
+                .limit(10)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
 

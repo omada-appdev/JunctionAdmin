@@ -21,8 +21,10 @@ import com.omada.junctionadmin.data.models.converter.OrganizationModelConverter;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.internal.remote.OrganizationModelRemoteDB;
 import com.omada.junctionadmin.data.models.mutable.MutableOrganizationModel;
+import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -142,13 +144,14 @@ public class UserDataHandler extends BaseDataHandler {
                                     DatabaseReference reference = FirebaseDatabase.getInstance()
                                             .getReference()
                                             .child("notifications")
-                                            .child(details.getInstitute())
                                             .push();
 
                                     Map<String, Object> notificationPayload = new HashMap<>();
                                     notificationPayload.put("notificationType", "instituteJoinRequest");
                                     notificationPayload.put("sourceType", "organization");
                                     notificationPayload.put("source", user.getUid());
+                                    notificationPayload.put("destination", details.getInstitute());
+                                    notificationPayload.put("timeUpdated", Instant.now().toEpochMilli());
                                     notificationPayload.put("title", "");
 
                                     Map<String, Object> data = new HashMap<>();
@@ -413,6 +416,30 @@ public class UserDataHandler extends BaseDataHandler {
                 .addOnFailureListener(e -> {
                     Log.e("Organization", "Events decrement failure");
                 });
+    }
+
+    public LiveData<LiveEvent<Boolean>> sendPasswordResetLink(String email) {
+
+        MutableLiveData<LiveEvent<Boolean>> result = new MutableLiveData<>();
+
+        // Just an extra layer of protection
+        DataValidator dataValidator = new DataValidator();
+        dataValidator.validateEmail(email, dataValidationInformation -> {
+            if(dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                result.setValue(new LiveEvent<>(false));
+                return;
+            }
+            FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+                    .addOnSuccessListener(aVoid -> {
+                        result.setValue(new LiveEvent<>(true));
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("User", "Password reset link failure");
+                        e.getMessage();
+                        result.setValue(new LiveEvent<>(false));
+                    });
+        });
+        return result;
     }
 
     public static final class MutableUserOrganizationModel extends MutableOrganizationModel {

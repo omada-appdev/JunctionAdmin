@@ -27,7 +27,7 @@ public class LoginActivity extends AppCompatActivity {
     private FragmentIdentifier currentFragment;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_activity_layout);
@@ -41,16 +41,17 @@ public class LoginActivity extends AppCompatActivity {
 
         loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
 
-        loginViewModel.getAuthResultAction().observe(this, authStatusLiveEvent -> {});
+        loginViewModel.getAuthResultAction().observe(this, authStatusLiveEvent -> {
+        });
 
         loginViewModel.getFragmentChangeAction().observe(this, fragId -> {
 
             FragmentIdentifier id = fragId.getDataOnceAndReset();
-            if(id == null){
+            if (id == null) {
                 return;
             }
             currentFragment = id;
-            switch(currentFragment){
+            switch (currentFragment) {
                 case LOGIN_SIGN_IN_FRAGMENT:
                     getSupportFragmentManager()
                             .beginTransaction()
@@ -83,7 +84,7 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         loginViewModel.getGoToFeedAction().observe(this, goToFeed -> {
-            if(goToFeed.getDataOnceAndReset() == true){
+            if (goToFeed.getDataOnceAndReset() == true) {
                 Intent i = new Intent(LoginActivity.this, ProfileActivity.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(i);
@@ -91,11 +92,11 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         loginViewModel.getToastMessageAction().observe(this, stringLiveEvent -> {
-            if(stringLiveEvent == null) {
+            if (stringLiveEvent == null) {
                 return;
             }
             String data = stringLiveEvent.getDataOnceAndReset();
-            if(data == null) {
+            if (data == null) {
                 return;
             }
             Toast.makeText(LoginActivity.this, data, Toast.LENGTH_SHORT).show();
@@ -105,10 +106,13 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        switch (currentFragment){
+        switch (currentFragment) {
             case LOGIN_SIGN_IN_FRAGMENT:
                 currentFragment = FragmentIdentifier.LOGIN_START_FRAGMENT;
                 loginViewModel.exitSignInScreen();
+                break;
+            case LOGIN_FORGOT_PASSWORD_FRAGMENT:
+                currentFragment = FragmentIdentifier.LOGIN_SIGN_IN_FRAGMENT;
                 break;
             case LOGIN_DETAILS_FRAGMENT:
                 currentFragment = FragmentIdentifier.LOGIN_INTERESTS_FRAGMENT;

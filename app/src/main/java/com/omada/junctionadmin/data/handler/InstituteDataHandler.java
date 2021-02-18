@@ -1,34 +1,26 @@
 package com.omada.junctionadmin.data.handler;
 
-import android.app.Activity;
 import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.MutableData;
-import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.UploadTask;
 import com.omada.junctionadmin.data.BaseDataHandler;
-import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.models.converter.NotificationModelConverter;
 import com.omada.junctionadmin.data.models.external.NotificationModel;
-import com.omada.junctionadmin.data.models.internal.NotificationModelRemoteDB;
+import com.omada.junctionadmin.data.models.internal.remote.NotificationModelRemoteDB;
 import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.models.converter.InstituteModelConverter;
 import com.omada.junctionadmin.data.models.external.InstituteModel;
@@ -40,7 +32,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 import javax.annotation.Nonnull;
 
@@ -278,7 +269,8 @@ public class InstituteDataHandler extends BaseDataHandler {
         FirebaseDatabase.getInstance()
                 .getReference()
                 .child("notifications")
-                .child(instituteId)
+                .orderByChild("destination")
+                .equalTo(instituteId)
                 .orderByChild("status")
                 .equalTo("pending")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -351,7 +343,6 @@ public class InstituteDataHandler extends BaseDataHandler {
                                         .getInstance()
                                         .getReference()
                                         .child("notifications")
-                                        .child(instituteId)
                                         .child(model.getId())
                                         .child("status")
                                         .setValue((Boolean) response ? "accepted" : "declined")

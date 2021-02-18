@@ -191,4 +191,9 @@ public class EventModelRemoteDB extends BaseModelInternal {
     public void setBooking(String booking) {
         this.booking = booking;
     }
+
+    @PropertyName("organizationHighlight")
+    public boolean getOrganizationHighlight() {
+        return true;
+    }
 }

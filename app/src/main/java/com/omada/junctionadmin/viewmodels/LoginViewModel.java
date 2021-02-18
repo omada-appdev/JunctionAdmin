@@ -146,19 +146,18 @@ public class LoginViewModel extends BaseViewModel {
 
     }
 
-    public void forgotPassword(){
+    public void goToForgotPassword(){
         password.setValue(null);
-        email.setValue(null);
         fragmentChangeAction.setValue(new LiveEvent<>(LoginActivity.FragmentIdentifier.LOGIN_FORGOT_PASSWORD_FRAGMENT));
     }
 
-    /*
-    Called after user clicks on button to reset password. The email ID of the user is reflected onto
-    email live data. It is set to null when forgotPassword() is called
-     */
-    public void resetPassword() {
-
-        //TODO add code to send password reset link
+    public LiveData<LiveEvent<Boolean>> sendPasswordResetLink() {
+        if(email.getValue() == null) {
+            return new MutableLiveData<>(new LiveEvent<>(false));
+        }
+        return MainDataRepository.getInstance()
+                .getUserDataHandler()
+                .sendPasswordResetLink(email.getValue());
     }
 
     public void detailsEntryDone(){

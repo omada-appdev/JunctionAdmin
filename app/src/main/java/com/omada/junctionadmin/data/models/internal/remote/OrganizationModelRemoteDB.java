@@ -21,6 +21,7 @@ public class OrganizationModelRemoteDB extends BaseModelInternal {
 
     private String type;
     private Boolean isInstituteAdmin;
+    private Boolean instituteVerified;
 
     public OrganizationModelRemoteDB(String id) {
         super(id);
@@ -76,9 +77,13 @@ public class OrganizationModelRemoteDB extends BaseModelInternal {
 
     @PropertyName("isInstituteAdmin")
     public Boolean getIsInstituteAdmin() {
-        return isInstituteAdmin;
+        return isInstituteAdmin == null ? false : isInstituteAdmin;
     }
 
+    @PropertyName("instituteVerified")
+    public Boolean getInstituteVerified() {
+        return instituteVerified == null ? false : instituteVerified;
+    }
 
     @PropertyName("name")
     public void setName(String name) {
@@ -128,5 +133,10 @@ public class OrganizationModelRemoteDB extends BaseModelInternal {
     @PropertyName("isInstituteAdmin")
     public void setIsInstituteAdmin(Boolean isInstituteAdmin) {
         this.isInstituteAdmin = isInstituteAdmin;
+    }
+
+    @PropertyName("instituteVerified")
+    public void setInstituteVerified(boolean instituteVerified) {
+        this.instituteVerified = instituteVerified;
     }
 }

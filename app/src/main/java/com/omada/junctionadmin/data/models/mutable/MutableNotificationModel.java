@@ -23,10 +23,6 @@ public class MutableNotificationModel extends NotificationModel {
         this.source = source;
     }
 
-    public void setDestination(String destination) {
-        this.destination = destination;
-    }
-
     public void setTitle(String title) {
         this.title = title;
     }

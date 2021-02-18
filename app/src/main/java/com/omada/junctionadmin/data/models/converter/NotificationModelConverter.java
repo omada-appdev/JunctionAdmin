@@ -20,7 +20,6 @@ public class NotificationModelConverter extends BaseConverter <NotificationModel
         model.setNotificationType(remoteModel.getNotificationType());
         model.setSourceType(remoteModel.getSourceType());
         model.setSource(remoteModel.getSource());
-        model.setDestination(remoteModel.getDestination());
         model.setTitle(remoteModel.getTitle());
         model.setText(remoteModel.getText());
         model.setStatus(remoteModel.getStatus());
@@ -35,7 +34,6 @@ public class NotificationModelConverter extends BaseConverter <NotificationModel
         model.setNotificationType(externalModel.getNotificationType());
         model.setSourceType(externalModel.getSourceType());
         model.setSource(externalModel.getSource());
-        model.setDestination(externalModel.getDestination());
         model.setTitle(externalModel.getTitle());
         model.setText(externalModel.getText());
         model.setStatus(externalModel.getStatus());

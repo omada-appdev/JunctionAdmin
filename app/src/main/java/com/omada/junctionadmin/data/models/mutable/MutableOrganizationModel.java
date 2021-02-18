@@ -52,4 +52,9 @@ public class MutableOrganizationModel extends OrganizationModel {
     public void setInstituteAdmin(Boolean isInstituteAdmin) {
         this.isInstituteAdmin = isInstituteAdmin;
     }
+
+    public void setInstituteVerified(Boolean instituteVerified) {
+        this.instituteVerified = instituteVerified;
+    }
+
 }

@@ -11,7 +11,6 @@ public class NotificationModelRemoteDB extends BaseModelInternal {
     protected String notificationType;
     protected String sourceType;
     protected String source;
-    protected String destination;
     protected String title;
     protected String text;
     protected String status;
@@ -34,10 +33,6 @@ public class NotificationModelRemoteDB extends BaseModelInternal {
 
     public String getSource() {
         return source;
-    }
-
-    public String getDestination() {
-        return destination;
     }
 
     public String getTitle() {
@@ -71,10 +66,6 @@ public class NotificationModelRemoteDB extends BaseModelInternal {
 
     public void setSource(String source) {
         this.source = source;
-    }
-
-    public void setDestination(String destination) {
-        this.destination = destination;
     }
 
     public void setTitle(String title) {

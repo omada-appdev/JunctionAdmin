@@ -28,7 +28,6 @@ public class NotificationModel extends BaseModel {
     protected NotificationModel(Parcel in) {
         id = in.readString();
         source = in.readString();
-        destination = in.readString();
         sourceType = in.readString();
         notificationType = in.readString();
         title = in.readString();
@@ -90,7 +89,6 @@ public class NotificationModel extends BaseModel {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(id);
         dest.writeString(source);
-        dest.writeString(destination);
         dest.writeString(sourceType);
         dest.writeString(notificationType);
         dest.writeString(title);

@@ -8,9 +8,7 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
-import com.omada.junctionadmin.data.DataRepository;
 import com.omada.junctionadmin.data.models.external.NotificationModel;
-import com.omada.junctionadmin.data.models.mutable.MutableInstituteModel;
 import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.handler.InstituteDataHandler;
 import com.omada.junctionadmin.data.models.external.InstituteModel;
@@ -22,8 +20,6 @@ import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.annotation.Nonnull;
 
 
 public class InstituteViewModel extends BaseViewModel {
@@ -305,9 +301,14 @@ public class InstituteViewModel extends BaseViewModel {
 
     public void loadInstituteNotifications() {
 
+        String instituteId = MainDataRepository.getInstance()
+                .getUserDataHandler()
+                .getCurrentUserModel()
+                .getInstitute();
+
         LiveData<LiveEvent<List<NotificationModel>>> source = MainDataRepository.getInstance()
-                .getInstituteDataHandler()
-                .getInstituteNotifications();
+                .getNotificationDataHandler()
+                .getPendingNotifications(instituteId);
 
         loadedInstituteNotifications.addSource(
                 source,
@@ -328,7 +329,7 @@ public class InstituteViewModel extends BaseViewModel {
     public LiveData<LiveEvent<Boolean>> handleJoinRequest(NotificationModel model, Boolean response) {
         return Transformations.map(
                 MainDataRepository.getInstance()
-                        .getInstituteDataHandler()
+                        .getNotificationDataHandler()
                         .handleNotification(model, response),
                 input -> input
         );

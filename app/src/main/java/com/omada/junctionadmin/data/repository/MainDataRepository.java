@@ -6,6 +6,7 @@ import com.omada.junctionadmin.data.handler.ArticleDataHandler;
 import com.omada.junctionadmin.data.handler.EventDataHandler;
 import com.omada.junctionadmin.data.handler.ImageUploadHandler;
 import com.omada.junctionadmin.data.handler.InstituteDataHandler;
+import com.omada.junctionadmin.data.handler.NotificationDataHandler;
 import com.omada.junctionadmin.data.handler.OrganizationDataHandler;
 import com.omada.junctionadmin.data.handler.PostDataHandler;
 import com.omada.junctionadmin.data.handler.ShowcaseDataHandler;
@@ -35,6 +36,7 @@ public class MainDataRepository implements DataRepository {
     private final VenueDataHandler venueDataHandler = new VenueDataHandler();
     private final InstituteDataHandler instituteDataHandler = new InstituteDataHandler();
     private final ImageUploadHandler imageUploadHandler = new ImageUploadHandler();
+    private final NotificationDataHandler notificationDataHandler = new NotificationDataHandler();
 
     //this is only for events
     private final EventDataHandler eventDataHandler = new EventDataHandler();
@@ -91,6 +93,9 @@ public class MainDataRepository implements DataRepository {
         return imageUploadHandler;
     }
 
+    public NotificationDataHandler getNotificationDataHandler() {
+        return notificationDataHandler;
+    }
 
     public Object getAccessorDataForHandlerWithKey(DataRepositoryAccessIdentifier accessIdentifier, DataRepositoryHandlerIdentifier handlerIdentifier, String key) {
         DataRepositoryAccessorData data = accessTracker.get(accessIdentifier);

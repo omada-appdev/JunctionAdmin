@@ -126,7 +126,6 @@ public class UserDataHandler extends BaseDataHandler {
             do not use the local cached variable named signed in user because it might not yet be updated by the
             auth state listener and do not update it from here because the auth state listener will take care of it
             */
-
             MainDataRepository
                     .getInstance()
                     .getImageUploadHandler()
@@ -140,27 +139,9 @@ public class UserDataHandler extends BaseDataHandler {
                                 .set(details)
                                 .addOnSuccessListener(task -> {
 
-                                    // TODO move to NotificationDataHandler and use admin SDK
-                                    DatabaseReference reference = FirebaseDatabase.getInstance()
-                                            .getReference()
-                                            .child("notifications")
-                                            .push();
-
-                                    Map<String, Object> notificationPayload = new HashMap<>();
-                                    notificationPayload.put("notificationType", "instituteJoinRequest");
-                                    notificationPayload.put("sourceType", "organization");
-                                    notificationPayload.put("source", user.getUid());
-                                    notificationPayload.put("destination", details.getInstitute());
-                                    notificationPayload.put("timeUpdated", Instant.now().toEpochMilli());
-                                    notificationPayload.put("title", "");
-
-                                    Map<String, Object> data = new HashMap<>();
-                                    data.put("name", details.getName());
-                                    data.put("email", details.getMail());
-                                    data.put("profilePicture", details.getProfilePicture());
-                                    notificationPayload.put("data", data);
-                                    notificationPayload.put("status", "pending");
-                                    reference.setValue(notificationPayload);
+                                    MainDataRepository.getInstance()
+                                            .getNotificationDataHandler()
+                                            .sendInstituteJoinRequestNotification(user.getUid(), details.getInstitute(), organizationModelConverter.convertRemoteDBToExternalModel(details));
 
                                     authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.ADD_EXTRA_DETAILS_SUCCESS));
                                 })
@@ -168,7 +149,6 @@ public class UserDataHandler extends BaseDataHandler {
                                     authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.ADD_EXTRA_DETAILS_FAILURE));
                                 });
                     });
-
         }
     }
 
@@ -425,7 +405,7 @@ public class UserDataHandler extends BaseDataHandler {
         // Just an extra layer of protection
         DataValidator dataValidator = new DataValidator();
         dataValidator.validateEmail(email, dataValidationInformation -> {
-            if(dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+            if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                 result.setValue(new LiveEvent<>(false));
                 return;
             }

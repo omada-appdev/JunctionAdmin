@@ -21,6 +21,7 @@ public class OrganizationModel extends BaseModel {
 
     protected String type;
     protected Boolean isInstituteAdmin;
+    protected Boolean instituteVerified;
 
     protected OrganizationModel(){
     }
@@ -69,6 +70,7 @@ public class OrganizationModel extends BaseModel {
         phone = in.readString();
         type = in.readString();
         isInstituteAdmin = in.readInt() == 1;
+        instituteVerified = in.readInt() == 1;
     }
 
     public static final Creator<OrganizationModel> CREATOR = new Creator<OrganizationModel>() {
@@ -123,6 +125,10 @@ public class OrganizationModel extends BaseModel {
         return isInstituteAdmin;
     }
 
+    public Boolean isInstituteVerified() {
+        return instituteVerified;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -151,5 +157,6 @@ public class OrganizationModel extends BaseModel {
         dest.writeString(phone);
         dest.writeString(type);
         dest.writeInt(isInstituteAdmin ? 1 : 0);
+        dest.writeInt(instituteVerified ? 1 : 0);
     }
 }

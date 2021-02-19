@@ -76,7 +76,6 @@ public class OrganizationFragment extends Fragment {
             organizationProfileViewModel.loadOrganizationShowcases();
         }
         else{
-
             if(organizationProfileViewModel.getOrganizationID() == null){
                 if(organizationProfileViewModel.getOrganizationModel() != null){
                     organizationProfileViewModel.setOrganizationID(

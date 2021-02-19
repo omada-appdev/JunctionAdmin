@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 
-import com.omada.junctionadmin.data.DataRepository;
+import com.omada.junctionadmin.data.repository.MainDataRepository;
 
 import java.time.LocalDateTime;
 
@@ -36,6 +36,9 @@ public class DataValidator {
     private static final String NAME_VERIFICATION_REGEX =
             "[a-zA-Z ]*";
 
+    private static final String PHONE_VERIFICATION_REGEX =
+            "[0-9]{6,}";
+
 
     public enum DataValidationPoint {
 
@@ -43,6 +46,7 @@ public class DataValidator {
 
         VALIDATION_POINT_NAME,
         VALIDATION_POINT_EMAIL,
+        VALIDATION_POINT_PHONE,
         VALIDATION_POINT_INSTITUTE_HANDLE,
         VALIDATION_POINT_PASSWORD,
         VALIDATION_POINT_INTERESTS,
@@ -91,13 +95,24 @@ public class DataValidator {
         listener.onValidationComplete(validateEmail(email));
     }
 
+    public void validatePhone(String phone, OnValidationCompleteListener listener) {
+        listener.onValidationComplete(validatePhone(phone));
+    }
+
     public void validateInstitute(String institute, OnValidationCompleteListener listener) {
 
         LiveData<LiveEvent<DataValidationInformation>> dataValidationLiveData = validateInstitute(institute);
         dataValidationLiveData.observeForever(new Observer<LiveEvent<DataValidationInformation>>() {
             @Override
             public void onChanged(LiveEvent<DataValidationInformation> dataValidationInformationLiveEvent) {
-                listener.onValidationComplete(dataValidationLiveData.getValue().getDataOnceAndReset());
+                if(dataValidationInformationLiveEvent == null) {
+                    return;
+                }
+                DataValidationInformation dataValidationInformation = dataValidationInformationLiveEvent.getDataOnceAndReset();
+                if(dataValidationInformation == null) {
+                    return;
+                }
+                listener.onValidationComplete(dataValidationInformation);
                 dataValidationLiveData.removeObserver(this);
             }
         });
@@ -188,6 +203,35 @@ public class DataValidator {
         }
     }
 
+    private DataValidationInformation validatePhone(String phone) {
+
+        if (phone == null) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_PHONE,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        }
+
+        phone = phone.trim();
+
+        if (phone.equals("")) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_PHONE,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        } else if (!phone.matches(PHONE_VERIFICATION_REGEX)) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_PHONE,
+                    DataValidationResult.VALIDATION_RESULT_ILLEGAL_FORMAT
+            );
+        } else {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_PHONE,
+                    DataValidationResult.VALIDATION_RESULT_VALID
+            );
+        }
+    }
+
 
     private LiveData<LiveEvent<DataValidationInformation>> validateInstitute(String institute) {
 
@@ -199,7 +243,7 @@ public class DataValidator {
         }
 
         return Transformations.map(
-                DataRepository
+                MainDataRepository
                         .getInstance()
                         .getInstituteDataHandler()
                         .checkInstituteCodeValidity(institute),
@@ -314,7 +358,7 @@ public class DataValidator {
         );
     }
 
-    public static final class DataValidationInformation {
+    public static class DataValidationInformation {
 
         private final DataValidationPoint dataValidationPoint;
         private final DataValidationResult dataValidationResult;

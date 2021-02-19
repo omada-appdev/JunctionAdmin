@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -27,6 +28,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.imageview.ShapeableImageView;
+import com.google.android.material.textfield.TextInputEditText;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.databinding.EventCreateFragmentLayoutBinding;
 import com.omada.junctionadmin.utils.FileUtilities;
@@ -121,7 +123,7 @@ public class EventCreateFragment extends Fragment {
                         }
                     }
                 });
-        
+
         binding.postButton.setOnClickListener(v -> {
             binding.postButton.setEnabled(false);
             createPostViewModel.createEvent().observe(getViewLifecycleOwner(), booleanLiveEvent -> {
@@ -141,7 +143,6 @@ public class EventCreateFragment extends Fragment {
         });
 
         binding.eventPosterImage.setOnClickListener(v -> {
-
             if(filePickerOpened.get()) {
                 return;
             }

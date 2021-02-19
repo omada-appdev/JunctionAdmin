@@ -1,6 +1,7 @@
 package com.omada.junctionadmin.ui.login;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -86,19 +87,24 @@ public class DetailsFragment extends Fragment {
                 .getDataValidationAction()
                 .observe(getViewLifecycleOwner(), dataValidationInformationLiveEvent -> {
 
-                    if(dataValidationInformationLiveEvent == null) {
+                    if (dataValidationInformationLiveEvent == null) {
                         return;
                     }
 
                     DataValidator.DataValidationInformation dataValidationInformation = dataValidationInformationLiveEvent.getDataOnceAndReset();
-                    if(dataValidationInformation == null){
+                    if (dataValidationInformation == null) {
                         return;
                     }
 
-                    switch (dataValidationInformation.getValidationPoint()){
+                    switch (dataValidationInformation.getValidationPoint()) {
                         case VALIDATION_POINT_EMAIL:
-                            if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID){
+                            if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                                 binding.emailLayout.setError("Invalid email");
+                            }
+                            break;
+                        case VALIDATION_POINT_PHONE:
+                            if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                                binding.phoneLayout.setError("Invalid phone number");
                             }
                             break;
                         case VALIDATION_POINT_PASSWORD:
@@ -125,12 +131,24 @@ public class DetailsFragment extends Fragment {
                         case VALIDATION_POINT_INTERESTS:
                             break;
                         case VALIDATION_POINT_ALL:
-                            if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID){
+                            Log.e("Details", "Validated " + dataValidationInformation.getValidationPoint().name() + " " + dataValidationInformation.getDataValidationResult().name());
+                            if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                                createJoinRequestSentDialog()
+                                        .setPositiveButton("Continue", (dialog, which) -> {
+                                            Log.e("Login", "Sending join request and adding details");
+                                            binding.getViewModel().validateDetailsInputAndCreateAccount();
+                                        })
+                                        .setNegativeButton("Cancel", (dialog, which) -> {
+                                            Log.e("Login", "Cancelled sending join request and adding details");
+                                            binding.doneButton.setEnabled(true);
+                                        })
+                                        .show();
 
                                 InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                                 imm.hideSoftInputFromWindow(binding.doneButton.getWindowToken(), 0);
                                 binding.doneButton.setEnabled(false);
-
+                            } else {
+                                binding.doneButton.setEnabled(true);
                             }
                             break;
                     }
@@ -141,15 +159,15 @@ public class DetailsFragment extends Fragment {
                 .getAuthResultAction()
                 .observe(getViewLifecycleOwner(), authStatusLiveEvent -> {
 
-                    if(authStatusLiveEvent == null){
+                    if (authStatusLiveEvent == null) {
                         return;
                     }
 
                     UserDataHandler.AuthStatus authStatus = authStatusLiveEvent.getDataOnceAndReset();
-                    if(authStatus == null){
+                    if (authStatus == null) {
                         return;
                     }
-                    switch (authStatus){
+                    switch (authStatus) {
                         case SIGNUP_FAILURE:
                         case ADD_EXTRA_DETAILS_FAILURE:
                             Toast.makeText(requireContext(), "Please try again", Toast.LENGTH_LONG).show();
@@ -162,36 +180,47 @@ public class DetailsFragment extends Fragment {
 
         binding.profilePictureImage.setOnClickListener(v -> {
 
-            if(compressingImage.get()){
+            if (compressingImage.get()) {
                 Toast.makeText(requireContext(), "Please wait", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            ((ShapeableImageView)v).setStrokeColor(null);
+            ((ShapeableImageView) v).setStrokeColor(null);
             if (ContextCompat.checkSelfPermission(
                     requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
                 startFilePicker();
-            }
-            else {
+            } else {
                 storagePermissionLauncher.launch(
                         Manifest.permission.WRITE_EXTERNAL_STORAGE);
             }
 
         });
 
-        binding.doneButton.setOnClickListener(v->{
-
-            binding.emailLayout.setError("");
-            binding.passwordLayout.setError("");
-            binding.nameLayout.setError("");
-            binding.getViewModel().detailsEntryDone();
+        binding.doneButton.setOnClickListener(v -> {
+            binding.doneButton.setEnabled(false);
+            binding.getViewModel().validateDetailsInputGetResult();
         });
 
         binding.emailInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 binding.emailLayout.setErrorEnabled(false);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        binding.phoneInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                binding.phoneLayout.setErrorEnabled(false);
             }
 
             @Override
@@ -261,11 +290,11 @@ public class DetailsFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
-        if(data == null) {
+        if (data == null) {
             return;
         }
 
-        if( requestCode == REQUEST_CODE_PROFILE_PICTURE_CHOOSER) {
+        if (requestCode == REQUEST_CODE_PROFILE_PICTURE_CHOOSER) {
 
             compressingImage.set(true);
             Uri selectedImage = data.getData();
@@ -281,17 +310,15 @@ public class DetailsFragment extends Fragment {
             ImageUtilities
                     .scaleToProfilePictureGetBitmap(requireActivity(), bitmap)
                     .observe(getViewLifecycleOwner(), bitmapLiveEvent -> {
-                        if(bitmapLiveEvent != null){
+                        if (bitmapLiveEvent != null) {
                             Bitmap picture = bitmapLiveEvent.getDataOnceAndReset();
-                            if(picture != null) {
+                            if (picture != null) {
                                 binding.profilePictureImage.setColorFilter(getResources().getColor(R.color.transparent, requireActivity().getTheme()));
                                 binding.profilePictureImage.setImageBitmap(picture);
-                            }
-                            else {
+                            } else {
                                 // Handle null case
                             }
-                        }
-                        else{
+                        } else {
                             Log.e("Details", "Error ");
                         }
                     });
@@ -307,20 +334,25 @@ public class DetailsFragment extends Fragment {
                     .scaleToProfilePictureGetFile(requireActivity(), bitmap)
                     .observe(getViewLifecycleOwner(), fileLiveEvent -> {
                         compressingImage.set(false);
-                        if(fileLiveEvent != null){
+                        if (fileLiveEvent != null) {
                             File file = fileLiveEvent.getDataOnceAndReset();
-                            if(file != null) {
+                            if (file != null) {
                                 binding.getViewModel().profilePicture.setValue(Uri.fromFile(file));
-                            }
-                            else {
+                            } else {
                                 // Handle null case
                             }
-                        }
-                        else{
+                        } else {
                             Log.e("Details", "Error ");
                         }
                     });
 
         }
     }
+
+    private AlertDialog.Builder createJoinRequestSentDialog() {
+        return new AlertDialog.Builder(requireContext())
+                .setTitle("Join " + binding.getViewModel().institute.getValue())
+                .setMessage("You can view the institute temporarily but cannot post to it until your join request is accepted by the administrator");
+    }
+
 }

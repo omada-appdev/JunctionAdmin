@@ -4,19 +4,14 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
-import androidx.lifecycle.ViewModel;
 
-import com.omada.junctionadmin.data.DataRepository;
-import com.omada.junctionadmin.data.models.external.BaseModel;
+import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.external.PostModel;
 import com.omada.junctionadmin.data.models.external.ShowcaseModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class OrganizationProfileViewModel extends BaseViewModel {
 
@@ -50,7 +45,7 @@ public class OrganizationProfileViewModel extends BaseViewModel {
             return organizationDetailsLiveData;
         }
         return Transformations.map(
-                DataRepository.getInstance().getOrganizationDataHandler().getOrganizationDetails(organizationID),
+                MainDataRepository.getInstance().getOrganizationDataHandler().getOrganizationDetails(organizationID),
                 input -> {
                     if(input == null){
                         return null;
@@ -67,7 +62,7 @@ public class OrganizationProfileViewModel extends BaseViewModel {
     public void loadOrganizationHighlights() {
 
         LiveData<LiveEvent<List<PostModel>>> source =
-                DataRepository
+                MainDataRepository
                         .getInstance()
                         .getPostDataHandler()
                         .getOrganizationHighlights(getDataRepositoryAccessIdentifier(), organizationID);
@@ -105,7 +100,7 @@ public class OrganizationProfileViewModel extends BaseViewModel {
     public void loadOrganizationShowcases() {
 
         LiveData<LiveEvent<List<ShowcaseModel>>> source =
-                DataRepository
+                MainDataRepository
                         .getInstance()
                         .getShowcaseDataHandler()
                         .getOrganizationShowcases(getDataRepositoryAccessIdentifier(), organizationID);

@@ -9,18 +9,22 @@ import androidx.lifecycle.Observer;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Source;
 import com.omada.junctionadmin.BuildConfig;
 import com.omada.junctionadmin.data.BaseDataHandler;
-import com.omada.junctionadmin.data.DataRepository;
+import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.models.converter.OrganizationModelConverter;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.internal.remote.OrganizationModelRemoteDB;
 import com.omada.junctionadmin.data.models.mutable.MutableOrganizationModel;
+import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -70,7 +74,6 @@ public class UserDataHandler extends BaseDataHandler {
                         signedInUser = null;
                         authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.USER_SIGNED_OUT));
                     }
-
                 });
     }
 
@@ -123,26 +126,28 @@ public class UserDataHandler extends BaseDataHandler {
             do not use the local cached variable named signed in user because it might not yet be updated by the
             auth state listener and do not update it from here because the auth state listener will take care of it
             */
-
-            DataRepository
+            MainDataRepository
                     .getInstance()
                     .getImageUploadHandler()
                     .uploadProfilePictureWithTask(profilePicturePath, user.getUid())
                     .addOnCompleteListener(uri -> {
-
                         details.setProfilePicture(uri.getResult().toString());
                         FirebaseFirestore.getInstance()
                                 .collection("organizations")
                                 .document(user.getUid())
                                 .set(details)
                                 .addOnSuccessListener(task -> {
+
+                                    MainDataRepository.getInstance()
+                                            .getNotificationDataHandler()
+                                            .sendInstituteJoinRequestNotification(user.getUid(), details.getInstitute(), organizationModelConverter.convertRemoteDBToExternalModel(details));
+
                                     authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.ADD_EXTRA_DETAILS_SUCCESS));
                                 })
                                 .addOnFailureListener(task -> {
                                     authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.ADD_EXTRA_DETAILS_FAILURE));
                                 });
                     });
-
         }
     }
 
@@ -160,6 +165,19 @@ public class UserDataHandler extends BaseDataHandler {
     }
 
     /*
+        To be called when the user data is to be reset completely, ie, the cache is stale
+     */
+    public void getCurrentUserDetailsFromRemote() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null && !user.getUid().equals("")) {
+            authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.CURRENT_USER_SUCCESS));
+            getUserDetailsFromRemote(user.getUid());
+        } else {
+            authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.CURRENT_USER_FAILURE));
+        }
+    }
+
+    /*
     this method triggers a get user through firebase auth that changes the value in signed in user
     notifier live data through the auth state listener callback
      */
@@ -171,7 +189,7 @@ public class UserDataHandler extends BaseDataHandler {
             localResultLiveData.observeForever(new Observer<Boolean>() {
                 @Override
                 public void onChanged(Boolean result) {
-                    if(result != null) {
+                    if (result != null) {
                         if (!result) {
                             getUserDetailsFromRemote(user.getUid());
                         }
@@ -198,7 +216,7 @@ public class UserDataHandler extends BaseDataHandler {
                 .get(Source.SERVER)
                 .addOnSuccessListener(documentSnapshot -> {
 
-                    if(!documentSnapshot.exists()) {
+                    if (!documentSnapshot.exists()) {
                         resultLiveData.setValue(false);
                         authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.USER_TOKEN_EXPIRED));
                         return;
@@ -242,7 +260,7 @@ public class UserDataHandler extends BaseDataHandler {
                 .get(Source.CACHE)
                 .addOnSuccessListener(documentSnapshot -> {
 
-                    if(!documentSnapshot.exists()) {
+                    if (!documentSnapshot.exists()) {
                         resultLiveData.setValue(false);
                         return;
                     }
@@ -284,13 +302,13 @@ public class UserDataHandler extends BaseDataHandler {
         // To make sure we do not rewrite the entire document by mistake
         Map<String, Object> updates = new HashMap<>();
 
-        updates.put("institute", signedInUser.getInstitute());
         updates.put("name", updatedUserModel.getName());
+        updates.put("phone", updatedUserModel.getPhone());
 
         // Filesystem path
         Uri newProfilePicture = updatedUserModel.getProfilePicturePath();
         if (newProfilePicture != null) {
-            DataRepository.getInstance()
+            MainDataRepository.getInstance()
                     .getImageUploadHandler()
                     .uploadProfilePictureWithTask(newProfilePicture, user.getUid())
                     .addOnCompleteListener(uri -> {
@@ -298,8 +316,7 @@ public class UserDataHandler extends BaseDataHandler {
                         updates.put("profilePicture", httpUrl);
                         updateDatabaseDetails(updates);
                     });
-        }
-        else {
+        } else {
             updateDatabaseDetails(updates);
         }
 
@@ -314,10 +331,10 @@ public class UserDataHandler extends BaseDataHandler {
                 .addOnSuccessListener(aVoid -> {
 
                     Log.e("User", "Updated details successfully");
-                    signedInUser.setInstitute((String) updates.get("institute"));
                     signedInUser.setName((String) updates.get("name"));
+                    signedInUser.setPhone((String) updates.get("phone"));
 
-                    if(updates.get("profilePicture") != null) {
+                    if (updates.get("profilePicture") != null) {
                         signedInUser.setProfilePicture((String) updates.get("profilePicture"));
                     }
 
@@ -349,7 +366,7 @@ public class UserDataHandler extends BaseDataHandler {
 
     public void incrementHeldEventsNumber() {
 
-        String id = DataRepository.getInstance()
+        String id = MainDataRepository.getInstance()
                 .getUserDataHandler()
                 .getCurrentUserModel()
                 .getId();
@@ -367,6 +384,52 @@ public class UserDataHandler extends BaseDataHandler {
                 .addOnFailureListener(e -> {
                     Log.e("Organization", "Events increment failure");
                 });
+    }
+
+    public void decrementHeldEventsNumber() {
+
+        String id = MainDataRepository.getInstance()
+                .getUserDataHandler()
+                .getCurrentUserModel()
+                .getId();
+
+        FirebaseFirestore
+                .getInstance()
+                .collection("organizations")
+                .document(id)
+                .update("heldEventsNumber", FieldValue.increment(-1))
+                .addOnSuccessListener(aVoid -> {
+                    signedInUser.setHeldEventsNumber(signedInUser.getHeldEventsNumber() - 1);
+                    signedInUserNotifier.setValue(new LiveEvent<>(getCurrentUserModel()));
+                    Log.e("Organization", "Events decrement success");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Organization", "Events decrement failure");
+                });
+    }
+
+    public LiveData<LiveEvent<Boolean>> sendPasswordResetLink(String email) {
+
+        MutableLiveData<LiveEvent<Boolean>> result = new MutableLiveData<>();
+
+        // Just an extra layer of protection
+        DataValidator dataValidator = new DataValidator();
+        dataValidator.validateEmail(email, dataValidationInformation -> {
+            if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                result.setValue(new LiveEvent<>(false));
+                return;
+            }
+            FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+                    .addOnSuccessListener(aVoid -> {
+                        result.setValue(new LiveEvent<>(true));
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("User", "Password reset link failure");
+                        e.getMessage();
+                        result.setValue(new LiveEvent<>(false));
+                    });
+        });
+        return result;
     }
 
     public static final class MutableUserOrganizationModel extends MutableOrganizationModel {

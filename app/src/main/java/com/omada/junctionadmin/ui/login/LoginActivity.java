@@ -1,22 +1,17 @@
 package com.omada.junctionadmin.ui.login;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldPath;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.ui.profile.ProfileActivity;
 import com.omada.junctionadmin.viewmodels.LoginViewModel;
-
-import java.util.Arrays;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -25,16 +20,16 @@ public class LoginActivity extends AppCompatActivity {
     //public enum identifying fragments
     public enum FragmentIdentifier {
         LOGIN_START_FRAGMENT,
-        LOGIN_SIGNIN_FRAGMENT,
+        LOGIN_SIGN_IN_FRAGMENT,
         LOGIN_DETAILS_FRAGMENT,
         LOGIN_INTERESTS_FRAGMENT,
-        LOGIN_FORGOTPASSWORD_FRAGMENT
+        LOGIN_FORGOT_PASSWORD_FRAGMENT
     }
 
     private FragmentIdentifier currentFragment;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_activity_layout);
@@ -48,24 +43,25 @@ public class LoginActivity extends AppCompatActivity {
 
         loginViewModel = new ViewModelProvider(this).get(LoginViewModel.class);
 
-        loginViewModel.getAuthResultAction().observe(this, authStatusLiveEvent -> {});
+        loginViewModel.getAuthResultAction().observe(this, authStatusLiveEvent -> {
+        });
 
         loginViewModel.getFragmentChangeAction().observe(this, fragId -> {
 
             FragmentIdentifier id = fragId.getDataOnceAndReset();
-            if(id == null){
+            if (id == null) {
                 return;
             }
             currentFragment = id;
-            switch(currentFragment){
-                case LOGIN_SIGNIN_FRAGMENT:
+            switch (currentFragment) {
+                case LOGIN_SIGN_IN_FRAGMENT:
                     getSupportFragmentManager()
                             .beginTransaction()
                             .replace(R.id.login_activity_placeholder, SignInFragment.getInstance())
                             .addToBackStack("signin")
                             .commit();
                     break;
-                case LOGIN_FORGOTPASSWORD_FRAGMENT:
+                case LOGIN_FORGOT_PASSWORD_FRAGMENT:
                     getSupportFragmentManager()
                             .beginTransaction()
                             .replace(R.id.login_activity_placeholder, ForgotPasswordFragment.newInstance())
@@ -90,19 +86,19 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         loginViewModel.getGoToFeedAction().observe(this, goToFeed -> {
-            if(goToFeed.getDataOnceAndReset()){
+            if (Boolean.TRUE.equals(goToFeed.getDataOnceAndReset())) {
                 Intent i = new Intent(LoginActivity.this, ProfileActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(i);
-                finish();
             }
         });
 
         loginViewModel.getToastMessageAction().observe(this, stringLiveEvent -> {
-            if(stringLiveEvent == null) {
+            if (stringLiveEvent == null) {
                 return;
             }
             String data = stringLiveEvent.getDataOnceAndReset();
-            if(data == null) {
+            if (data == null) {
                 return;
             }
             Toast.makeText(LoginActivity.this, data, Toast.LENGTH_SHORT).show();
@@ -112,10 +108,13 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        switch (currentFragment){
-            case LOGIN_SIGNIN_FRAGMENT:
+        switch (currentFragment) {
+            case LOGIN_SIGN_IN_FRAGMENT:
                 currentFragment = FragmentIdentifier.LOGIN_START_FRAGMENT;
                 loginViewModel.exitSignInScreen();
+                break;
+            case LOGIN_FORGOT_PASSWORD_FRAGMENT:
+                currentFragment = FragmentIdentifier.LOGIN_SIGN_IN_FRAGMENT;
                 break;
             case LOGIN_DETAILS_FRAGMENT:
                 currentFragment = FragmentIdentifier.LOGIN_INTERESTS_FRAGMENT;

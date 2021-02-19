@@ -5,6 +5,8 @@ import com.omada.junctionadmin.data.models.external.BookingModel;
 import com.omada.junctionadmin.data.models.external.EventModel;
 import com.omada.junctionadmin.utils.TransformUtilities;
 
+import java.time.LocalDateTime;
+
 
 public class MutableBookingModel extends BookingModel {
 
@@ -20,11 +22,11 @@ public class MutableBookingModel extends BookingModel {
         this.timeCreated = timeCreated;
     }
 
-    public void setStartTime(Timestamp startTime) {
+    public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
-    public void setEndTime(Timestamp endTime) {
+    public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
 
@@ -73,6 +75,8 @@ public class MutableBookingModel extends BookingModel {
 
         MutableBookingModel mutableBookingModel = new MutableBookingModel();
 
+        mutableBookingModel.setId(eventModel.getId());
+
         mutableBookingModel.setVenue(eventModel.getVenue());
         mutableBookingModel.setVenueName(eventModel.getVenueName());
         mutableBookingModel.setVenueAddress(eventModel.getVenueAddress());
@@ -83,8 +87,8 @@ public class MutableBookingModel extends BookingModel {
         // TODO ServerTimestamp
         //mutableBookingModel.setTimeCreated(new Timestamp(eventModel.getTimeCreated()));
 
-        mutableBookingModel.setStartTime(TransformUtilities.convertUtcLocalDateTimeToTimestamp(eventModel.getStartTime()));
-        mutableBookingModel.setEndTime(TransformUtilities.convertUtcLocalDateTimeToTimestamp(eventModel.getEndTime()));
+        mutableBookingModel.setStartTime(eventModel.getStartTime());
+        mutableBookingModel.setEndTime(eventModel.getEndTime());
         mutableBookingModel.setCreator(eventModel.getCreator());
         mutableBookingModel.setCreatorName(eventModel.getCreatorName());
         mutableBookingModel.setCreatorProfilePicture(eventModel.getCreatorProfilePicture());

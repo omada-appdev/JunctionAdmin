@@ -18,7 +18,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 import com.omada.junctionadmin.data.BaseDataHandler;
-import com.omada.junctionadmin.data.DataRepository;
+import com.omada.junctionadmin.data.repository.DataRepositoryAccessIdentifier;
 import com.omada.junctionadmin.data.models.converter.BookingModelConverter;
 import com.omada.junctionadmin.data.models.converter.VenueModelConverter;
 import com.omada.junctionadmin.data.models.external.BookingModel;
@@ -48,7 +48,7 @@ public class VenueDataHandler extends BaseDataHandler {
     // TODO a more efficient query that orders venues by number of bookings they have on a given day
 
     public LiveData<LiveEvent<List<VenueModel>>> getAllVenues(
-            DataRepository.DataRepositoryAccessIdentifier identifier, String instituteID) {
+            DataRepositoryAccessIdentifier identifier, String instituteID) {
 
         MutableLiveData<LiveEvent<List<VenueModel>>> venueModelsLiveData = new MutableLiveData<>();
 
@@ -83,7 +83,7 @@ public class VenueDataHandler extends BaseDataHandler {
 
     // Gets all bookings on a given day and all bookings one day before and after it
     public LiveData<LiveEvent<List<Pair<LocalDateTime, LocalDateTime>>>> getVenueBookingsOn(
-            DataRepository.DataRepositoryAccessIdentifier identifier, LocalDateTime date, String venueId) {
+            DataRepositoryAccessIdentifier identifier, LocalDateTime date, String venueId) {
 
         MediatorLiveData<LiveEvent<List<Pair<LocalDateTime, LocalDateTime>>>> venueBookingsLiveData = new MediatorLiveData<>();
         BookingsAggregator aggregator = new BookingsAggregator(venueBookingsLiveData);
@@ -152,13 +152,13 @@ public class VenueDataHandler extends BaseDataHandler {
 
         // getting only date because that is how it will be stored
         LocalDate date =
-                bookingModel.getStartTime().toDate().toInstant().atZone(ZoneId.of("UTC")).toLocalDate();
+                bookingModel.getStartTime().atZone(ZoneId.of("UTC")).toLocalDate();
 
         batch.set(docRef, bookingModelConverter.convertExternalToRemoteDBModel(bookingModel));
 
         Map<String, Long> bookingData = new HashMap<>();
-        bookingData.put("startTime", bookingModel.getStartTime().toDate().toInstant().getEpochSecond());
-        bookingData.put("endTime", bookingModel.getEndTime().toDate().toInstant().getEpochSecond());
+        bookingData.put("startTime", bookingModel.getStartTime().atZone(ZoneId.of("UTC")).toInstant().getEpochSecond());
+        bookingData.put("endTime", bookingModel.getEndTime().atZone(ZoneId.of("UTC")).toInstant().getEpochSecond());
 
         // Writing booking into JSON database for fast and cheap querying
         // TODO add listeners to handle database failures
@@ -166,9 +166,9 @@ public class VenueDataHandler extends BaseDataHandler {
                 .getInstance()
                 .getReference()
                 .child("bookings")
-                .child(bookingModel.getVenue())
                 .child(date.format(DateTimeFormatter.ISO_DATE))
-                .push()
+                .child(bookingModel.getVenue())
+                .child(bookingModel.getId())
                 .setValue(bookingData);
 
     }
@@ -181,6 +181,19 @@ public class VenueDataHandler extends BaseDataHandler {
                 .document(eventModel.getVenue())
                 .collection("bookings")
                 .document(eventModel.getId());
+
+        LocalDate date =
+                eventModel.getStartTime().atZone(ZoneId.of("UTC")).toLocalDate();
+
+        FirebaseDatabase
+                .getInstance()
+                .getReference()
+                .child("bookings")
+                .child(date.format(DateTimeFormatter.ISO_DATE))
+                .child(eventModel.getVenue())
+                .child(eventModel.getId())
+                .removeValue()
+                .addOnCompleteListener(aVoid -> Log.e("Booking", "Removed booking from Realtime database"));
 
         batch.delete(documentReference);
     }

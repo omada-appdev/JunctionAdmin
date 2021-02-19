@@ -28,7 +28,6 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.databinding.UserProfileEditDetailsLayoutBinding;
-import com.omada.junctionadmin.utils.FileUtilities;
 import com.omada.junctionadmin.utils.ImageUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.viewmodels.UserProfileViewModel;
@@ -40,12 +39,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ProfileEditDetailsFragment extends Fragment {
 
     private static final int REQUEST_CODE_PROFILE_PICTURE_CHOOSER = 3;
-    private final AtomicBoolean compressingImage = new
-            AtomicBoolean(false);
+    private final AtomicBoolean compressingImage = new AtomicBoolean(false);
 
     private final ActivityResultLauncher<String> storagePermissionLauncher =
-            registerForActivityResult(new
-                    ActivityResultContracts.RequestPermission(), isGranted -> {
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
                     startFilePicker();
                 }
@@ -60,19 +57,13 @@ public class ProfileEditDetailsFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        UserProfileEditDetailsLayoutBinding binding =
-                DataBindingUtil.inflate(inflater,
-                        R.layout.user_profile_edit_details_layout,
-                        container, false);
+        UserProfileEditDetailsLayoutBinding binding = DataBindingUtil.inflate(inflater, R.layout.user_profile_edit_details_layout, container, false);
         this.binding = binding;
 
         binding.setViewModel(
-                new ViewModelProvider(requireActivity()).
-                        get(UserProfileViewModel.class)
+                new ViewModelProvider(requireActivity()).get(UserProfileViewModel.class)
         );
         binding.setLifecycleOwner(this);
 
@@ -81,25 +72,23 @@ public class ProfileEditDetailsFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull View view,
-                              @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         binding.doneButton.setOnClickListener(v -> {
+            binding.doneButton.setEnabled(false);
             binding.getViewModel().detailsEntryDone();
         });
 
         binding.profilePictureImage.setOnClickListener(v -> {
 
             if(compressingImage.get()) {
-                Toast.makeText(requireContext(),
-                        "Please wait", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Please wait", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             ((ShapeableImageView)v).setStrokeColor(null);
             if (ContextCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                    requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
                 startFilePicker();
             }
@@ -112,14 +101,11 @@ public class ProfileEditDetailsFragment extends Fragment {
 
         binding.nameInput.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s,
-                                          int start,
-                                          int count, int after) {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
-            public void onTextChanged(CharSequence s,
-                                      int start, int before, int count) {
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
                 binding.nameLayout.setError(null);
             }
 
@@ -128,16 +114,14 @@ public class ProfileEditDetailsFragment extends Fragment {
             }
         });
 
-        binding.instituteInput.addTextChangedListener(new TextWatcher() {
+        binding.phoneInput.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s,
-                                          int start, int count, int after) {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
-            public void onTextChanged(CharSequence s,
-                                      int start, int before, int count) {
-                binding.instituteLayout.setError(null);
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                binding.phoneLayout.setError(null);
             }
 
             @Override
@@ -147,41 +131,27 @@ public class ProfileEditDetailsFragment extends Fragment {
 
         binding.getViewModel()
                 .getDataValidationAction()
-                .observe(getViewLifecycleOwner(),
-                        dataValidationInformationLiveEvent -> {
+                .observe(getViewLifecycleOwner(), dataValidationInformationLiveEvent -> {
                     if(dataValidationInformationLiveEvent == null) {
                         return;
                     }
 
-                    DataValidator.DataValidationInformation
-                            dataValidationInformation =
-                            dataValidationInformationLiveEvent.
-                                    getDataOnceAndReset();
+                    DataValidator.DataValidationInformation dataValidationInformation = dataValidationInformationLiveEvent.getDataOnceAndReset();
                     if(dataValidationInformation != null) {
                         switch (dataValidationInformation.getValidationPoint()) {
                             case VALIDATION_POINT_NAME:
-                                if(dataValidationInformation.
-                                        getDataValidationResult() !=
-                                        DataValidator.DataValidationResult.
-                                                VALIDATION_RESULT_VALID) {
+                                if(dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                                     binding.nameLayout.setError("Invalid name");
                                 }
                                 break;
-                            case VALIDATION_POINT_INSTITUTE_HANDLE:
-                                if(dataValidationInformation.
-                                        getDataValidationResult() !=
-                                        DataValidator.DataValidationResult.
-                                                VALIDATION_RESULT_VALID) {
-                                    binding.instituteLayout.setError(
-                                            "Invalid institute");
+                            case VALIDATION_POINT_PHONE:
+                                if(dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                                    binding.phoneLayout.setError("Invalid phone number");
                                 }
                                 break;
                             case VALIDATION_POINT_ALL:
-                                if(dataValidationInformation.
-                                        getDataValidationResult() ==
-                                        DataValidator.DataValidationResult.
-                                                VALIDATION_RESULT_VALID) {
-                                    binding.doneButton.setEnabled(false);
+                                if(dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                                    binding.doneButton.setEnabled(true);
                                 }
                                 break;
                             default:
@@ -197,8 +167,7 @@ public class ProfileEditDetailsFragment extends Fragment {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent,
-                "Select Picture"), REQUEST_CODE_PROFILE_PICTURE_CHOOSER);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CODE_PROFILE_PICTURE_CHOOSER);
 
     }
 
@@ -222,8 +191,7 @@ public class ProfileEditDetailsFragment extends Fragment {
     }
 
     @Override
-    public void onActivityResult(int requestCode,
-                                 int resultCode, @Nullable Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
         if(data == null) {
             return;
@@ -236,30 +204,20 @@ public class ProfileEditDetailsFragment extends Fragment {
 
             Bitmap bitmap = null;
             try {
-                bitmap = MediaStore.Images.Media.
-                        getBitmap(requireActivity().
-                                getContentResolver(),
-                                selectedImage);
+                bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), selectedImage);
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            Log.e("Details", "Compressing image... " +
-                    bitmap.getWidth() + "  " + bitmap.getHeight());
+            Log.e("Details", "Compressing image... " + bitmap.getWidth() + "  " + bitmap.getHeight());
             ImageUtilities
                     .scaleToProfilePictureGetBitmap(requireActivity(), bitmap)
                     .observe(getViewLifecycleOwner(), bitmapLiveEvent -> {
                         if(bitmapLiveEvent != null){
-                            Bitmap picture = bitmapLiveEvent.
-                                    getDataOnceAndReset();
+                            Bitmap picture = bitmapLiveEvent.getDataOnceAndReset();
                             if(picture != null) {
-                                binding.profilePictureImage.
-                                        setColorFilter(getResources().
-                                                getColor(R.color.transparent,
-                                                        requireActivity().
-                                                                getTheme()));
-                                binding.profilePictureImage.
-                                        setImageBitmap(picture);
+                                binding.profilePictureImage.setColorFilter(getResources().getColor(R.color.transparent, requireActivity().getTheme()));
+                                binding.profilePictureImage.setImageBitmap(picture);
                             }
                             else {
                                 // Handle null case
@@ -271,9 +229,7 @@ public class ProfileEditDetailsFragment extends Fragment {
                     });
 
             try {
-                bitmap = MediaStore.Images.
-                        Media.getBitmap(requireActivity().
-                        getContentResolver(), selectedImage);
+                bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), selectedImage);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -285,22 +241,15 @@ public class ProfileEditDetailsFragment extends Fragment {
                         if(fileLiveEvent != null){
                             File file = fileLiveEvent.getDataOnceAndReset();
                             if(file != null) {
-                                MutableLiveData<Uri> profilePictureLiveData =
-                                        binding.getViewModel().
-                                                getOrganizationUpdater().
-                                                newProfilePicture;
-                                profilePictureLiveData.
-                                        setValue(Uri.fromFile(file));
+                                MutableLiveData<Uri> profilePictureLiveData = binding.getViewModel().getOrganizationUpdater().newProfilePicture;
+                                profilePictureLiveData.setValue(Uri.fromFile(file));
                             }
                             else {
                                 // Handle null case
                             }
                         }
                         else{
-                            Log.e("Profile",
-                                    "Error :" +
-                                            " the provided " +
-                                            "fileLiveEvent was null");
+                            Log.e("Profile", "Error : the provided fileLiveEvent was null");
                         }
                     });
 

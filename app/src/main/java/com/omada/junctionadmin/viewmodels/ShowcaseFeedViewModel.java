@@ -2,10 +2,8 @@ package com.omada.junctionadmin.viewmodels;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.Transformations;
 
-import com.omada.junctionadmin.data.DataRepository;
-import com.omada.junctionadmin.data.models.external.OrganizationModel;
+import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.models.external.PostModel;
 import com.omada.junctionadmin.data.models.external.ShowcaseModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
@@ -31,7 +29,7 @@ public class ShowcaseFeedViewModel extends BaseViewModel {
     public void loadShowcaseItems() {
 
         LiveData<LiveEvent<List<PostModel>>> source =
-                DataRepository
+                MainDataRepository
                 .getInstance()
                 .getPostDataHandler()
                 .getShowcasePosts(getDataRepositoryAccessIdentifier(), showcaseModel.getId());

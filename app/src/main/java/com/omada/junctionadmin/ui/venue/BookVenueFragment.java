@@ -1,5 +1,6 @@
 package com.omada.junctionadmin.ui.venue;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -90,6 +91,8 @@ public class BookVenueFragment extends Fragment {
 
         bookingViewModel.getLoadedInstituteVenues().observe(getViewLifecycleOwner(), this::onVenuesLoaded);
 
+        disableDateInputText(dateInput);
+
         dateInput.setText(
                 bookingViewModel.getZonedBookingDate().toLocalDate().format(DateTimeFormatter.ISO_DATE)
         );
@@ -127,6 +130,14 @@ public class BookVenueFragment extends Fragment {
         });
 
     }
+
+    private void disableDateInputText(TextInputEditText editText) {
+        editText.setFocusable(false);
+        editText.setCursorVisible(false);
+        editText.setKeyListener(null);
+        editText.setBackgroundColor(Color.TRANSPARENT);
+    }
+
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {

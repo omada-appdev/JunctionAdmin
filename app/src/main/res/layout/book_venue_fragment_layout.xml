@@ -25,14 +25,17 @@
             app:endIconMode="custom"
             app:boxStrokeColor="@color/transparent"
             android:background="@color/white"
-            app:endIconDrawable="@drawable/ic_calendar_today_24px"
+            app:endIconDrawable="@drawable/ic_calendar_today_36px"
+            app:endIconTint="@color/colorPrimaryDark"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:id="@+id/event_date_input"
-                android:inputType="date"
+                android:inputType="none"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline2"
                 android:background="@color/transparent"/>
 

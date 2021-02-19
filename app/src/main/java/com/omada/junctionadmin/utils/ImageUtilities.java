@@ -27,6 +27,9 @@ public final class ImageUtilities {
     private static final float PROFILE_PICTURE_HEIGHT = 200;
     private static final float PROFILE_PICTURE_WIDTH = 200;
 
+    private static final float INSTITUTE_IMAGE_HEIGHT = 1200;
+    private static final float INSTITUTE_IMAGE_WIDTH = 900;
+
     private static final float POST_IMAGE_MAX_HEIGHT = 1200;
     private static final float POST_IMAGE_MAX_WIDTH = 900;
 
@@ -36,6 +39,106 @@ public final class ImageUtilities {
     }
 
     // returns bitmap if success, returns null if failure
+
+    public static LiveData<LiveEvent<Bitmap>> scaleToInstituteImageGetBitmap(Context context, Bitmap bitmap) {
+
+        MutableLiveData<LiveEvent<Bitmap>> bitmapLiveData = new MutableLiveData<>();
+
+        Compress.Companion
+                .with(context, cropToRatio(bitmap, 4/3f))
+                .setQuality(100)
+                .setTargetDir(PathUtils.getInternalAppFilesPath())
+                .setCompressListener(new CompressListener() {
+                    @Override
+                    public void onStart() {
+                        // Compression started
+                        Log.e("ImageUtils", "Compression started");
+                    }
+
+                    @Override
+                    public void onSuccess(File file) {
+                        // Compression success
+                        Log.e("ImageUtils", "Compression success");
+                    }
+
+                    @Override
+                    public void onError(@NotNull Throwable throwable) {
+                        // Compression error
+                        Log.e("ImageUtils", "Compression failure");
+                    }
+                })
+                .strategy(Strategies.INSTANCE.compressor())
+                .setConfig(Bitmap.Config.ALPHA_8)
+                .setMaxHeight(INSTITUTE_IMAGE_HEIGHT)
+                .setMaxWidth(INSTITUTE_IMAGE_WIDTH)
+                .setScaleMode(ScaleMode.SCALE_WIDTH)
+                .asBitmap()
+                .setCompressListener(new RequestBuilder.Callback<Bitmap>() {
+                    @Override
+                    public void onStart() {
+                        // Bitmap conversion started
+                        Log.e("ImageUtils", "Bitmap conversion started");
+                    }
+
+                    @Override
+                    public void onSuccess(Bitmap bitmap) {
+                        // Bitmap conversion success
+                        Log.e("ImageUtils", "Bitmap conversion success");
+                        bitmapLiveData.setValue(new LiveEvent<>(bitmap));
+                    }
+
+                    @Override
+                    public void onError(@NotNull Throwable throwable) {
+                        // Bitmap conversion failure
+                        bitmapLiveData.setValue(new LiveEvent<>(null));
+                        Log.e("ImageUtils", "Bitmap conversion failure");
+                    }
+                }).launch();
+
+        return bitmapLiveData;
+    }
+
+    public static LiveData<LiveEvent<File>> scaleToInstituteImageGetFile(Context context, Bitmap bitmap) {
+        // TODO integrate the third party compressor library
+
+        MutableLiveData<LiveEvent<File>> fileLiveData = new MutableLiveData<>();
+
+        Compress.Companion
+                .with(context, cropToRatio(bitmap, 4/3f))
+                .setQuality(100)
+                .setTargetDir(PathUtils.getInternalAppFilesPath())
+                .setCompressListener(new CompressListener() {
+                    @Override
+                    public void onStart() {
+                        // Compression started
+                        Log.e("ImageUtils", "Compression started");
+                    }
+
+                    @Override
+                    public void onSuccess(File file) {
+                        // Compression success
+                        Log.e("ImageUtils", "Compression success");
+                        fileLiveData.setValue(new LiveEvent<>(file));
+                        Log.e("Image", file.getAbsolutePath());
+                    }
+
+                    @Override
+                    public void onError(@NotNull Throwable throwable) {
+                        // Compression error
+                        throwable.printStackTrace();
+                        Log.e("ImageUtils", "Compression failure\n"+throwable.getMessage());
+                        fileLiveData.setValue(new LiveEvent<>(null));
+                    }
+                })
+                .strategy(Strategies.INSTANCE.compressor())
+                .setConfig(Bitmap.Config.ALPHA_8)
+                .setMaxHeight(INSTITUTE_IMAGE_HEIGHT)
+                .setMaxWidth(INSTITUTE_IMAGE_WIDTH)
+                .setScaleMode(ScaleMode.SCALE_WIDTH)
+                .launch();
+
+        return fileLiveData;
+    }
 
     public static LiveData<LiveEvent<Bitmap>> scaleToProfilePictureGetBitmap(Context context, Bitmap bitmap) {
 

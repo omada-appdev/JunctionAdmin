@@ -1,6 +1,8 @@
 package com.omada.junctionadmin.ui.profile;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,13 +13,10 @@ import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
-import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.databinding.UserProfileFragmentLayoutBinding;
-import com.omada.junctionadmin.ui.institute.InstituteProfileEditDetailsFragment;
+import com.omada.junctionadmin.ui.institute.InstituteAdminFragment;
 import com.omada.junctionadmin.ui.uicomponents.CustomBindings;
 import com.omada.junctionadmin.viewmodels.UserProfileViewModel;
 
@@ -53,7 +52,7 @@ public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetCh
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Log.i("aditya","onViewCreated");
+        Log.e("Profile","onViewCreated");
         binding.getViewModel().getUserUpdateAction()
                 .observe(getViewLifecycleOwner(), organizationModel -> {
                     if(organizationModel == null) {
@@ -66,28 +65,26 @@ public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetCh
             binding.drawerLayout.openDrawer(binding.navigationView, true);
         });
 
+        binding.drawerLayout.closeDrawer(binding.navigationView);
+
         binding.navigationView.setNavigationItemSelectedListener(item -> {
 
             int itemId = item.getItemId();
-            if (itemId == id.create_institute_button) {
+            binding.drawerLayout.closeDrawer(binding.navigationView);
+            Handler handler = new Handler(Looper.getMainLooper());
 
-                getActivity().getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.profile_content_placeholder, new InstituteProfileEditDetailsFragment())
-                        .addToBackStack(null)
-                        .commit();
-
-            } else if (itemId == id.members_button) {
-            } else if (itemId == id.settings_button) {
-            } else if (itemId == id.feedback_button) {
-            } else {
-            }
-            binding.drawerLayout.closeDrawers();
+            // delay to let the drawer close
+            handler.postDelayed(() -> {
+                if (itemId == id.members_button) {
+                } else if (itemId == id.settings_button) {
+                } else if (itemId == id.feedback_button) {
+                } else {
+                }
+            }, 300);
             return true;
         });
 
         binding.appbar.addOnOffsetChangedListener(this);
-
     }
 
     /*

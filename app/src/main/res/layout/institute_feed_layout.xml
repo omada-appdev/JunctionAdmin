@@ -97,7 +97,7 @@
             android:layout_margin="12dp"
             android:padding="8dp"
             android:visibility="gone"
-            android:text="Admin Console"
+            android:text="Open Admin Console"
             app:layout_anchorGravity="top|right"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

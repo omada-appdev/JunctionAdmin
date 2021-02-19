@@ -101,22 +101,9 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/institute_layout"
+                <Space
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Institute Code"
-                    android:layout_margin="8dp"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:layout_height="wrap_content"
-                        android:layout_width="match_parent"
-                        android:id="@+id/institute_input"
-                        android:inputType="textPostalAddress"
-                        android:background="@color/transparent"
-                        android:text="@={viewModel.organizationUpdater.instituteHandle}"/>
-                </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_height="32dp"/>
 
             </LinearLayout>
         </ScrollView>

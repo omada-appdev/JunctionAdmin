@@ -357,54 +357,12 @@ public class UserProfileViewModel extends BaseViewModel {
         ValidationAggregator validationAggregator = ValidationAggregator
                 .build(anyDetailsEntryInvalid)
                 .add(DataValidator.DataValidationPoint.VALIDATION_POINT_NAME)
-                .add(DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE)
                 .add(DataValidator.DataValidationPoint.VALIDATION_POINT_PHONE)
                 .get();
 
         if (organizationUpdater.newProfilePicture.getValue() != null) {
             userOrganizationModel.setProfilePicturePath(organizationUpdater.newProfilePicture.getValue());
         }
-
-        dataValidator.validateInstitute(organizationUpdater.instituteHandle.getValue(), dataValidationInformation -> {
-
-            if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
-                LiveData<LiveEvent<String>> instituteId = MainDataRepository
-                        .getInstance()
-                        .getInstituteDataHandler()
-                        .getInstituteId(organizationUpdater.instituteHandle.getValue());
-
-                instituteId.observeForever(new Observer<LiveEvent<String>>() {
-                    @Override
-                    public void onChanged(LiveEvent<String> stringLiveEvent) {
-                        if (stringLiveEvent == null) {
-                            return;
-                        }
-                        String result = stringLiveEvent.getDataOnceAndReset();
-                        DataValidator.DataValidationInformation newValidationInformation;
-
-                        if (result != null && !result.equals("notFound")) {
-                            userOrganizationModel.setInstitute(result);
-                            newValidationInformation = new DataValidator.DataValidationInformation(
-                                    DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
-                                    DataValidator.DataValidationResult.VALIDATION_RESULT_VALID
-                            );
-                        } else {
-                            newValidationInformation = new DataValidator.DataValidationInformation(
-                                    DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
-                                    DataValidator.DataValidationResult.VALIDATION_RESULT_INVALID
-                            );
-                        }
-
-                        validationAggregator.holdData(
-                                DataValidator.DataValidationPoint.VALIDATION_POINT_INSTITUTE_HANDLE,
-                                newValidationInformation
-                        );
-                        notifyValidity(newValidationInformation);
-                        instituteId.removeObserver(this);
-                    }
-                });
-            } else notifyValidity(dataValidationInformation);
-        });
 
         dataValidator.validateName(organizationUpdater.name.getValue(), dataValidationInformation -> {
             if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
@@ -499,7 +457,6 @@ public class UserProfileViewModel extends BaseViewModel {
         public final MutableLiveData<String> name = new MutableLiveData<>();
         public final MutableLiveData<String> phone = new MutableLiveData<>();
         public final MutableLiveData<Uri> newProfilePicture = new MutableLiveData<>();
-        public final MutableLiveData<String> instituteHandle = new MutableLiveData<>();
         private String profilePicture;
 
         private OrganizationUpdater() {
@@ -523,7 +480,6 @@ public class UserProfileViewModel extends BaseViewModel {
                     if (handle == null || handle.equals("notFound")) {
                         return;
                     }
-                    instituteHandle.postValue(handle);
                     handleLiveData.removeObserver(this);
                 }
             });

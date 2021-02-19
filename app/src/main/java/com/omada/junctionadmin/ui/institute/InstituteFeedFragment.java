@@ -194,7 +194,7 @@ public class InstituteFeedFragment extends Fragment implements AppBarLayout.OnOf
         return new AlertDialog.Builder(requireContext())
                 .setCancelable(false)
                 .setTitle("Please try later")
-                .setMessage("You are currently not part of any institute. Please wait for your join request to be accepted if you have recently sent one")
+                .setMessage("You are currently not part of any institute")
                 .setPositiveButton("OK", (dialog, which) -> {
                     requireActivity().finish();
                 })

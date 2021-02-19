@@ -80,11 +80,11 @@ public class InstituteJoinResponseNotificationItemBinder extends ItemBinder<Noti
             if (accepted) {
                 constraintLayout.setBackgroundColor(resources.getColor(R.color.green, theme));
                 titleText.setText("Your join request has been accepted");
-                messageText.setText("You can now post events and reach the users of this institute");
+                messageText.setText("You can now post events and reach the users of your requested institute");
             } else {
                 constraintLayout.setBackgroundColor(resources.getColor(R.color.design_default_color_error, theme));
                 titleText.setText("Your join request has been denied");
-                messageText.setText("You can keep viewing this institute but cannot reach its users");
+                messageText.setText("You cannot view your requested institute any longer");
 
             }
         }

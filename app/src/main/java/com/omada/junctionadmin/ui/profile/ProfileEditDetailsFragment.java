@@ -114,21 +114,6 @@ public class ProfileEditDetailsFragment extends Fragment {
             }
         });
 
-        binding.instituteInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                binding.instituteLayout.setError(null);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-
         binding.phoneInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -157,11 +142,6 @@ public class ProfileEditDetailsFragment extends Fragment {
                             case VALIDATION_POINT_NAME:
                                 if(dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                                     binding.nameLayout.setError("Invalid name");
-                                }
-                                break;
-                            case VALIDATION_POINT_INSTITUTE_HANDLE:
-                                if(dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
-                                    binding.instituteLayout.setError("Invalid institute");
                                 }
                                 break;
                             case VALIDATION_POINT_PHONE:

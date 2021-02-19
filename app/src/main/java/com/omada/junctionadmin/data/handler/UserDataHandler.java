@@ -302,7 +302,6 @@ public class UserDataHandler extends BaseDataHandler {
         // To make sure we do not rewrite the entire document by mistake
         Map<String, Object> updates = new HashMap<>();
 
-        updates.put("institute", signedInUser.getInstitute());
         updates.put("name", updatedUserModel.getName());
         updates.put("phone", updatedUserModel.getPhone());
 
@@ -332,7 +331,6 @@ public class UserDataHandler extends BaseDataHandler {
                 .addOnSuccessListener(aVoid -> {
 
                     Log.e("User", "Updated details successfully");
-                    signedInUser.setInstitute((String) updates.get("institute"));
                     signedInUser.setName((String) updates.get("name"));
                     signedInUser.setPhone((String) updates.get("phone"));
 

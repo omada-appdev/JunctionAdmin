@@ -112,9 +112,8 @@ public class InstituteDataHandler extends BaseDataHandler {
                     updatedInstituteData.put("/instituteIds/" + instituteId, changedInstituteModel.getHandle());
                     updatedInstituteData.put("/instituteHandles/" + changedInstituteModel.getHandle(), instituteId);
 
-                    String existingHandle = getCachedInstituteHandle(instituteId);
-                    if (existingHandle != null) {
-                        updatedInstituteData.put("/instituteHandles/" + existingHandle, null);
+                    if (!changedInstituteModel.getHandle().equals(getCachedInstituteHandle(instituteId))) {
+                        updatedInstituteData.put("/instituteHandles/" + getCachedInstituteHandle(instituteId), null);
                     }
                     FirebaseDatabase.getInstance()
                             .getReference()

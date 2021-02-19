@@ -26,7 +26,7 @@
                 android:layout_height="?attr/actionBarSize"
                 android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
                 app:layout_scrollFlags="noScroll"
-                app:title="Edit Institute" />
+                app:title="Admin Console" />
 
         </com.google.android.material.appbar.AppBarLayout>
 

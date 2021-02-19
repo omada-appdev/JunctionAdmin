@@ -105,7 +105,14 @@ public class DataValidator {
         dataValidationLiveData.observeForever(new Observer<LiveEvent<DataValidationInformation>>() {
             @Override
             public void onChanged(LiveEvent<DataValidationInformation> dataValidationInformationLiveEvent) {
-                listener.onValidationComplete(dataValidationLiveData.getValue().getDataOnceAndReset());
+                if(dataValidationInformationLiveEvent == null) {
+                    return;
+                }
+                DataValidationInformation dataValidationInformation = dataValidationInformationLiveEvent.getDataOnceAndReset();
+                if(dataValidationInformation == null) {
+                    return;
+                }
+                listener.onValidationComplete(dataValidationInformation);
                 dataValidationLiveData.removeObserver(this);
             }
         });
@@ -351,7 +358,7 @@ public class DataValidator {
         );
     }
 
-    public static final class DataValidationInformation {
+    public static class DataValidationInformation {
 
         private final DataValidationPoint dataValidationPoint;
         private final DataValidationResult dataValidationResult;

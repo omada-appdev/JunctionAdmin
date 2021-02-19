@@ -45,6 +45,10 @@ public class InstituteDataHandler extends BaseDataHandler {
 
     public LiveData<LiveEvent<InstituteModel>> getInstituteDetails(String instituteID) {
 
+        if(instituteID == null) {
+            return new MutableLiveData<>(new LiveEvent<>(new MutableInstituteModel()));
+        }
+
         MutableLiveData<LiveEvent<InstituteModel>> instituteModelLiveData = new MutableLiveData<>();
 
         FirebaseFirestore
@@ -193,7 +197,7 @@ public class InstituteDataHandler extends BaseDataHandler {
                                 addToCache((String) snapshot.getValue(), snapshot.getKey());
                                 resultLiveData.setValue(new LiveEvent<>((String) snapshot.getValue()));
                             } else {
-                                resultLiveData.setValue(new LiveEvent<>("notFound"));
+                                resultLiveData.setValue(new LiveEvent<>(null));
                             }
                         }
 
@@ -227,7 +231,7 @@ public class InstituteDataHandler extends BaseDataHandler {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             if (snapshot.exists() && snapshot.getValue() instanceof String) {
-                                addToCache((String) snapshot.getValue(), snapshot.getKey());
+                                addToCache(snapshot.getKey(), (String) snapshot.getValue());
                                 resultLiveData.setValue(new LiveEvent<>((String) snapshot.getValue()));
                             } else {
                                 resultLiveData.setValue(new LiveEvent<>("notFound"));

@@ -20,7 +20,7 @@ public class NotificationModel extends BaseModel {
     protected String title;
     protected String text;
     protected String status;
-    protected Map<String , Object> data;
+    protected Map<String, Object> data;
 
     protected NotificationModel() {
     }
@@ -108,7 +108,8 @@ public class NotificationModel extends BaseModel {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         NotificationModel model = (NotificationModel) o;
-        return Objects.equals(notificationType, model.notificationType) &&
+        return Objects.equals(id, model.id) &&
+                Objects.equals(notificationType, model.notificationType) &&
                 Objects.equals(sourceType, model.sourceType);
     }
 

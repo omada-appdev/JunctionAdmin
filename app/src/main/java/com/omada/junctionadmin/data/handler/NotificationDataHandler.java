@@ -83,6 +83,7 @@ public class NotificationDataHandler extends BaseDataHandler {
                             NotificationModel model = notificationModelConverter.convertRemoteDBToExternalModel(modelRemoteDB);
                             notificationModelList.add(model);
                         }
+                        Log.e("Notifications", "Loaded " + notificationModelList.size() + " notifications for " + destinationId);
                         notifications.setValue(new LiveEvent<>(notificationModelList));
                     }
 
@@ -103,11 +104,6 @@ public class NotificationDataHandler extends BaseDataHandler {
                 .child(destinationId)
                 .orderByChild("status")
                 .equalTo("pending");
-    }
-
-    public LiveData<LiveEvent<NotificationModel>> getOrganizationNotifications() {
-        MutableLiveData<LiveEvent<NotificationModel>> result = new MutableLiveData<>();
-        return result;
     }
 
     public LiveData<LiveEvent<Boolean>> sendInstituteJoinRequestNotification(String sourceId, String destinationId, OrganizationModel details) {
@@ -182,10 +178,9 @@ public class NotificationDataHandler extends BaseDataHandler {
 
                     Task<Void> updateTask;
 
+                    WriteBatch batch = FirebaseFirestore.getInstance().batch();
+
                     if ((Boolean) responsePayload) {
-
-                        WriteBatch batch = FirebaseFirestore.getInstance().batch();
-
                         batch.update(
                                 FirebaseFirestore.getInstance()
                                         .collection("institutes")
@@ -198,12 +193,20 @@ public class NotificationDataHandler extends BaseDataHandler {
                                 FirebaseFirestore.getInstance()
                                         .collection("organizations")
                                         .document(model.getSource()),
+                                "institute", instituteId,
                                 "instituteVerified", true
                         );
-                        updateTask = batch.commit();
-                    } else {
-                        updateTask = Tasks.forResult(null);
                     }
+                    else {
+                        batch.update(
+                                FirebaseFirestore.getInstance()
+                                        .collection("organizations")
+                                        .document(model.getSource()),
+                                "institute", null,
+                                "instituteVerified", false
+                        );
+                    }
+                    updateTask = batch.commit();
 
                     return updateTask
                             .continueWithTask(task -> {
@@ -216,8 +219,7 @@ public class NotificationDataHandler extends BaseDataHandler {
                             .continueWithTask(task -> {
                                 if (!task.isSuccessful()) {
                                     Log.e("Notification", "Error sending response to organization");
-                                    // Retry
-                                    sendInstituteJoinConfirmation(instituteId, model.getSource(), (Boolean) responsePayload);
+                                    return Tasks.forException(new Exception("Could not complete updating batch"));
                                 }
                                 return FirebaseDatabase
                                         .getInstance()
@@ -233,10 +235,26 @@ public class NotificationDataHandler extends BaseDataHandler {
                     Log.e("Institute", "Invalid response type");
                     return Tasks.forException(new Exception("Invalid response type for: " + notificationType.name()));
                 }
+            case NOTIFICATION_TYPE_INSTITUTE_JOIN_RESPONSE:
+
+                String userId = MainDataRepository.getInstance()
+                        .getUserDataHandler()
+                        .getCurrentUserModel()
+                        .getId();
+
+                return FirebaseDatabase
+                        .getInstance()
+                        .getReference()
+                        .child("notifications")
+                        .child(userId)
+                        .child(model.getId())
+                        .child("status")
+                        .setValue("handled");
             default:
                 Log.e("Institute", "Invalid notification type");
                 return Tasks.forException(new Exception("Invalid notification type"));
         }
+
     }
 
     private Task<Void> sendInstituteJoinConfirmation(String sourceId, String destinationId, boolean response) {

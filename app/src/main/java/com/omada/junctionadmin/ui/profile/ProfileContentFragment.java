@@ -16,12 +16,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.data.models.external.BaseModel;
+import com.omada.junctionadmin.data.models.external.NotificationModel;
 import com.omada.junctionadmin.data.models.external.PostModel;
 import com.omada.junctionadmin.data.models.external.ShowcaseModel;
 import com.omada.junctionadmin.ui.uicomponents.binders.articlecard.ArticleCardLargeBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.articlecard.ArticleCardMediumNoTitleBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.eventcard.EventCardMediumNoTitleBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.misc.LargeBoldHeaderBinder;
+import com.omada.junctionadmin.ui.uicomponents.binders.notifications.InstituteJoinResponseNotificationItemBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.organizationfeed.OrganizationShowcaseThumbnailListBinder;
 import com.omada.junctionadmin.ui.uicomponents.models.LargeBoldHeaderModel;
 import com.omada.junctionadmin.viewmodels.FeedContentViewModel;
@@ -33,6 +35,8 @@ import mva3.adapter.HeaderSection;
 import mva3.adapter.ItemSection;
 import mva3.adapter.ListSection;
 import mva3.adapter.MultiViewAdapter;
+import mva3.adapter.util.Mode;
+import mva3.adapter.util.OnSelectionChangedListener;
 
 public class ProfileContentFragment extends Fragment {
 
@@ -40,6 +44,7 @@ public class ProfileContentFragment extends Fragment {
     private final ListSection<BaseModel> highlightListSection = new ListSection<>();
     private final ItemSection<ListSection<ShowcaseModel>> showcaseSection = new ItemSection<>();
 
+    private ListSection<NotificationModel> notificationListSection;
     private HeaderSection<LargeBoldHeaderModel> showcaseHeaderSection;
     private HeaderSection<LargeBoldHeaderModel> highlightHeaderSection;
 
@@ -47,16 +52,20 @@ public class ProfileContentFragment extends Fragment {
 
     private boolean refreshHighlights = true;
     private boolean refreshShowcases = true;
+    private boolean refreshNotifications = true;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        FeedContentViewModel feedContentViewModel = new ViewModelProvider(getParentFragment().requireActivity()).get(FeedContentViewModel.class);
 
         if(savedInstanceState != null){
             refreshHighlights = true;
             refreshShowcases = true;
+            refreshNotifications = true;
         }
+
+        notificationListSection = new ListSection<>();
+        notificationListSection.setSelectionMode(Mode.SINGLE);
 
         ListSection<ShowcaseModel> showcaseThumbnailListSection = new ListSection<>();
         showcaseThumbnailListSection.add(new ShowcaseModel());
@@ -70,15 +79,17 @@ public class ProfileContentFragment extends Fragment {
         highlightHeaderSection.addSection(highlightListSection);
         highlightHeaderSection.hideSection();
 
+        adapter.addSection(notificationListSection);
         adapter.addSection(showcaseHeaderSection);
         adapter.addSection(highlightHeaderSection);
 
-        adapter.registerItemBinders(
-                new EventCardMediumNoTitleBinder(feedContentViewModel),
-                new ArticleCardMediumNoTitleBinder(feedContentViewModel),
-                new OrganizationShowcaseThumbnailListBinder(feedContentViewModel),
-                new LargeBoldHeaderBinder()
-        );
+        notificationListSection.setOnSelectionChangedListener((item, isSelected, selectedItems) -> {
+            if(isSelected) {
+                notificationListSection.remove(
+                        notificationListSection.getData().indexOf(item)
+                );
+            }
+        });
     }
 
     @Nullable
@@ -90,8 +101,16 @@ public class ProfileContentFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
-        UserProfileViewModel userProfileViewModel = new ViewModelProvider(getParentFragment().requireActivity())
-                .get(UserProfileViewModel.class);
+        FeedContentViewModel feedContentViewModel = new ViewModelProvider(getParentFragment().requireActivity()).get(FeedContentViewModel.class);
+        UserProfileViewModel userProfileViewModel = new ViewModelProvider(getParentFragment().requireActivity()).get(UserProfileViewModel.class);
+
+        adapter.registerItemBinders(
+                new EventCardMediumNoTitleBinder(feedContentViewModel),
+                new ArticleCardMediumNoTitleBinder(feedContentViewModel),
+                new OrganizationShowcaseThumbnailListBinder(feedContentViewModel),
+                new LargeBoldHeaderBinder(),
+                new InstituteJoinResponseNotificationItemBinder(getViewLifecycleOwner(), userProfileViewModel)
+        );
 
         userProfileViewModel.getLoadedOrganizationShowcases().observe(getViewLifecycleOwner(),
                 this::onShowcasesLoaded
@@ -100,6 +119,16 @@ public class ProfileContentFragment extends Fragment {
         userProfileViewModel.getLoadedOrganizationHighlights().observe(getViewLifecycleOwner(),
                 this::onHighlightsLoaded
         );
+
+        userProfileViewModel.getOrganizationNotifications().observe(getViewLifecycleOwner(), notificationModels -> {
+            if(notificationModels == null) {
+                return;
+            } else if(notificationModels.size() <= notificationListSection.size()) {
+                notificationListSection.set(notificationModels);
+            } else {
+                notificationListSection.addAll(notificationModels.subList(notificationListSection.size(), notificationModels.size()));
+            }
+        });
 
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(

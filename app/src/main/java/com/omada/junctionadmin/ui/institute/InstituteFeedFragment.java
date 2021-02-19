@@ -1,5 +1,7 @@
 package com.omada.junctionadmin.ui.institute;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -39,7 +41,7 @@ import mva3.adapter.ListSection;
 import mva3.adapter.MultiViewAdapter;
 
 
-public class InstituteFeedFragment extends Fragment implements AppBarLayout.OnOffsetChangedListener{
+public class InstituteFeedFragment extends Fragment implements AppBarLayout.OnOffsetChangedListener {
 
     private InstituteViewModel instituteViewModel;
     private UserProfileViewModel userProfileViewModel;
@@ -70,7 +72,7 @@ public class InstituteFeedFragment extends Fragment implements AppBarLayout.OnOf
         userProfileViewModel = viewModelProvider.get(UserProfileViewModel.class);
         FeedContentViewModel feedContentViewModel = viewModelProvider.get(FeedContentViewModel.class);
 
-        if(savedInstanceState == null){
+        if (savedInstanceState == null) {
             instituteViewModel.loadInstituteOrganizations();
             instituteViewModel.loadInstituteHighlights();
         }
@@ -107,7 +109,7 @@ public class InstituteFeedFragment extends Fragment implements AppBarLayout.OnOf
         ImageView instituteImage = view.findViewById(R.id.institute_image);
         adminButton = view.findViewById(R.id.institute_admin_button);
 
-        if(isAdmin) {
+        if (isAdmin) {
             appBarLayout.addOnOffsetChangedListener(this);
             adminButton.setVisibility(View.VISIBLE);
             adminButton.setOnClickListener(v -> {
@@ -122,16 +124,20 @@ public class InstituteFeedFragment extends Fragment implements AppBarLayout.OnOf
 
         instituteViewModel.getInstituteDetails()
                 .observe(getViewLifecycleOwner(), instituteModelLiveEvent -> {
-                    if(instituteModelLiveEvent == null) {
+                    if (instituteModelLiveEvent == null) {
                         return;
                     }
                     InstituteModel model = instituteModelLiveEvent.getDataOnceAndReset();
-                    if(model == null) {
+                    if (model == null) {
                         return;
                     }
-                    instituteName.setText(model.getName());
-                    Log.e("Institute", model.getImage() == null ? "null" : model.getImage());
-                    CustomBindings.loadImageGs(instituteImage, model.getImage());
+                    if (model.getId() == null || model.getId().equals("")) {
+                        createNoInstituteAlertDialog().show();
+                    } else {
+                        instituteName.setText(model.getName());
+                        Log.e("Institute", model.getImage() == null ? "null" : model.getImage());
+                        CustomBindings.loadImageGs(instituteImage, model.getImage());
+                    }
                 });
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(view.getContext());
@@ -140,7 +146,7 @@ public class InstituteFeedFragment extends Fragment implements AppBarLayout.OnOf
         recyclerView.setAdapter(adapter);
 
         instituteViewModel.getLoadedInstituteHighlights()
-                .observe(getViewLifecycleOwner(), postModels-> {
+                .observe(getViewLifecycleOwner(), postModels -> {
                     onHighlightsLoaded(postModels);
                     Log.e("Institute", "Highlights loaded :" + postModels.size());
                 });
@@ -152,7 +158,7 @@ public class InstituteFeedFragment extends Fragment implements AppBarLayout.OnOf
 
     private void onOrganizationsLoaded(List<OrganizationModel> organizationModels) {
 
-        if(organizationModels != null && organizationModels.size() > 0 && refreshOrganizations) {
+        if (organizationModels != null && organizationModels.size() > 0 && refreshOrganizations) {
 
             organizationSection.getItem().addAll(organizationModels);
 
@@ -169,7 +175,7 @@ public class InstituteFeedFragment extends Fragment implements AppBarLayout.OnOf
 
     @Override
     public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-        if(appBarLayout.getHeight() + verticalOffset < adminButton.getHeight() * 2.5) {
+        if (appBarLayout.getHeight() + verticalOffset < adminButton.getHeight() * 2.5) {
             adminButton.setVisibility(View.GONE);
         } else {
             adminButton.setVisibility(View.VISIBLE);
@@ -182,5 +188,16 @@ public class InstituteFeedFragment extends Fragment implements AppBarLayout.OnOf
             highlightSection.addAll(highlights);
             refreshHighlights = false;
         }
+    }
+
+    private Dialog createNoInstituteAlertDialog() {
+        return new AlertDialog.Builder(requireContext())
+                .setCancelable(false)
+                .setTitle("Please try later")
+                .setMessage("You are currently not part of any institute. Please wait for your join request to be accepted if you have recently sent one")
+                .setPositiveButton("OK", (dialog, which) -> {
+                    requireActivity().finish();
+                })
+                .create();
     }
 }

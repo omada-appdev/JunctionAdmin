@@ -1,5 +1,7 @@
 package com.omada.junctionadmin.ui.login;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -84,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         loginViewModel.getGoToFeedAction().observe(this, goToFeed -> {
-            if (goToFeed.getDataOnceAndReset() == true) {
+            if (Boolean.TRUE.equals(goToFeed.getDataOnceAndReset())) {
                 Intent i = new Intent(LoginActivity.this, ProfileActivity.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(i);

@@ -30,7 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.data.models.external.InstituteModel;
 import com.omada.junctionadmin.data.models.external.NotificationModel;
-import com.omada.junctionadmin.databinding.InstituteProfileEditDetailsBinding;
+import com.omada.junctionadmin.databinding.InstituteAdminLayoutBinding;
 import com.omada.junctionadmin.ui.uicomponents.CustomBindings;
 import com.omada.junctionadmin.ui.uicomponents.binders.notifications.InstituteJoinRequestNotificationItemBinder;
 import com.omada.junctionadmin.utils.ImageUtilities;
@@ -44,6 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import mva3.adapter.ListSection;
 import mva3.adapter.MultiViewAdapter;
+import mva3.adapter.util.Mode;
 
 public class InstituteAdminFragment extends Fragment {
 
@@ -61,7 +62,7 @@ public class InstituteAdminFragment extends Fragment {
     private MultiViewAdapter adapter;
     private ListSection<NotificationModel> notificationsListSection;
 
-    private InstituteProfileEditDetailsBinding binding;
+    private InstituteAdminLayoutBinding binding;
     private InstituteViewModel instituteViewModel;
     private AtomicBoolean filePickerOpened = new AtomicBoolean(false);
 
@@ -75,7 +76,7 @@ public class InstituteAdminFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        InstituteProfileEditDetailsBinding binding = DataBindingUtil.inflate(inflater, R.layout.institute_profile_edit_details, container, false);
+        InstituteAdminLayoutBinding binding = DataBindingUtil.inflate(inflater, R.layout.institute_admin_layout, container, false);
 
         this.binding = binding;
 
@@ -98,6 +99,8 @@ public class InstituteAdminFragment extends Fragment {
 
         adapter = new MultiViewAdapter();
         notificationsListSection = new ListSection<>();
+
+        notificationsListSection.setSelectionMode(Mode.SINGLE);
 
         adapter.registerItemBinders(
                 new InstituteJoinRequestNotificationItemBinder(instituteViewModel, getViewLifecycleOwner())

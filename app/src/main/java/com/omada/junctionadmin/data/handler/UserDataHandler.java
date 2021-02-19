@@ -131,7 +131,6 @@ public class UserDataHandler extends BaseDataHandler {
                     .getImageUploadHandler()
                     .uploadProfilePictureWithTask(profilePicturePath, user.getUid())
                     .addOnCompleteListener(uri -> {
-
                         details.setProfilePicture(uri.getResult().toString());
                         FirebaseFirestore.getInstance()
                                 .collection("organizations")
@@ -163,6 +162,19 @@ public class UserDataHandler extends BaseDataHandler {
                         authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.AUTHENTICATION_FAILURE));
                     }
                 });
+    }
+
+    /*
+        To be called when the user data is to be reset completely, ie, the cache is stale
+     */
+    public void getCurrentUserDetailsFromRemote() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null && !user.getUid().equals("")) {
+            authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.CURRENT_USER_SUCCESS));
+            getUserDetailsFromRemote(user.getUid());
+        } else {
+            authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.CURRENT_USER_FAILURE));
+        }
     }
 
     /*

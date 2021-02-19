@@ -11,6 +11,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.google.common.collect.ImmutableList;
+import com.omada.junctionadmin.data.models.external.NotificationModel;
 import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.handler.UserDataHandler;
 import com.omada.junctionadmin.data.models.external.ArticleModel;
@@ -23,6 +24,9 @@ import com.omada.junctionadmin.data.models.mutable.MutableEventModel;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -67,15 +71,15 @@ public class UserProfileViewModel extends BaseViewModel {
         // TODO since multiple possible observers, remember to make it thread safe just in case
         userUpdateAction = Transformations.map(
                 MainDataRepository.getInstance()
-                .getUserDataHandler()
-                .getSignedInUserNotifier(),
+                        .getUserDataHandler()
+                        .getSignedInUserNotifier(),
 
                 organizationModelLiveEvent -> {
-                    if(organizationModelLiveEvent == null) {
+                    if (organizationModelLiveEvent == null) {
                         return null;
                     }
                     OrganizationModel temp = organizationModelLiveEvent.getDataOnceAndReset();
-                    if(temp != null) {
+                    if (temp != null) {
                         organizationModel = temp;
                         organizationUpdater.setValues(organizationModel);
                         return organizationModel;
@@ -95,6 +99,47 @@ public class UserProfileViewModel extends BaseViewModel {
 
     public OrganizationModel getOrganizationDetails() {
         return organizationModel;
+    }
+
+    public LiveData<List<NotificationModel>> getOrganizationNotifications() {
+        return Transformations.map(
+                MainDataRepository.getInstance()
+                        .getNotificationDataHandler()
+                        .getPendingNotifications(organizationId),
+                input -> {
+                    if (input == null) {
+                        return null;
+                    }
+                    List<NotificationModel> notificationModels = input.getDataOnceAndReset();
+                    if (notificationModels == null) {
+                        return null;
+                    }
+                    notificationModels.removeIf(model -> model == null || !model.getNotificationType().equals("instituteJoinResponse"));
+                    if(notificationModels.size() > 0) {
+                        // Because institute data is changed
+                        MainDataRepository.getInstance()
+                                .getUserDataHandler()
+                                .getCurrentUserDetailsFromRemote();
+                    }
+                    return notificationModels;
+                }
+        );
+    }
+
+    public LiveData<LiveEvent<Boolean>> handleJoinResponseNotification(NotificationModel model) {
+        return Transformations.map(
+                MainDataRepository.getInstance()
+                        .getNotificationDataHandler()
+                        .handleNotification(model, null),
+                input -> {
+                    if(input == null) {
+                        return null;
+                    }
+                    Boolean response = input.getDataOnceAndReset();
+                    if(response == null) return null;
+                    return new LiveEvent<>(response);
+                }
+        );
     }
 
     // Update both showcase details and showcase items
@@ -117,13 +162,13 @@ public class UserProfileViewModel extends BaseViewModel {
         */
         dataValidator.validateEventDescription(updater.description.getValue(), dataValidationInformation -> {
             notifyValidity(dataValidationInformation);
-            if(dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+            if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                 detailsInvalid.set(true);
             }
             mutableEventModel.setDescription(updater.description.getValue());
         });
 
-        if(detailsInvalid.get()) {
+        if (detailsInvalid.get()) {
             notifyValidity(new DataValidator.DataValidationInformation(
                     DataValidator.DataValidationPoint.VALIDATION_POINT_ALL,
                     DataValidator.DataValidationResult.VALIDATION_RESULT_INVALID
@@ -136,15 +181,15 @@ public class UserProfileViewModel extends BaseViewModel {
         ));
         return Transformations.map(
                 MainDataRepository.getInstance()
-                .getPostDataHandler()
-                .updatePost(updater.getId(), mutableEventModel),
+                        .getPostDataHandler()
+                        .updatePost(updater.getId(), mutableEventModel),
 
                 booleanLiveEvent -> {
-                    if(booleanLiveEvent == null) {
+                    if (booleanLiveEvent == null) {
                         return null;
                     }
                     Boolean result = booleanLiveEvent.getDataOnceAndReset();
-                    if(result == null) {
+                    if (result == null) {
                         return null;
                     }
                     return new LiveEvent<>(result);
@@ -165,11 +210,11 @@ public class UserProfileViewModel extends BaseViewModel {
                         .updatePost(updater.getId(), mutableArticleModel),
 
                 booleanLiveEvent -> {
-                    if(booleanLiveEvent == null) {
+                    if (booleanLiveEvent == null) {
                         return null;
                     }
                     Boolean result = booleanLiveEvent.getDataOnceAndReset();
-                    if(result == null) {
+                    if (result == null) {
                         return null;
                     }
                     return new LiveEvent<>(result);
@@ -189,14 +234,13 @@ public class UserProfileViewModel extends BaseViewModel {
                         return null;
                     }
                     Boolean deleted = resultLiveEvent.getDataOnceAndReset();
-                    if(deleted != null && deleted) {
+                    if (deleted != null && deleted) {
                         List<PostModel> highlights = loadedOrganizationHighlights.getValue();
                         if (highlights != null) {
                             highlights.removeIf(postModel -> postModel.getId().equals(eventModel.getId()));
                             loadedOrganizationHighlights.setValue(highlights);
                         }
-                    }
-                    else {
+                    } else {
                         Log.e("Post", "Error deleting " + eventModel.getId());
                     }
                     return deleted;
@@ -300,7 +344,7 @@ public class UserProfileViewModel extends BaseViewModel {
 
     public void detailsEntryDone() {
 
-        if(updatingDetails) {
+        if (updatingDetails) {
             return;
         }
 
@@ -317,13 +361,13 @@ public class UserProfileViewModel extends BaseViewModel {
                 .add(DataValidator.DataValidationPoint.VALIDATION_POINT_PHONE)
                 .get();
 
-        if(organizationUpdater.newProfilePicture.getValue() != null) {
+        if (organizationUpdater.newProfilePicture.getValue() != null) {
             userOrganizationModel.setProfilePicturePath(organizationUpdater.newProfilePicture.getValue());
         }
 
         dataValidator.validateInstitute(organizationUpdater.instituteHandle.getValue(), dataValidationInformation -> {
 
-            if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+            if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                 LiveData<LiveEvent<String>> instituteId = MainDataRepository
                         .getInstance()
                         .getInstituteDataHandler()
@@ -359,8 +403,7 @@ public class UserProfileViewModel extends BaseViewModel {
                         instituteId.removeObserver(this);
                     }
                 });
-            }
-            else notifyValidity(dataValidationInformation);
+            } else notifyValidity(dataValidationInformation);
         });
 
         dataValidator.validateName(organizationUpdater.name.getValue(), dataValidationInformation -> {

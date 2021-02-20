@@ -36,6 +36,7 @@ import mva3.adapter.ListSection;
 import mva3.adapter.MultiViewAdapter;
 import mva3.adapter.util.Mode;
 import mva3.adapter.util.OnSelectionChangedListener;
+import mva3.adapter.util.PayloadProvider;
 
 public class BookVenueFragment extends Fragment {
 
@@ -46,6 +47,7 @@ public class BookVenueFragment extends Fragment {
     private TextInputEditText dateInput;
     private MaterialButton newVenueButton;
 
+    private VenueModel lastSelectedVenueModel;
     private final ListSection<VenueModel> venueModelListSection = new ListSection<>();
     private MultiViewAdapter adapter;
 
@@ -59,7 +61,10 @@ public class BookVenueFragment extends Fragment {
         bookingViewModel = viewModelProvider.get(BookingViewModel.class);
         createPostViewModel = viewModelProvider.get(CreatePostViewModel.class);
 
-        if(savedInstanceState == null
+        // To keep track of previous state and show it to the user
+        lastSelectedVenueModel = createPostViewModel.getEventCreator().getVenueModel();
+
+        if (savedInstanceState == null
                 && bookingViewModel.getZonedBookingDate() == null && (bookingViewModel.getLoadedInstituteVenues().getValue() == null
                 || bookingViewModel.getLoadedInstituteVenues().getValue().size() == 0)) {
             refreshVenues = true;
@@ -73,7 +78,8 @@ public class BookVenueFragment extends Fragment {
 
         adapter = new MultiViewAdapter();
         adapter.addSection(venueModelListSection);
-        adapter.registerItemBinders(new VenueSelectionItemBinder());
+
+        adapter.registerItemBinders(new VenueSelectionItemBinder(createPostViewModel.getEventCreator().getVenueModel()));
 
         return inflater.inflate(R.layout.book_venue_fragment_layout, container, false);
     }
@@ -94,28 +100,41 @@ public class BookVenueFragment extends Fragment {
         recyclerView.setItemAnimator(new VenueItemAnimator(0));
         recyclerView.addItemDecoration(adapter.getItemDecoration());
 
-        if(bookingViewModel.getZonedBookingDate() != null){
+        if (bookingViewModel.getZonedBookingDate() != null) {
             dateInput.setText(
                     bookingViewModel.getZonedBookingDate().toLocalDate().format(DateTimeFormatter.ISO_DATE)
             );
             bookingViewModel.getLoadedInstituteVenues().observe(getViewLifecycleOwner(), this::onVenuesLoaded);
         }
 
+        /*
+         All the mental gymnastics with lastSelectedVenueModel is because the adapter does not allow toggling
+         selection before the recycler view layout is done and there is no way to access the ViewHolder either
+         to select a specific item from the Section or adapter
+        */
+        venueModelListSection.setOnSelectionChangedListener((item, isSelected, selectedItems) -> {
+            if (lastSelectedVenueModel != null && item.equals(lastSelectedVenueModel)) {
+                lastSelectedVenueModel = null;
+                createPostViewModel.getEventCreator().setVenueModel(null);
+                venueModelListSection.clearSelections();
+            } else if (isSelected) {
+                createPostViewModel.getEventCreator().setVenueModel(item);
+                if (lastSelectedVenueModel != null) {
+                    lastSelectedVenueModel = null;
+                    adapter.notifyDataSetChanged();
+                }
+            } else {
+                createPostViewModel.getEventCreator().setVenueModel(null);
+            }
+        });
+
         disableDateInputText(dateInput);
 
-        if(!bookingViewModel.isInstituteAdmin()) {
+        if (!bookingViewModel.isInstituteAdmin()) {
             newVenueButton.setEnabled(false);
             newVenueButton.setVisibility(View.GONE);
         }
         newVenueButton.setOnClickListener(v -> {
-        });
-
-        venueModelListSection.setOnSelectionChangedListener((item, isSelected, selectedItems) -> {
-            if(isSelected) {
-                createPostViewModel.getEventCreator().setVenueModel(item);
-            } else {
-                createPostViewModel.getEventCreator().setVenueModel(null);
-            }
         });
 
         dateLayout.setEndIconOnClickListener(v -> {
@@ -150,8 +169,7 @@ public class BookVenueFragment extends Fragment {
                 });
 
                 picker.show(getChildFragmentManager(), picker.toString());
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 Log.e("Venue", "Calendar builder error");
             }
@@ -173,7 +191,7 @@ public class BookVenueFragment extends Fragment {
     }
 
     private void onVenuesLoaded(List<VenueModel> venueModels) {
-        if(venueModels != null && (venueModelListSection.size() == 0 || refreshVenues) ) {
+        if (venueModels != null && (venueModelListSection.size() == 0 || refreshVenues)) {
             venueModelListSection.addAll(venueModels.subList(venueModelListSection.size(), venueModels.size()));
             refreshVenues = false;
         }

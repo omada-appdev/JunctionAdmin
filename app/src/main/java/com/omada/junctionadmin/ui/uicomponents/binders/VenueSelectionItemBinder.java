@@ -28,7 +28,10 @@ import mva3.adapter.ItemViewHolder;
 
 public class VenueSelectionItemBinder extends ItemBinder<VenueModel, VenueSelectionItemBinder.VenueSelectionItemViewHolder> {
 
-    public VenueSelectionItemBinder() {
+    VenueModel defaultSelectedVenue;
+
+    public VenueSelectionItemBinder(VenueModel defaultSelectedVenue) {
+        this.defaultSelectedVenue = defaultSelectedVenue;
     }
 
     @Override
@@ -45,7 +48,13 @@ public class VenueSelectionItemBinder extends ItemBinder<VenueModel, VenueSelect
 
     @Override
     public void bindViewHolder(VenueSelectionItemViewHolder holder, VenueModel item) {
-        holder.bindViewHolder(item);
+        Log.e("Venue", "bindViewHolder for" + item.getName());
+        if (item.equals(defaultSelectedVenue)) {
+            defaultSelectedVenue = null;
+            holder.bindViewHolder(item, true);
+        } else {
+            holder.bindViewHolder(item);
+        }
     }
 
     public static class VenueSelectionItemViewHolder extends ItemViewHolder<VenueModel> {
@@ -62,6 +71,11 @@ public class VenueSelectionItemBinder extends ItemBinder<VenueModel, VenueSelect
             venueName = itemView.findViewById(R.id.name_text);
             venueAddress = itemView.findViewById(R.id.address_text);
             selectButton = itemView.findViewById(R.id.expand_button);
+        }
+
+        public void bindViewHolder(VenueModel model, boolean defaultState) {
+            bindViewHolder(model);
+            selectButton.setImageResource(defaultState ? R.drawable.selected_badge : R.drawable.deselected_badge);
         }
 
         public void bindViewHolder(VenueModel model) {

@@ -352,7 +352,7 @@ public class DetailsFragment extends Fragment {
     private AlertDialog.Builder createJoinRequestSentDialog() {
         return new AlertDialog.Builder(requireContext())
                 .setTitle("Join " + binding.getViewModel().institute.getValue())
-                .setMessage("You can view the institute temporarily but cannot post to it until your join request is accepted by the administrator");
+                .setMessage("You can view the institute temporarily but cannot post to it until your join request is accepted by the administrator. Your institute cannot be changed later. Proceed?");
     }
 
 }

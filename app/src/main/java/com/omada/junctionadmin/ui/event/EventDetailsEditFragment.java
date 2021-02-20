@@ -120,7 +120,6 @@ public class EventDetailsEditFragment extends Fragment {
                 return;
             }
             v.setEnabled(false);
-            binding.deleteButton.setText("Deleting");
             buildDeleteConfirmationDialog();
         });
     }
@@ -132,6 +131,8 @@ public class EventDetailsEditFragment extends Fragment {
                 .setMessage("This action cannot be undone. Are you sure you want to delete?")
                 .setPositiveButton("Yes, delete", (dialog, which) -> {
                     if (which != dialog.BUTTON_POSITIVE) return;
+
+                    binding.deleteButton.setText("Deleting");
                     LiveData<Boolean> resultLiveData = userProfileViewModel.deletePost(eventModel);
 
                     resultLiveData
@@ -160,6 +161,10 @@ public class EventDetailsEditFragment extends Fragment {
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> {
                     if (which != dialog.BUTTON_NEGATIVE) return;
+                    binding.deleteButton.setEnabled(true);
+                    binding.deleteButton.setText("Delete");
+                })
+                .setOnCancelListener(dialog -> {
                     binding.deleteButton.setEnabled(true);
                     binding.deleteButton.setText("Delete");
                 })

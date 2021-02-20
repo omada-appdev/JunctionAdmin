@@ -11,7 +11,7 @@
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/name_text"
-        style="@style/TextAppearance.MaterialComponents.Headline4"
+        style="@style/TextAppearance.MaterialComponents.Headline5"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"

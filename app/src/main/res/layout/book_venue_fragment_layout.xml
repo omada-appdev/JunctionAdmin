@@ -9,12 +9,14 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/white"
         android:fitsSystemWindows="true">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorPrimary"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             app:title="Venue Booking" />
 
@@ -23,19 +25,22 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
             android:background="@color/white"
-            android:hint="Event date"
             app:boxStrokeWidth="0dp"
-            app:endIconDrawable="@drawable/ic_calendar_today_18px"
+            app:endIconDrawable="@drawable/ic_calendar_today_24px"
             app:endIconMode="custom"
-            app:endIconTint="@color/colorPrimaryDark"
-            app:hintEnabled="false">
+            android:paddingEnd="8dp"
+            app:endIconTint="@color/colorPrimaryDark">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/event_date_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="0dp"
                 android:background="@color/transparent"
+                android:hint="Select a date"
                 android:inputType="none"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4" />
 
@@ -52,4 +57,19 @@
         android:paddingBottom="16dp"
         app:layout_behavior=".ui.uicomponents.behaviors.CoordinatedChildBehaviour" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/new_venue_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:layout_margin="0dp"
+        android:insetBottom="0dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:text="Add a venue"
+        android:textColor="@color/colorPrimary"
+        app:backgroundTint="@color/white"
+        app:cornerRadius="0dp"
+        app:elevation="0dp"
+        app:rippleColor="@color/backdrop" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

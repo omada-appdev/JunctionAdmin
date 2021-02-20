@@ -7,12 +7,14 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.Transformations;
 
+import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.models.external.VenueModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 import com.omada.junctionadmin.utils.TransformUtilities;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -27,22 +29,29 @@ import javax.annotation.Nonnull;
 public class BookingViewModel extends BaseViewModel {
 
     // In UTC
+    String instituteId;
+    Boolean isInstituteAdmin;
     private LocalDateTime bookingDate;
     private MediatorLiveData<List<VenueModel>> loadedInstituteVenues = new MediatorLiveData<>();
 
     public BookingViewModel() {
-         // setBookingDate(LocalDate.now(Zo).atStartOfDay());
-        setBookingDate(Instant.ofEpochSecond(1612526400).atZone(ZoneId.of("UTC")).toLocalDateTime());
+
+        OrganizationModel model = MainDataRepository.getInstance().getUserDataHandler().getCurrentUserModel();
+        instituteId = model.getInstitute();
+        isInstituteAdmin = Boolean.TRUE.equals(model.isInstituteAdmin());
     }
 
     // Mapping from booking date (as EpochSecond) to venues to bookings list
     private Map<Long, Map<String, LiveData<List<Pair<ZonedDateTime, ZonedDateTime>>>>> cachedBookings = new HashMap<>();
 
     public ZonedDateTime getZonedBookingDate() {
+        if(bookingDate == null) {
+            return null;
+        }
         return TransformUtilities.convertUtcLocalDateTimeToSystemZone(bookingDate);
     }
 
-    public final void setBookingDate(LocalDateTime bookingDate) {
+    public final void setBookingDate(@Nonnull LocalDateTime bookingDate) {
         this.bookingDate = bookingDate;
         if(cachedBookings.get(this.bookingDate.atZone(ZoneId.of("UTC")).toEpochSecond()) != null) {
             return;
@@ -50,16 +59,15 @@ public class BookingViewModel extends BaseViewModel {
         cachedBookings.put(this.bookingDate.atZone(ZoneId.of("UTC")).toEpochSecond(), new HashMap<>());
     }
 
+    public void resetBookingDate() {
+        bookingDate = null;
+    }
+
     public LiveData<List<VenueModel>> getLoadedInstituteVenues() {
         return loadedInstituteVenues;
     }
 
     public void loadAllVenues() {
-
-        String instituteId = MainDataRepository.getInstance()
-                .getUserDataHandler()
-                .getCurrentUserModel()
-                .getInstitute();
 
         LiveData<LiveEvent<List<VenueModel>>> source = MainDataRepository
                 .getInstance()
@@ -84,7 +92,14 @@ public class BookingViewModel extends BaseViewModel {
             loadedInstituteVenues.removeSource(source);
 
         });
+    }
 
+    public String getInstituteId() {
+        return instituteId;
+    }
+
+    public Boolean isInstituteAdmin() {
+        return isInstituteAdmin;
     }
 
     // TODO write an efficient query and design a system to count number of bookings
@@ -94,10 +109,15 @@ public class BookingViewModel extends BaseViewModel {
 
     public boolean checkIfBookingCached(String venue) {
 
-        LiveData<List<Pair<ZonedDateTime, ZonedDateTime>>> bookingsAtDate = cachedBookings
-                .get(bookingDate.atZone(ZoneId.of("UTC")).toEpochSecond())
-                .get(venue);
-
+        LiveData<List<Pair<ZonedDateTime, ZonedDateTime>>>  bookingsAtDate;
+        try {
+            bookingsAtDate = cachedBookings
+                    .get(bookingDate.atZone(ZoneId.of("UTC")).toEpochSecond())
+                    .get(venue);
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            return false;
+        }
         return bookingsAtDate != null;
     }
     /*

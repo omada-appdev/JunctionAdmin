@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
@@ -22,6 +23,7 @@ import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.data.models.external.VenueModel;
 import com.omada.junctionadmin.ui.uicomponents.animations.VenueItemAnimator;
 import com.omada.junctionadmin.ui.uicomponents.binders.VenueBookingItemBinder;
+import com.omada.junctionadmin.ui.uicomponents.binders.VenueSelectionItemBinder;
 import com.omada.junctionadmin.viewmodels.BookingViewModel;
 import com.omada.junctionadmin.viewmodels.CreatePostViewModel;
 
@@ -33,6 +35,7 @@ import java.util.List;
 import mva3.adapter.ListSection;
 import mva3.adapter.MultiViewAdapter;
 import mva3.adapter.util.Mode;
+import mva3.adapter.util.OnSelectionChangedListener;
 
 public class BookVenueFragment extends Fragment {
 
@@ -41,6 +44,7 @@ public class BookVenueFragment extends Fragment {
     private RecyclerView recyclerView;
     private TextInputLayout dateLayout;
     private TextInputEditText dateInput;
+    private MaterialButton newVenueButton;
 
     private final ListSection<VenueModel> venueModelListSection = new ListSection<>();
     private MultiViewAdapter adapter;
@@ -56,7 +60,7 @@ public class BookVenueFragment extends Fragment {
         createPostViewModel = viewModelProvider.get(CreatePostViewModel.class);
 
         if(savedInstanceState == null
-                && (bookingViewModel.getLoadedInstituteVenues().getValue() == null
+                && bookingViewModel.getZonedBookingDate() == null && (bookingViewModel.getLoadedInstituteVenues().getValue() == null
                 || bookingViewModel.getLoadedInstituteVenues().getValue().size() == 0)) {
             refreshVenues = true;
             bookingViewModel.loadAllVenues();
@@ -69,7 +73,7 @@ public class BookVenueFragment extends Fragment {
 
         adapter = new MultiViewAdapter();
         adapter.addSection(venueModelListSection);
-        adapter.registerItemBinders(new VenueBookingItemBinder(bookingViewModel, getViewLifecycleOwner()));
+        adapter.registerItemBinders(new VenueSelectionItemBinder());
 
         return inflater.inflate(R.layout.book_venue_fragment_layout, container, false);
     }
@@ -80,22 +84,39 @@ public class BookVenueFragment extends Fragment {
         dateLayout = view.findViewById(R.id.event_date_layout);
         dateInput = view.findViewById(R.id.event_date_input);
         recyclerView = view.findViewById(R.id.recycler_view);
+        newVenueButton = view.findViewById(R.id.new_venue_button);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(view.getContext());
         recyclerView.setLayoutManager(linearLayoutManager);
 
-        adapter.setExpansionMode(Mode.SINGLE);
+        adapter.setSelectionMode(Mode.SINGLE);
         recyclerView.setAdapter(adapter);
         recyclerView.setItemAnimator(new VenueItemAnimator(0));
         recyclerView.addItemDecoration(adapter.getItemDecoration());
 
-        bookingViewModel.getLoadedInstituteVenues().observe(getViewLifecycleOwner(), this::onVenuesLoaded);
+        if(bookingViewModel.getZonedBookingDate() != null){
+            dateInput.setText(
+                    bookingViewModel.getZonedBookingDate().toLocalDate().format(DateTimeFormatter.ISO_DATE)
+            );
+            bookingViewModel.getLoadedInstituteVenues().observe(getViewLifecycleOwner(), this::onVenuesLoaded);
+        }
 
         disableDateInputText(dateInput);
 
-        dateInput.setText(
-                bookingViewModel.getZonedBookingDate().toLocalDate().format(DateTimeFormatter.ISO_DATE)
-        );
+        if(!bookingViewModel.isInstituteAdmin()) {
+            newVenueButton.setEnabled(false);
+            newVenueButton.setVisibility(View.GONE);
+        }
+        newVenueButton.setOnClickListener(v -> {
+        });
+
+        venueModelListSection.setOnSelectionChangedListener((item, isSelected, selectedItems) -> {
+            if(isSelected) {
+                createPostViewModel.getEventCreator().setVenueModel(item);
+            } else {
+                createPostViewModel.getEventCreator().setVenueModel(null);
+            }
+        });
 
         dateLayout.setEndIconOnClickListener(v -> {
 
@@ -109,12 +130,19 @@ public class BookVenueFragment extends Fragment {
                 MaterialDatePicker<?> picker = builder.build();
 
                 picker.addOnPositiveButtonClickListener(selection -> {
+
                     bookingViewModel.setBookingDate(
                             Instant.ofEpochMilli((Long) selection)
                                     .atZone(ZoneId.systemDefault())
                                     .withZoneSameInstant(ZoneId.of("UTC"))
                                     .toLocalDateTime()
                     );
+
+                    createPostViewModel.getEventCreator().startTime.setValue(bookingViewModel.getZonedBookingDate());
+                    createPostViewModel.getEventCreator().endTime.setValue(bookingViewModel.getZonedBookingDate().plusHours(1));
+
+                    bookingViewModel.getLoadedInstituteVenues().observe(getViewLifecycleOwner(), this::onVenuesLoaded);
+
                     dateInput.setText(
                             Instant.ofEpochMilli((Long) selection).atZone(ZoneId.systemDefault()).toLocalDateTime().format(DateTimeFormatter.ISO_DATE)
                     );

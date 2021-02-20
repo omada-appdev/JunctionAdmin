@@ -3,8 +3,8 @@
     <!-- Base application theme. -->
     <style name="Theme.AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">#512DA8</item>
-        <item name="colorPrimaryDark">#311B92</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
 
         <item name="android:windowDisablePreview">true</item>

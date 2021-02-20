@@ -26,7 +26,6 @@ import java.time.LocalDateTime;
  */
 public class DataValidator {
 
-
     public static final int EVENT_DESCRIPTION_MAX_SIZE = 200;
     public static final int EVENT_TITLE_MAX_SIZE = 30;
     public static final int EVENT_TITLE_MIN_SIZE = 5;
@@ -39,6 +38,14 @@ public class DataValidator {
     private static final String PHONE_VERIFICATION_REGEX =
             "[0-9]{6,}";
 
+    private static final String LINK_VERIFICATION_REGEX =
+            "(?i)^(?:(?:https?|ftp)://)?(?:\\S+(?::\\S*)?@)?(?:(?!(?:10|127)(?:\\.\\d{1,3}){3})" +
+                    "(?!(?:169\\.254|192\\.168)(?:\\.\\d{1,3}){2})(?!172\\.(?:1[6-9]|2\\d|3[0-1])" +
+                    "(?:\\.\\d{1,3}){2})(?:[1-9]\\d?|1\\d\\d|2[01]\\d|22[0-3])(?:\\.(?:1?\\d{1,2}|" +
+                    "2[0-4]\\d|25[0-5])){2}(?:\\.(?:[1-9]\\d?|1\\d\\d|2[0-4]\\d|25[0-4]))|" +
+                    "(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)" +
+                    "(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*" +
+                    "(?:\\.(?:[a-z\\u00a1-\\uffff]{2,}))\\.?)(?::\\d{2,5})?(?:[/?#]\\S*)?$";
 
     public enum DataValidationPoint {
 
@@ -56,6 +63,7 @@ public class DataValidator {
 
         VALIDATION_POINT_EVENT_TITLE,
         VALIDATION_POINT_EVENT_DESCRIPTION,
+        VALIDATION_POINT_EVENT_FORM,
 
         VALIDATION_POINT_EVENT_TIMINGS,
 
@@ -93,6 +101,10 @@ public class DataValidator {
 
     public void validateEmail(String email, OnValidationCompleteListener listener) {
         listener.onValidationComplete(validateEmail(email));
+    }
+
+    public void validateFormLink(String link, OnValidationCompleteListener listener) {
+        listener.onValidationComplete(validateFormLink(link));
     }
 
     public void validatePhone(String phone, OnValidationCompleteListener listener) {
@@ -172,6 +184,34 @@ public class DataValidator {
             );
         }
 
+    }
+
+    private DataValidationInformation validateFormLink(String link) {
+        if (link == null) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EVENT_FORM,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        }
+
+        link = link.trim();
+
+        if (link.equals("")) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EVENT_FORM,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        } else if (!link.matches(LINK_VERIFICATION_REGEX)) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EVENT_FORM,
+                    DataValidationResult.VALIDATION_RESULT_ILLEGAL_FORMAT
+            );
+        } else {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_EVENT_FORM,
+                    DataValidationResult.VALIDATION_RESULT_VALID
+            );
+        }
     }
 
     private DataValidationInformation validateEmail(String email) {

@@ -1,5 +1,5 @@
-<layout xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -57,11 +57,13 @@
                     android:elevation="2dp"
                     android:minWidth="160dp"
                     android:scaleType="center"
+                    app:tint="@color/transparent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintDimensionRatio="H, 3:4"
-                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/name_layout"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:shapeAppearanceOverlay="@style/Widget.AppTheme.ThumbnailShapeAppearance" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/name_layout"
@@ -72,8 +74,9 @@
                     android:layout_marginEnd="20dp"
                     android:layout_marginBottom="8dp"
                     android:hint="Institute Name"
-                    app:layout_constraintBottom_toTopOf="@id/handle_layout"
+                    app:layout_constraintBottom_toTopOf="@+id/handle_layout"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toEndOf="@id/profile_picture_image"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintVertical_bias="1.0"
@@ -84,7 +87,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@color/transparent"
-                        android:inputType="textPersonName"
+                        android:inputType="textMultiLine"
                         android:text="@={viewModel.instituteUpdater.name}" />
 
                 </com.google.android.material.textfield.TextInputLayout>
@@ -96,12 +99,13 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="20dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginBottom="16dp"
                     android:hint="Institute Handle"
-                    app:layout_constraintBottom_toBottomOf="@id/profile_picture_image"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="@id/name_layout"
-                    app:layout_constraintTop_toBottomOf="@id/name_layout">
+                    app:layout_constraintTop_toBottomOf="@+id/name_layout">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/handle_input"
@@ -123,7 +127,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:nestedScrollingEnabled="false"/>
+                android:nestedScrollingEnabled="false" />
 
         </LinearLayout>
 

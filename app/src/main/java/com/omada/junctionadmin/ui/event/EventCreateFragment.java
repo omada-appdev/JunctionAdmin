@@ -1,20 +1,23 @@
 package com.omada.junctionadmin.ui.event;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -27,11 +30,12 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.databinding.EventCreateFragmentLayoutBinding;
-import com.omada.junctionadmin.utils.FileUtilities;
 import com.omada.junctionadmin.utils.image.GlideApp;
 import com.omada.junctionadmin.utils.ImageUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
@@ -82,24 +86,58 @@ public class EventCreateFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         binding.getViewModel()
+                .getBookingValidationTrigger()
+                .observe(getViewLifecycleOwner(), booleanLiveEvent -> {
+                    if (booleanLiveEvent == null) {
+                        return;
+                    }
+                    Boolean result = booleanLiveEvent.getDataOnceAndReset();
+                    if (result == null) {
+                        return;
+                    } else if (!result) {
+                        binding.bookVenueButton.setBackgroundColor(getResources().getColor(R.color.design_default_color_error, requireContext().getTheme()));
+                        binding.bookVenueButton.setTextColor(getResources().getColor(R.color.white, requireContext().getTheme()));
+                    } else {
+
+                    }
+                });
+
+        binding.getViewModel()
+                .getFormValidationTrigger()
+                .observe(getViewLifecycleOwner(), booleanLiveEvent -> {
+                    if (booleanLiveEvent == null) {
+                        return;
+                    }
+                    Boolean result = booleanLiveEvent.getDataOnceAndReset();
+                    if (result == null) {
+                        return;
+                    } else if (!result) {
+                        binding.createFormButton.setBackgroundColor(getResources().getColor(R.color.design_default_color_error, requireContext().getTheme()));
+                        binding.createFormButton.setTextColor(getResources().getColor(R.color.white, requireContext().getTheme()));
+                    } else {
+
+                    }
+                });
+
+        binding.getViewModel()
                 .getDataValidationAction()
                 .observe(getViewLifecycleOwner(), dataValidationInformationLiveEvent -> {
-                    if(dataValidationInformationLiveEvent == null) {
+                    if (dataValidationInformationLiveEvent == null) {
                         return;
                     }
                     DataValidator.DataValidationInformation dataValidationInformation = dataValidationInformationLiveEvent.getDataOnceAndReset();
-                    if(dataValidationInformation != null) {
+                    if (dataValidationInformation != null) {
                         DataValidator.DataValidationResult validationResult = dataValidationInformation.getDataValidationResult();
                         switch (dataValidationInformation.getValidationPoint()) {
                             case VALIDATION_POINT_EVENT_DESCRIPTION:
-                                if(validationResult == DataValidator.DataValidationResult.VALIDATION_RESULT_BLANK_VALUE) {
+                                if (validationResult == DataValidator.DataValidationResult.VALIDATION_RESULT_BLANK_VALUE) {
                                     binding.eventDescriptionLayout.setError("Please provide a description");
                                 } else if (validationResult == DataValidator.DataValidationResult.VALIDATION_RESULT_OVERFLOW) {
                                     binding.eventDescriptionLayout.setError("Character limit is " + DataValidator.EVENT_DESCRIPTION_MAX_SIZE);
                                 }
                                 break;
                             case VALIDATION_POINT_EVENT_TITLE:
-                                if(validationResult == DataValidator.DataValidationResult.VALIDATION_RESULT_BLANK_VALUE) {
+                                if (validationResult == DataValidator.DataValidationResult.VALIDATION_RESULT_BLANK_VALUE) {
                                     binding.titleLayout.setError("Please enter a title");
                                 } else if (validationResult == DataValidator.DataValidationResult.VALIDATION_RESULT_OVERFLOW) {
                                     binding.titleLayout.setError("Character limit is " + DataValidator.EVENT_TITLE_MAX_SIZE + " characters");
@@ -108,7 +146,7 @@ public class EventCreateFragment extends Fragment {
                                 }
                                 break;
                             case VALIDATION_POINT_IMAGE:
-                                if(validationResult != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                                if (validationResult != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                                     binding.eventPosterImage.setStrokeColor(ColorStateList.valueOf(getResources().getColor(R.color.design_default_color_error, requireActivity().getTheme())));
                                     binding.eventPosterImage.setStrokeWidth(2);
                                 }
@@ -124,17 +162,21 @@ public class EventCreateFragment extends Fragment {
                     }
                 });
 
+        binding.createFormButton.setOnClickListener(v -> {
+            createFormLinkInputDialog();
+        });
+
         binding.postButton.setOnClickListener(v -> {
             binding.postButton.setEnabled(false);
             createPostViewModel.createEvent().observe(getViewLifecycleOwner(), booleanLiveEvent -> {
-                if(booleanLiveEvent == null) {
+                if (booleanLiveEvent == null) {
                     return;
                 }
                 Boolean result = booleanLiveEvent.getDataOnceAndReset();
-                if(result == null) {
+                if (result == null) {
                     return;
                 }
-                if(result){
+                if (result) {
                     Toast.makeText(requireContext(), "Uploaded post successfully", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(requireContext(), "Could not upload. Please try again", Toast.LENGTH_SHORT).show();
@@ -143,22 +185,21 @@ public class EventCreateFragment extends Fragment {
         });
 
         binding.eventPosterImage.setOnClickListener(v -> {
-            if(filePickerOpened.get()) {
+            if (filePickerOpened.get()) {
                 return;
             }
-            if(compressingImage.get()) {
+            if (compressingImage.get()) {
                 Toast.makeText(requireContext(), "Please wait", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            ((ShapeableImageView)v).setStrokeColor(null);
+            ((ShapeableImageView) v).setStrokeColor(null);
             if (ContextCompat.checkSelfPermission(
                     requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
 
                 startFilePicker();
-            }
-            else {
+            } else {
                 storagePermissionLauncher.launch(
                         Manifest.permission.WRITE_EXTERNAL_STORAGE);
             }
@@ -174,6 +215,7 @@ public class EventCreateFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 binding.titleLayout.setError(null);
+                binding.titleLayout.setErrorEnabled(false);
             }
 
             @Override
@@ -200,6 +242,83 @@ public class EventCreateFragment extends Fragment {
         });
     }
 
+    private void createFormLinkInputDialog() {
+
+        AlertDialog alertDialog = new AlertDialog.Builder(requireActivity())
+                .setCancelable(false)
+                .setTitle("Enter a link for your form")
+                .setMessage("Ensure this link is valid because it cannot be changed later")
+                .setView(R.layout.alert_text_input_layout)
+                .setPositiveButton("ok", (dialog, which) -> {
+                    //TODO verify form link
+                })
+                .setNeutralButton("verify", (dialog, which) -> {
+                    //TODO verify form link
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                })
+                .create();
+
+        alertDialog.show();
+
+        TextInputEditText editText = alertDialog.findViewById(R.id.alert_text_input);
+        TextInputLayout inputLayout = alertDialog.findViewById(R.id.alert_text_layout);
+
+        editText.setText(createPostViewModel.getEventCreator().getFormLink());
+        editText.setInputType(InputType.TYPE_TEXT_VARIATION_WEB_EDIT_TEXT);
+
+        alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL).setOnClickListener(v -> {
+            if(editText.getText() != null) {
+
+                String url = editText.getText().toString();
+
+                if (!url.startsWith("http://") && !url.startsWith("https://"))
+                    url = "http://" + url;
+
+                try {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    startActivity(browserIntent);
+                } catch (Exception e) {
+                    editText.setError("invalid url scheme");
+                }
+            }
+        });
+
+        alertDialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v1 -> {
+            Editable input = editText.getText();
+            if (input != null) {
+                String link = input.toString();
+                createPostViewModel.addEventForm(link)
+                        .observe(getViewLifecycleOwner(), booleanLiveEvent -> {
+                            if (booleanLiveEvent == null) {
+                                return;
+                            } else if (Boolean.TRUE.equals(booleanLiveEvent.getDataOnceAndReset())) {
+                                binding.createFormButton.setBackgroundColor(getResources().getColor(R.color.white, requireContext().getTheme()));
+                                binding.createFormButton.setTextColor(getResources().getColor(R.color.colorPrimary, requireContext().getTheme()));
+                                alertDialog.dismiss();
+                            } else {
+                                inputLayout.setError("Invalid link");
+                            }
+                        });
+            }
+        });
+
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                editText.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+    }
+
     private void startFilePicker() {
         filePickerOpened.set(true);
         Intent intent = new Intent();
@@ -211,7 +330,7 @@ public class EventCreateFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if(createPostViewModel.getEventCreator().getImagePath() != null && !filePickerOpened.get()) {
+        if (createPostViewModel.getEventCreator().getImagePath() != null && !filePickerOpened.get()) {
 
             Log.e("Create", "Image path is non null. Preparing to set image");
 
@@ -245,11 +364,11 @@ public class EventCreateFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
-        if(data == null) {
+        if (data == null) {
             return;
         }
 
-        if( requestCode == REQUEST_CODE_IMAGE_CHOOSER) {
+        if (requestCode == REQUEST_CODE_IMAGE_CHOOSER) {
 
             Log.e("CreateEvent", "Entered onActivityResult");
 
@@ -268,18 +387,16 @@ public class EventCreateFragment extends Fragment {
             ImageUtilities
                     .scaleToPostImageGetBitmap(requireActivity(), bitmap)
                     .observe(getViewLifecycleOwner(), bitmapLiveEvent -> {
-                        if(bitmapLiveEvent != null){
+                        if (bitmapLiveEvent != null) {
                             Bitmap picture = bitmapLiveEvent.getDataOnceAndReset();
-                            if(picture != null) {
+                            if (picture != null) {
                                 binding.eventPosterImage.setColorFilter(getResources().getColor(R.color.transparent, requireActivity().getTheme()));
                                 binding.eventPosterImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
                                 binding.eventPosterImage.setImageBitmap(picture);
-                            }
-                            else {
+                            } else {
                                 // Handle null case
                             }
-                        }
-                        else{
+                        } else {
                         }
                     });
 
@@ -293,16 +410,14 @@ public class EventCreateFragment extends Fragment {
                     .scaleToPostImageGetFile(requireActivity(), bitmap)
                     .observe(getViewLifecycleOwner(), fileLiveEvent -> {
                         compressingImage.set(false);
-                        if(fileLiveEvent != null){
+                        if (fileLiveEvent != null) {
                             File file = fileLiveEvent.getDataOnceAndReset();
-                            if(file != null) {
+                            if (file != null) {
                                 binding.getEventCreator().setImagePath(Uri.fromFile(file));
-                            }
-                            else {
+                            } else {
                                 // Handle null case
                             }
-                        }
-                        else{
+                        } else {
                             Log.e("Profile", "Error: fileLiveEvent was null");
                         }
                     });

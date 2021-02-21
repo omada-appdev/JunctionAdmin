@@ -79,6 +79,8 @@ public class InstituteActivity extends AppCompatActivity {
             }
             else if (itemId == R.id.create_button){
                 i = new Intent(InstituteActivity.this, CreateActivity.class);
+            } else if (itemId == R.id.institute_button) {
+                getSupportFragmentManager().popBackStack(null, 0);
             }
 
             if (i != null) {
@@ -117,7 +119,7 @@ public class InstituteActivity extends AppCompatActivity {
                             getSupportFragmentManager()
                                     .beginTransaction()
                                     .replace(R.id.institute_content_placeholder, OrganizationFragment.newInstance(organizationModel))
-                                    .addToBackStack("stack")
+                                    .addToBackStack(null)
                                     .commit();
                         }
                     }
@@ -137,12 +139,12 @@ public class InstituteActivity extends AppCompatActivity {
                         if(model.getCreator().equals(instituteViewModel.getUserId())) {
                             getSupportFragmentManager().beginTransaction()
                                     .replace(R.id.institute_content_placeholder, EventDetailsEditFragment.newInstance(model))
-                                    .addToBackStack("stack")
+                                    .addToBackStack(null)
                                     .commit();
                         } else {
                             getSupportFragmentManager().beginTransaction()
                                     .replace(R.id.institute_content_placeholder, EventDetailsFragment.newInstance(model))
-                                    .addToBackStack("stack")
+                                    .addToBackStack(null)
                                     .commit();
                         }
                     }
@@ -160,12 +162,12 @@ public class InstituteActivity extends AppCompatActivity {
                         if(model.getCreator().equals(instituteViewModel.getUserId())) {
                             getSupportFragmentManager().beginTransaction()
                                     .replace(R.id.institute_content_placeholder, ArticleDetailsEditFragment.newInstance(model))
-                                    .addToBackStack("stack")
+                                    .addToBackStack(null)
                                     .commit();
                         } else {
                             getSupportFragmentManager().beginTransaction()
                                     .replace(R.id.institute_content_placeholder, ArticleDetailsFragment.newInstance(model))
-                                    .addToBackStack("stack")
+                                    .addToBackStack(null)
                                     .commit();
                         }
                     }
@@ -188,7 +190,7 @@ public class InstituteActivity extends AppCompatActivity {
                             getSupportFragmentManager()
                                     .beginTransaction()
                                     .replace(R.id.institute_content_placeholder, OrganizationFragment.newInstance(organizationID))
-                                    .addToBackStack("stack")
+                                    .addToBackStack(null)
                                     .commit();
                         }
                     }

@@ -12,7 +12,6 @@
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/alert_text_input"
         android:layout_width="match_parent"
-        android:hint="Your link"
         android:layout_height="wrap_content"
         android:layout_margin="16dp" />
 </com.google.android.material.textfield.TextInputLayout>

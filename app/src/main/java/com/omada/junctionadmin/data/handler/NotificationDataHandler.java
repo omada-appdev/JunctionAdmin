@@ -39,7 +39,8 @@ public class NotificationDataHandler extends BaseDataHandler {
     public enum NotificationType {
 
         NOTIFICATION_TYPE_INSTITUTE_JOIN_REQUEST("instituteJoinRequest"),
-        NOTIFICATION_TYPE_INSTITUTE_JOIN_RESPONSE("instituteJoinResponse");
+        NOTIFICATION_TYPE_INSTITUTE_JOIN_RESPONSE("instituteJoinResponse"),
+        NOTIFICATION_TYPE_FEEDBACK_RESPONSE("feedbackResponse");
 
         private static final Map<String, NotificationType> nameMapping = new HashMap<>();
 
@@ -133,7 +134,7 @@ public class NotificationDataHandler extends BaseDataHandler {
         notificationPayload.put("notificationType", NotificationType.NOTIFICATION_TYPE_INSTITUTE_JOIN_REQUEST.toString());
         notificationPayload.put("sourceType", "organization");
         notificationPayload.put("source", sourceId);
-        notificationPayload.put("timeUpdated", Instant.now().toEpochMilli());
+        notificationPayload.put("timeUpdated", Instant.now().getEpochSecond());
         notificationPayload.put("title", "");
 
         Map<String, Object> data = new HashMap<>();
@@ -169,6 +170,7 @@ public class NotificationDataHandler extends BaseDataHandler {
 
         switch (notificationType) {
             case NOTIFICATION_TYPE_INSTITUTE_JOIN_REQUEST:
+
                 if (responsePayload instanceof Boolean) {
 
                     String instituteId = MainDataRepository.getInstance()
@@ -236,6 +238,7 @@ public class NotificationDataHandler extends BaseDataHandler {
                     return Tasks.forException(new Exception("Invalid response type for: " + notificationType.name()));
                 }
             case NOTIFICATION_TYPE_INSTITUTE_JOIN_RESPONSE:
+            case NOTIFICATION_TYPE_FEEDBACK_RESPONSE:
 
                 String userId = MainDataRepository.getInstance()
                         .getUserDataHandler()
@@ -250,11 +253,46 @@ public class NotificationDataHandler extends BaseDataHandler {
                         .child(model.getId())
                         .child("status")
                         .setValue("handled");
+
             default:
                 Log.e("Institute", "Invalid notification type");
                 return Tasks.forException(new Exception("Invalid notification type"));
         }
 
+    }
+
+    public LiveData<LiveEvent<Boolean>> sendFeedbackNotification(String feedback, String feedbackType) {
+        MutableLiveData<LiveEvent<Boolean>> result  = new MutableLiveData<>();
+
+        String userId = MainDataRepository
+                .getInstance()
+                .getUserDataHandler()
+                .getCurrentUserModel()
+                .getId();
+
+        Map<String, Object> feedbackPayload = new HashMap<>();
+
+        feedbackPayload.put("feedback", feedback);
+        feedbackPayload.put("feedbackType", feedbackType);
+        feedbackPayload.put("timeUpdated", Instant.now().getEpochSecond());
+
+        FirebaseDatabase
+                .getInstance()
+                .getReference()
+                .child("feedback")
+                .child(userId)
+                .setValue(feedbackPayload)
+                .addOnSuccessListener(aVoid -> {
+                    result.setValue(new LiveEvent<>(true));
+                    Log.e("Notification", "Successfully sent feedback");
+                })
+                .addOnFailureListener(e -> {
+                    e.printStackTrace();
+                    Log.e("Notification", "Error sending feedback");
+                    result.setValue(new LiveEvent<>(false));
+                });
+
+        return result;
     }
 
     private Task<Void> sendInstituteJoinConfirmation(String sourceId, String destinationId, boolean response) {
@@ -268,7 +306,7 @@ public class NotificationDataHandler extends BaseDataHandler {
         notificationPayload.put("notificationType", NotificationType.NOTIFICATION_TYPE_INSTITUTE_JOIN_RESPONSE.toString());
         notificationPayload.put("sourceType", "institute");
         notificationPayload.put("source", sourceId);
-        notificationPayload.put("timeUpdated", Instant.now().toEpochMilli());
+        notificationPayload.put("timeUpdated", Instant.now().getEpochSecond());
         notificationPayload.put("title", "");
 
         Map<String, Object> data = new HashMap<>();

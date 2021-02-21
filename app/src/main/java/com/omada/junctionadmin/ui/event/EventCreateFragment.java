@@ -266,6 +266,7 @@ public class EventCreateFragment extends Fragment {
 
         editText.setText(createPostViewModel.getEventCreator().getFormLink());
         editText.setInputType(InputType.TYPE_TEXT_VARIATION_WEB_EDIT_TEXT);
+        editText.setHint("Your link");
 
         alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL).setOnClickListener(v -> {
             if(editText.getText() != null) {

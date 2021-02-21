@@ -27,6 +27,7 @@ import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -114,7 +115,8 @@ public class UserProfileViewModel extends BaseViewModel {
                     if (notificationModels == null) {
                         return null;
                     }
-                    notificationModels.removeIf(model -> model == null || !model.getNotificationType().equals("instituteJoinResponse"));
+                    notificationModels.removeIf(model -> model == null
+                            || !Arrays.asList("instituteJoinResponse", "feedbackResponse").contains(model.getNotificationType()));
                     if(notificationModels.size() > 0) {
                         // Because institute data is changed
                         MainDataRepository.getInstance()
@@ -450,6 +452,16 @@ public class UserProfileViewModel extends BaseViewModel {
 
     public LiveData<OrganizationModel> getUserUpdateAction() {
         return userUpdateAction;
+    }
+
+    public LiveData<LiveEvent<Boolean>> sendFeedback(String feedback, String feedbackType) {
+        return Transformations.map(
+                MainDataRepository
+                .getInstance()
+                .getNotificationDataHandler()
+                .sendFeedbackNotification(feedback, feedbackType),
+                input -> input
+        );
     }
 
     public static final class OrganizationUpdater {

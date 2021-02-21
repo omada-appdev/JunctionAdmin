@@ -68,6 +68,8 @@ public class ProfileActivity extends AppCompatActivity {
             }
             else if (itemId == R.id.institute_button){
                 i = new Intent(ProfileActivity.this, InstituteActivity.class);
+            } else if (itemId == R.id.profile_button) {
+                getSupportFragmentManager().popBackStack(null,0);
             }
 
             if (i != null) {

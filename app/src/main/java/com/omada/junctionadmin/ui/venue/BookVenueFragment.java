@@ -96,6 +96,7 @@ public class BookVenueFragment extends Fragment {
         recyclerView.setLayoutManager(linearLayoutManager);
 
         adapter.setSelectionMode(Mode.SINGLE);
+
         recyclerView.setAdapter(adapter);
         recyclerView.setItemAnimator(new VenueItemAnimator(0));
         recyclerView.addItemDecoration(adapter.getItemDecoration());
@@ -104,16 +105,18 @@ public class BookVenueFragment extends Fragment {
             dateInput.setText(
                     bookingViewModel.getZonedBookingDate().toLocalDate().format(DateTimeFormatter.ISO_DATE)
             );
-            bookingViewModel.getLoadedInstituteVenues().observe(getViewLifecycleOwner(), this::onVenuesLoaded);
+            if (bookingViewModel.getLoadedInstituteVenues() != null) {
+                onVenuesLoaded(bookingViewModel.getLoadedInstituteVenues().getValue());
+            }
         }
 
         /*
          All the mental gymnastics with lastSelectedVenueModel is because the adapter does not allow toggling
-         selection before the recycler view layout is done and there is no way to access the ViewHolder either
+         selection before the recycler view layout is done and there is no way to access the ViewHolder either,
          to select a specific item from the Section or adapter
         */
         venueModelListSection.setOnSelectionChangedListener((item, isSelected, selectedItems) -> {
-            if (lastSelectedVenueModel != null && item.equals(lastSelectedVenueModel)) {
+            if (item.equals(lastSelectedVenueModel)) {
                 lastSelectedVenueModel = null;
                 createPostViewModel.getEventCreator().setVenueModel(null);
                 venueModelListSection.clearSelections();
@@ -128,14 +131,14 @@ public class BookVenueFragment extends Fragment {
             }
         });
 
-        disableDateInputText(dateInput);
-
         if (!bookingViewModel.isInstituteAdmin()) {
             newVenueButton.setEnabled(false);
             newVenueButton.setVisibility(View.GONE);
         }
         newVenueButton.setOnClickListener(v -> {
         });
+
+        disableDateInputText(dateInput);
 
         dateLayout.setEndIconOnClickListener(v -> {
 
@@ -192,7 +195,11 @@ public class BookVenueFragment extends Fragment {
 
     private void onVenuesLoaded(List<VenueModel> venueModels) {
         if (venueModels != null && (venueModelListSection.size() == 0 || refreshVenues)) {
-            venueModelListSection.addAll(venueModels.subList(venueModelListSection.size(), venueModels.size()));
+            if (venueModelListSection.size() > venueModels.size()) {
+                venueModelListSection.set(venueModels);
+            } else {
+                venueModelListSection.addAll(venueModels.subList(venueModelListSection.size(), venueModels.size()));
+            }
             refreshVenues = false;
         }
     }

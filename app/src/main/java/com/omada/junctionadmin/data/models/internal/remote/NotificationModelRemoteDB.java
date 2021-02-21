@@ -20,7 +20,7 @@ public class NotificationModelRemoteDB extends BaseModelInternal {
 
     // set default values here
     public NotificationModelRemoteDB() {
-        timeUpdated = Instant.now().toEpochMilli();
+        timeUpdated = Instant.now().getEpochSecond();
     }
 
     public String getNotificationType() {

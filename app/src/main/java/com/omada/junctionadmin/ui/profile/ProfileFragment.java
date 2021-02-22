@@ -22,9 +22,11 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.databinding.UserProfileFragmentLayoutBinding;
 import com.omada.junctionadmin.ui.uicomponents.CustomBindings;
+import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.viewmodels.UserProfileViewModel;
 
 public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetChangedListener {
@@ -46,10 +48,7 @@ public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetCh
         binding.setViewModel(
                 new ViewModelProvider(requireActivity()).get(UserProfileViewModel.class)
         );
-
-        binding.getViewModel().loadOrganizationHighlights();
-        binding.getViewModel().loadOrganizationShowcases();
-
+        binding.setLifecycleOwner(getViewLifecycleOwner());
         return binding.getRoot();
     }
 
@@ -57,10 +56,10 @@ public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetCh
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Log.e("Profile","onViewCreated");
+        Log.e("Profile", "onViewCreated");
         binding.getViewModel().getUserUpdateAction()
                 .observe(getViewLifecycleOwner(), organizationModel -> {
-                    if(organizationModel == null) {
+                    if (organizationModel == null) {
                         return;
                     }
                     CustomBindings.loadImageUrl(binding.userProfileImage, organizationModel.getProfilePicture());
@@ -99,14 +98,14 @@ public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetCh
     TODO file an issue if non existent
      */
     private boolean titleSetFlag = false;
+
     @Override
     public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
 
         if (!titleSetFlag && -verticalOffset >= binding.profileDetails.getHeight()) {
             titleSetFlag = true;
             binding.toolbar.setTitle("Your Profile");
-        }
-        else if (titleSetFlag && -verticalOffset < binding.profileDetails.getHeight()) {
+        } else if (titleSetFlag && -verticalOffset < binding.profileDetails.getHeight()) {
             titleSetFlag = false;
             binding.toolbar.setTitle("");
         }
@@ -127,23 +126,52 @@ public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetCh
 
         dialog.show();
 
+        TextInputLayout inputLayout = dialog.findViewById(R.id.alert_text_layout);
+        inputLayout.setEndIconMode(TextInputLayout.END_ICON_NONE);
+        inputLayout.setErrorIconDrawable(null);
+
         TextInputEditText editText = dialog.findViewById(R.id.alert_text_input);
         editText.setGravity(Gravity.TOP);
         editText.setMinLines(5);
         editText.setHint("Say something");
 
         dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
-            binding.getViewModel().sendFeedback(editText.getText().toString(), "feedback")
-                    .observe(getViewLifecycleOwner(), booleanLiveEvent -> {
-                        if(booleanLiveEvent == null) {
+
+            binding.getViewModel().validateFeedback(editText.getText().toString())
+                    .observe(getViewLifecycleOwner(), dataValidationInformationLiveEvent -> {
+                        if (dataValidationInformationLiveEvent == null) {
                             return;
                         }
-                        Boolean result = booleanLiveEvent.getDataOnceAndReset();
-                        if(Boolean.TRUE.equals(result)) {
-                            dialog.dismiss();
-                            Toast.makeText(requireContext(), R.string.send_feedback_success_message, Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(requireContext(), R.string.send_feedback_error_message, Toast.LENGTH_SHORT).show();
+                        DataValidator.DataValidationInformation validationInformation = dataValidationInformationLiveEvent.getDataOnceAndReset();
+                        if (validationInformation == null) {
+                            return;
+                        }
+                        switch (validationInformation.getDataValidationResult()) {
+                            case VALIDATION_RESULT_VALID:
+                                binding.getViewModel().sendFeedback(editText.getText().toString(), "feedback")
+                                        .observe(getViewLifecycleOwner(), booleanLiveEvent -> {
+                                            if (booleanLiveEvent == null) {
+                                                return;
+                                            }
+                                            Boolean result = booleanLiveEvent.getDataOnceAndReset();
+                                            if (Boolean.TRUE.equals(result)) {
+                                                dialog.dismiss();
+                                                Toast.makeText(requireContext(), R.string.send_feedback_success_message, Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                Toast.makeText(requireContext(), R.string.send_feedback_error_message, Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                            case VALIDATION_RESULT_INVALID:
+                                inputLayout.setError("Invalid input please retry");
+                                break;
+                            case VALIDATION_RESULT_UNDERFLOW:
+                            case VALIDATION_RESULT_BLANK_VALUE:
+                                inputLayout.setError("Enter at least " + DataValidator.FEEDBACK_MIN_SIZE + " characters");
+                                break;
+                            case VALIDATION_RESULT_OVERFLOW:
+                                inputLayout.setError("Character limit is " + DataValidator.FEEDBACK_MAX_SIZE);
+                            default:
+                                break;
                         }
                     });
         });

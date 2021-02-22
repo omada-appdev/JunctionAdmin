@@ -1,5 +1,7 @@
 package com.omada.junctionadmin.viewmodels.content;
 
+import android.util.Pair;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -14,6 +16,17 @@ public class OrganizationViewHandler {
     private final MutableLiveData<LiveEvent<OrganizationModel>> organizationModelDetailsTrigger = new MutableLiveData<>();
     private final MutableLiveData<LiveEvent<ShowcaseModel>> organizationShowcaseDetailsTrigger = new MutableLiveData<>();
     private final MutableLiveData<LiveEvent<String>> organizationDetailsTrigger = new MutableLiveData<>();
+
+    private final MutableLiveData<LiveEvent<String>> callOrganizationTrigger = new MutableLiveData<>();
+    private final MutableLiveData<LiveEvent<Pair<String, String>>> mailOrganizationTrigger = new MutableLiveData<>();
+
+    public LiveData<LiveEvent<String>> getCallOrganizationTrigger() {
+        return callOrganizationTrigger;
+    }
+
+    public MutableLiveData<LiveEvent<Pair<String, String>>> getMailOrganizationTrigger() {
+        return mailOrganizationTrigger;
+    }
 
     public void goToOrganization(String organizationID){
         organizationDetailsTrigger.setValue(new LiveEvent<>(organizationID));
@@ -37,5 +50,13 @@ public class OrganizationViewHandler {
 
     public LiveData<LiveEvent<ShowcaseModel>> getOrganizationShowcaseDetailsTrigger() {
         return organizationShowcaseDetailsTrigger;
+    }
+
+    public void callOrganization(String organizerNumber){
+        callOrganizationTrigger.setValue(new LiveEvent<>(organizerNumber));
+    }
+
+    public void mailOrganization(String eventName, String organizerEmail){
+        mailOrganizationTrigger.setValue(new LiveEvent<>(new Pair<>(eventName, organizerEmail)));
     }
 }

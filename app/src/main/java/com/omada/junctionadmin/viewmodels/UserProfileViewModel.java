@@ -81,6 +81,13 @@ public class UserProfileViewModel extends BaseViewModel {
                     }
                     OrganizationModel temp = organizationModelLiveEvent.getDataOnceAndReset();
                     if (temp != null) {
+                        /*
+                         update happened from somewhere else
+                         TODO use a DataStore and query that
+                        */
+                        if(!temp.getHeldEventsNumber().equals(organizationModel.getHeldEventsNumber())) {
+                            loadOrganizationHighlights();
+                        }
                         organizationModel = temp;
                         organizationUpdater.setValues(organizationModel);
                         return organizationModel;
@@ -117,7 +124,7 @@ public class UserProfileViewModel extends BaseViewModel {
                     }
                     notificationModels.removeIf(model -> model == null
                             || !Arrays.asList("instituteJoinResponse", "feedbackResponse").contains(model.getNotificationType()));
-                    if(notificationModels.size() > 0) {
+                    if (notificationModels.size() > 0) {
                         // Because institute data is changed
                         MainDataRepository.getInstance()
                                 .getUserDataHandler()
@@ -134,11 +141,11 @@ public class UserProfileViewModel extends BaseViewModel {
                         .getNotificationDataHandler()
                         .handleNotification(model, null),
                 input -> {
-                    if(input == null) {
+                    if (input == null) {
                         return null;
                     }
                     Boolean response = input.getDataOnceAndReset();
-                    if(response == null) return null;
+                    if (response == null) return null;
                     return new LiveEvent<>(response);
                 }
         );
@@ -236,7 +243,10 @@ public class UserProfileViewModel extends BaseViewModel {
                         return null;
                     }
                     Boolean deleted = resultLiveEvent.getDataOnceAndReset();
-                    if (deleted != null && deleted) {
+                    if (deleted == null) {
+                        return null;
+                    }
+                    if (deleted) {
                         List<PostModel> highlights = loadedOrganizationHighlights.getValue();
                         if (highlights != null) {
                             highlights.removeIf(postModel -> postModel.getId().equals(eventModel.getId()));
@@ -253,6 +263,9 @@ public class UserProfileViewModel extends BaseViewModel {
 
     public void loadOrganizationHighlights() {
 
+        Log.e("Profile", "Loading highlights from remote");
+        loadedOrganizationHighlights.postValue(null);
+
         LiveData<LiveEvent<List<PostModel>>> source =
                 MainDataRepository
                         .getInstance()
@@ -268,18 +281,12 @@ public class UserProfileViewModel extends BaseViewModel {
                         if (postModelsLiveEvent != null) {
                             List<PostModel> postModels = postModelsLiveEvent.getDataOnceAndReset();
                             if (postModels != null) {
-
-                                // If some data already exists, append this to the existing data
-                                if (loadedOrganizationHighlights.getValue() != null) {
-                                    loadedOrganizationHighlights.getValue().addAll(postModels);
-                                    postModels = loadedOrganizationHighlights.getValue();
-                                }
                                 loadedOrganizationHighlights.setValue(postModels);
                             } else {
                             }
+                            loadedOrganizationHighlights.removeSource(source);
                         } else {
                         }
-                        loadedOrganizationHighlights.removeSource(source);
                     }
 
                 }
@@ -288,6 +295,8 @@ public class UserProfileViewModel extends BaseViewModel {
     }
 
     public void loadOrganizationShowcases() {
+
+        loadedOrganizationShowcases.postValue(null);
 
         LiveData<LiveEvent<List<ShowcaseModel>>> source =
                 MainDataRepository
@@ -454,12 +463,24 @@ public class UserProfileViewModel extends BaseViewModel {
         return userUpdateAction;
     }
 
+    public LiveData<LiveEvent<DataValidator.DataValidationInformation>> validateFeedback(String feedback) {
+        MutableLiveData<LiveEvent<DataValidator.DataValidationInformation>> validationResultLiveData = new MutableLiveData<>();
+
+        dataValidator.validateFeedback(feedback, dataValidationInformation -> {
+            if (dataValidationInformation != null) {
+                validationResultLiveData.setValue(new LiveEvent<>(dataValidationInformation));
+            }
+        });
+
+        return validationResultLiveData;
+    }
+
     public LiveData<LiveEvent<Boolean>> sendFeedback(String feedback, String feedbackType) {
         return Transformations.map(
                 MainDataRepository
-                .getInstance()
-                .getNotificationDataHandler()
-                .sendFeedbackNotification(feedback, feedbackType),
+                        .getInstance()
+                        .getNotificationDataHandler()
+                        .sendFeedbackNotification(feedback, feedbackType),
                 input -> input
         );
     }
@@ -469,6 +490,10 @@ public class UserProfileViewModel extends BaseViewModel {
         public final MutableLiveData<String> name = new MutableLiveData<>();
         public final MutableLiveData<String> phone = new MutableLiveData<>();
         public final MutableLiveData<Uri> newProfilePicture = new MutableLiveData<>();
+
+        public final MutableLiveData<String> heldEventsNumber = new MutableLiveData<>();
+        public final MutableLiveData<String> attendedUsersNumber = new MutableLiveData<>();
+
         private String profilePicture;
 
         private OrganizationUpdater() {
@@ -477,6 +502,11 @@ public class UserProfileViewModel extends BaseViewModel {
         private void setValues(OrganizationModel model) {
             name.setValue(model.getName());
             phone.setValue(model.getPhone());
+
+            attendedUsersNumber.setValue(String.valueOf(model.getAttendedUsersNumber()));
+            heldEventsNumber.setValue(String.valueOf(model.getHeldEventsNumber()));
+            Log.e("Profile", "stats string : " + attendedUsersNumber.getValue() + " " + heldEventsNumber.getValue());
+            Log.e("Profile", "stats integer : " + model.getAttendedUsersNumber() + " " + model.getHeldEventsNumber()    );
 
             LiveData<LiveEvent<String>> handleLiveData = MainDataRepository.getInstance()
                     .getInstituteDataHandler()

@@ -1,8 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <layout>
-    <androidx.core.widget.NestedScrollView
-        xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.omada.junctionadmin.viewmodels.FeedContentViewModel" />
+
+        <variable
+            name="model"
+            type="com.omada.junctionadmin.data.models.external.OrganizationModel" />
+    </data>
+
+    <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <LinearLayout
@@ -16,23 +29,42 @@
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
-                    android:layout_width="0dp"
+                    android:id="@+id/call_button"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginEnd="12dp"
+                    android:layout_marginBottom="24dp"
                     android:layout_weight="1"
-                    android:layout_margin="10dp"/>
+                    android:onClick="@{()->viewModel.organizationViewHandler.callOrganization(model.phone)}"
+                    android:text="call"
+                    android:textColor="#558B2F"
+                    app:icon="@drawable/ic_call_24px"
+                    app:iconPadding="12dp"
+                    app:iconTint="#558B2F"
+                    app:shapeAppearanceOverlay="@style/Widget.AppTheme.CircleShapeAppearance"
+                    app:strokeColor="#558B2F" />
 
                 <com.google.android.material.button.MaterialButton
-                    android:layout_width="0dp"
+                    android:id="@+id/email_button"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginTop="24dp"
+                    android:layout_marginEnd="24dp"
+                    android:layout_marginBottom="24dp"
                     android:layout_weight="1"
-                    android:layout_margin="10dp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_margin="10dp"/>
-
+                    android:onClick="@{()->viewModel.organizationViewHandler.mailOrganization(model.name, model.mail)}"
+                    android:text="email"
+                    android:textColor="#1565C0"
+                    app:icon="@drawable/ic_email_24px"
+                    app:iconPadding="12dp"
+                    app:iconTint="#1565C0"
+                    app:shapeAppearanceOverlay="@style/Widget.AppTheme.CircleShapeAppearance"
+                    app:strokeColor="#1565C0" />
             </LinearLayout>
 
         </LinearLayout>

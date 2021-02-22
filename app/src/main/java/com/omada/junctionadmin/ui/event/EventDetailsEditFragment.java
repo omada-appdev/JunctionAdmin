@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.collection.CircularArray;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
@@ -20,6 +21,7 @@ import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.data.models.external.EventModel;
 import com.omada.junctionadmin.databinding.EventDetailsEditFragmentLayoutBinding;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
+import com.omada.junctionadmin.viewmodels.FeedContentViewModel;
 import com.omada.junctionadmin.viewmodels.UserProfileViewModel;
 
 public class EventDetailsEditFragment extends Fragment {
@@ -57,7 +59,12 @@ public class EventDetailsEditFragment extends Fragment {
 
         binding = DataBindingUtil.inflate(inflater, R.layout.event_details_edit_fragment_layout, container, false);
 
-        userProfileViewModel = new ViewModelProvider(requireActivity()).get(UserProfileViewModel.class);
+
+        ViewModelProvider viewModelProvider = new ViewModelProvider(requireActivity());
+        userProfileViewModel = viewModelProvider.get(UserProfileViewModel.class);
+        FeedContentViewModel feedContentViewModel = viewModelProvider.get(FeedContentViewModel.class);
+
+        binding.setFeedContentViewModel(feedContentViewModel);
         binding.setUserProfileViewModel(userProfileViewModel);
         binding.setEventDetails(eventModel);
 
@@ -139,7 +146,7 @@ public class EventDetailsEditFragment extends Fragment {
                             .observe(getViewLifecycleOwner(), deleted -> {
                                 if (deleted != null) {
                                     if (deleted) {
-                                        requireActivity().onBackPressed();
+                                        requireActivity().getSupportFragmentManager().popBackStack();
                                     } else {
                                         Log.e("Event", "Error deleting post");
                                         binding.deleteButton.setEnabled(true);

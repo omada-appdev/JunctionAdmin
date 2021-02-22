@@ -1,9 +1,11 @@
 package com.omada.junctionadmin.ui.institute;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.util.Log;
+import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,6 +30,8 @@ import com.omada.junctionadmin.ui.profile.ProfileActivity;
 import com.omada.junctionadmin.viewmodels.FeedContentViewModel;
 import com.omada.junctionadmin.viewmodels.InstituteViewModel;
 
+import java.util.Map;
+
 public class InstituteActivity extends AppCompatActivity {
 
     private InstituteViewModel instituteViewModel;
@@ -43,12 +47,12 @@ public class InstituteActivity extends AppCompatActivity {
         instituteViewModel = viewModelProvider.get(InstituteViewModel.class);
         feedContentViewModel = viewModelProvider.get(FeedContentViewModel.class);
 
-        if(savedInstanceState == null) {
+        if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.institute_content_placeholder, new InstituteFeedFragment())
                     .commit();
 
-        } else if(!instituteViewModel.checkInstituteContentLoaded()){
+        } else if (!instituteViewModel.checkInstituteContentLoaded()) {
             instituteViewModel.loadInstituteOrganizations();
             instituteViewModel.loadInstituteHighlights();
         }
@@ -71,20 +75,18 @@ public class InstituteActivity extends AppCompatActivity {
             int itemId = item.getItemId();
             Intent i = null;
 
-            if (itemId == R.id.profile_button){
+            if (itemId == R.id.profile_button) {
                 i = new Intent(InstituteActivity.this, ProfileActivity.class);
-            }
-            else if (itemId == R.id.metrics_button){
+            } else if (itemId == R.id.metrics_button) {
                 i = new Intent(InstituteActivity.this, MetricsActivity.class);
-            }
-            else if (itemId == R.id.create_button){
+            } else if (itemId == R.id.create_button) {
                 i = new Intent(InstituteActivity.this, CreateActivity.class);
             } else if (itemId == R.id.institute_button) {
                 getSupportFragmentManager().popBackStack(null, 0);
             }
 
             if (i != null) {
-                i.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION|Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                i.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(i);
                 return true;
 
@@ -104,18 +106,17 @@ public class InstituteActivity extends AppCompatActivity {
                 .getOrganizationModelDetailsTrigger()
                 .observe(this, organizationModelLiveEvent -> {
 
-                    if(organizationModelLiveEvent != null){
+                    if (organizationModelLiveEvent != null) {
                         OrganizationModel organizationModel = organizationModelLiveEvent.getDataOnceAndReset();
 
-                        if(organizationModel == null) {
+                        if (organizationModel == null) {
                             return;
                         }
-                        if(organizationModel.getId().equals(instituteViewModel.getUserId())){
+                        if (organizationModel.getId().equals(instituteViewModel.getUserId())) {
                             Intent i = new Intent(this, ProfileActivity.class);
-                            i.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION|Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            i.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                             startActivity(i);
-                        }
-                        else {
+                        } else {
                             getSupportFragmentManager()
                                     .beginTransaction()
                                     .replace(R.id.institute_content_placeholder, OrganizationFragment.newInstance(organizationModel))
@@ -126,17 +127,56 @@ public class InstituteActivity extends AppCompatActivity {
 
                 });
 
+        feedContentViewModel
+                .getOrganizationViewHandler()
+                .getCallOrganizationTrigger().observe(this, stringLiveEvent -> {
+
+            if (stringLiveEvent != null) {
+                String data = stringLiveEvent.getDataOnceAndReset();
+                if (data == null) {
+                    return;
+                }
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:" + data));
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(intent);
+                }
+            }
+
+        });
+
+        feedContentViewModel
+                .getOrganizationViewHandler()
+                .getMailOrganizationTrigger().observe(this, pairLiveEvent -> {
+
+            if (pairLiveEvent != null) {
+
+                Pair<String, String> data = pairLiveEvent.getDataOnceAndReset();
+                if (data == null) {
+                    return;
+                }
+
+                Intent intent = new Intent(Intent.ACTION_SENDTO);
+                intent.setData(Uri.parse("mailto:")); // only email apps should handle this
+                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{data.second});
+                intent.putExtra(Intent.EXTRA_SUBJECT, "Regarding " + data.first);
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(intent);
+                }
+            }
+
+        });
 
         feedContentViewModel.getEventViewHandler()
                 .getEventCardDetailsTrigger()
                 .observe(this, eventModelLiveEvent -> {
-                    if(eventModelLiveEvent != null){
+                    if (eventModelLiveEvent != null) {
                         EventModel model = eventModelLiveEvent.getDataOnceAndReset();
 
-                        if(model == null) {
+                        if (model == null) {
                             return;
                         }
-                        if(model.getCreator().equals(instituteViewModel.getUserId())) {
+                        if (model.getCreator().equals(instituteViewModel.getUserId())) {
                             getSupportFragmentManager().beginTransaction()
                                     .replace(R.id.institute_content_placeholder, EventDetailsEditFragment.newInstance(model))
                                     .addToBackStack(null)
@@ -150,16 +190,47 @@ public class InstituteActivity extends AppCompatActivity {
                     }
                 });
 
+        feedContentViewModel.getEventViewHandler()
+                .getEventFormTrigger()
+                .observe(this, eventModelLiveEvent -> {
+                    if(eventModelLiveEvent == null) {
+                        return;
+                    }
+                    EventModel eventModel = eventModelLiveEvent.getDataOnceAndReset();
+                    if(eventModel == null) {
+                        return;
+                    }
+                    Map<String, Map<String, Map<String, String>>> form = eventModel.getForm();
+                    String url;
+                    try {
+                        url = form.get("links").get("linkId").get("url");
+                    } catch (Exception e) {
+                        url = null;
+                    }
+
+                    if(url != null) {
+                        if (!url.startsWith("http://") && !url.startsWith("https://"))
+                            url = "http://" + url;
+
+                        try {
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                            startActivity(browserIntent);
+                        } catch (Exception e) {
+                            Log.e("Event", "Invalid form URL");
+                        }
+                    }
+                });
+
         feedContentViewModel.getArticleViewHandler()
                 .getArticleCardDetailsTrigger()
                 .observe(this, articleModelLiveEvent -> {
-                    if(articleModelLiveEvent != null){
+                    if (articleModelLiveEvent != null) {
                         ArticleModel model = articleModelLiveEvent.getDataOnceAndReset();
 
-                        if(model == null) {
+                        if (model == null) {
                             return;
                         }
-                        if(model.getCreator().equals(instituteViewModel.getUserId())) {
+                        if (model.getCreator().equals(instituteViewModel.getUserId())) {
                             getSupportFragmentManager().beginTransaction()
                                     .replace(R.id.institute_content_placeholder, ArticleDetailsEditFragment.newInstance(model))
                                     .addToBackStack(null)
@@ -175,18 +246,17 @@ public class InstituteActivity extends AppCompatActivity {
 
         feedContentViewModel.getOrganizationViewHandler().getOrganizationDetailsTrigger()
                 .observe(this, organizationIDLiveEvent -> {
-                    if(organizationIDLiveEvent != null){
+                    if (organizationIDLiveEvent != null) {
 
                         String organizationID = organizationIDLiveEvent.getDataOnceAndReset();
-                        if(organizationID == null) {
+                        if (organizationID == null) {
                             return;
                         }
-                        if(organizationID.equals(instituteViewModel.getUserId())){
+                        if (organizationID.equals(instituteViewModel.getUserId())) {
                             Intent i = new Intent(this, ProfileActivity.class);
-                            i.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION|Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            i.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                             startActivity(i);
-                        }
-                        else {
+                        } else {
                             getSupportFragmentManager()
                                     .beginTransaction()
                                     .replace(R.id.institute_content_placeholder, OrganizationFragment.newInstance(organizationID))
@@ -200,11 +270,11 @@ public class InstituteActivity extends AppCompatActivity {
         feedContentViewModel.getOrganizationViewHandler()
                 .getOrganizationShowcaseDetailsTrigger()
                 .observe(this, showcaseModelLiveEvent -> {
-                    if(showcaseModelLiveEvent == null) {
+                    if (showcaseModelLiveEvent == null) {
                         return;
                     }
                     ShowcaseModel showcaseModel = showcaseModelLiveEvent.getDataOnceAndReset();
-                    if(showcaseModel == null) {
+                    if (showcaseModel == null) {
                         return;
                     }
                     if (showcaseModel.getCreator().equals(instituteViewModel.getUserId())) {
@@ -214,8 +284,7 @@ public class InstituteActivity extends AppCompatActivity {
                                 .replace(R.id.institute_content_placeholder, OrganizationShowcaseFragment.newInstance(showcaseModel))
                                 .addToBackStack(null)
                                 .commit();
-                    }
-                    else {
+                    } else {
                         getSupportFragmentManager()
                                 .beginTransaction()
                                 .replace(R.id.institute_content_placeholder, OrganizationShowcaseFragment.newInstance(showcaseModel))
@@ -224,7 +293,6 @@ public class InstituteActivity extends AppCompatActivity {
                     }
                 });
     }
-
 
 
     @Override

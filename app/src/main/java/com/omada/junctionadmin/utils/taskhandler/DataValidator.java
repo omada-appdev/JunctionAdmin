@@ -26,9 +26,13 @@ import java.time.LocalDateTime;
  */
 public class DataValidator {
 
-    public static final int EVENT_DESCRIPTION_MAX_SIZE = 200;
+    public static final int EVENT_DESCRIPTION_MAX_SIZE = 2000;
     public static final int EVENT_TITLE_MAX_SIZE = 30;
     public static final int EVENT_TITLE_MIN_SIZE = 5;
+
+    public static final int FEEDBACK_MIN_SIZE = 10;
+    public static final int FEEDBACK_MAX_SIZE = 400;
+
     private static final String EMAIL_VERIFICATION_REGEX =
             "^([_a-zA-Z0-9-]+(\\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*(\\.[a-zA-Z]{1,6}))?$";
 
@@ -70,7 +74,9 @@ public class DataValidator {
         VALIDATION_POINT_ARTICLE_TITLE,
         VALIDATION_POINT_ARTICLE_AUTHOR,
 
-        VALIDATION_POINT_TAGS
+        VALIDATION_POINT_TAGS,
+
+        VALIDATION_POINT_FEEDBACK
     }
 
     public enum DataValidationResult {
@@ -93,6 +99,10 @@ public class DataValidator {
 
     public void validateEventTimings(LocalDateTime startTime, LocalDateTime endTime) {
 
+    }
+
+    public void validateFeedback(String feedback, OnValidationCompleteListener listener) {
+        listener.onValidationComplete(validateFeedback(feedback));
     }
 
     public void validateName(String name, OnValidationCompleteListener listener) {
@@ -156,6 +166,39 @@ public class DataValidator {
 
 
 
+    private DataValidationInformation validateFeedback(String feedback) {
+        if (feedback == null) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_FEEDBACK,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        }
+
+        feedback = feedback.trim();
+
+        if (feedback.equals("")) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_FEEDBACK,
+                    DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        } else if (feedback.length() < FEEDBACK_MIN_SIZE) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_FEEDBACK,
+                    DataValidationResult.VALIDATION_RESULT_UNDERFLOW
+            );
+        } else if (feedback.length() > FEEDBACK_MAX_SIZE) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_FEEDBACK,
+                    DataValidationResult.VALIDATION_RESULT_OVERFLOW
+            );
+        } else {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_FEEDBACK,
+                    DataValidationResult.VALIDATION_RESULT_VALID
+            );
+        }
+    }
+    
     private DataValidationInformation validateName(String name) {
 
         if (name == null) {

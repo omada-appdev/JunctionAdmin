@@ -58,7 +58,7 @@ public class ProfileContentFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(savedInstanceState != null){
+        if (savedInstanceState != null) {
             refreshHighlights = true;
             refreshShowcases = true;
             refreshNotifications = true;
@@ -84,7 +84,7 @@ public class ProfileContentFragment extends Fragment {
         adapter.addSection(highlightHeaderSection);
 
         notificationListSection.setOnSelectionChangedListener((item, isSelected, selectedItems) -> {
-            if(isSelected) {
+            if (isSelected) {
                 notificationListSection.remove(
                         notificationListSection.getData().indexOf(item)
                 );
@@ -121,9 +121,9 @@ public class ProfileContentFragment extends Fragment {
         );
 
         userProfileViewModel.getOrganizationNotifications().observe(getViewLifecycleOwner(), notificationModels -> {
-            if(notificationModels == null) {
+            if (notificationModels == null) {
                 return;
-            } else if(notificationModels.size() <= notificationListSection.size()) {
+            } else if (notificationModels.size() <= notificationListSection.size()) {
                 notificationListSection.set(notificationModels);
             } else {
                 notificationListSection.addAll(notificationModels.subList(notificationListSection.size(), notificationModels.size()));
@@ -138,28 +138,32 @@ public class ProfileContentFragment extends Fragment {
         recyclerView.setAdapter(adapter);
     }
 
-    // apparently we are using post model here and in junction we are using BaseModel.
     private void onHighlightsLoaded(List<PostModel> postModels) {
-        Log.e("UserProfile", "Highlights loaded :" + postModels.size());
-        if(postModels != null && postModels.size() > 0 && refreshHighlights) {
 
-            if (highlightListSection.size() > postModels.size()) {
-                highlightListSection.clear();
-            }
-            if(highlightHeaderSection.isSectionHidden()){
-                highlightHeaderSection.showSection();
-            }
-            highlightListSection.addAll(postModels);
-
-            refreshHighlights = false;
+        if (postModels == null) {
+            return;
         }
+        Log.e("UserProfile", "Highlights loaded : " + postModels.size());
+        if (highlightListSection.size() > postModels.size()) {
+            highlightListSection.clear();
+        }
+        highlightListSection.addAll(postModels);
+        if (highlightHeaderSection.isSectionHidden() && highlightListSection.size() > 0) {
+            highlightHeaderSection.showSection();
+        }
+        if(highlightListSection.size() == 0) {
+            highlightHeaderSection.hideSection();
+        }
+        refreshHighlights = false;
     }
 
     private void onShowcasesLoaded(List<ShowcaseModel> showcaseModels) {
 
-        if(showcaseModels != null && showcaseModels.size() > 0 && showcaseSection.getItem() != null && refreshShowcases) {
-
-            if(showcaseHeaderSection.isSectionHidden()){
+        if (showcaseModels == null) {
+            return;
+        }
+        if (showcaseModels != null && showcaseModels.size() > 0 && showcaseSection.getItem() != null && refreshShowcases) {
+            if (showcaseHeaderSection.isSectionHidden()) {
                 showcaseHeaderSection.showSection();
             }
             if (showcaseSection.getItem() != null &&
@@ -167,9 +171,7 @@ public class ProfileContentFragment extends Fragment {
                     showcaseSection.getItem().get(0).getId() == null) {
 
                 showcaseSection.getItem().remove(0);
-
             }
-
             showcaseSection.getItem().addAll(showcaseModels);
 
             recyclerView.scrollToPosition(0);

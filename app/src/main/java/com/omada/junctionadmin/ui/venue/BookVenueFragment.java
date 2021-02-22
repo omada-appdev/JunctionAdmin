@@ -2,6 +2,8 @@ package com.omada.junctionadmin.ui.venue;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -128,6 +130,11 @@ public class BookVenueFragment extends Fragment {
                 }
             } else {
                 createPostViewModel.getEventCreator().setVenueModel(null);
+            }
+            if (item != null && createPostViewModel.getEventCreator().getVenueModel() != null) {
+                new Handler(Looper.getMainLooper()).postDelayed(
+                        () -> requireActivity().onBackPressed(), 200
+                );
             }
         });
 

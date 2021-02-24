@@ -53,26 +53,14 @@
                         android:id="@+id/organization_name_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:maxHeight="120dp"
                         android:maxWidth="200dp"
                         app:layout_constraintRight_toRightOf="parent"
                         app:layout_constraintTop_toTopOf="@id/organization_profile_picture_image"
+                        app:layout_constraintBottom_toBottomOf="@id/organization_profile_picture_image"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-                        android:layout_marginTop="16dp"
                         android:layout_marginEnd="16dp"
                         android:theme="@style/Theme.AppTheme"
                         android:textAlignment="textEnd"/>
-
-                    <ToggleButton
-                        android:id="@+id/organization_profile_image_button"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        app:layout_constraintTop_toBottomOf="@id/organization_name_text"
-                        app:layout_constraintRight_toRightOf="@id/organization_name_text"
-                        android:layout_marginTop="8dp"
-                        android:checked="false"
-                        android:textOff=""
-                        android:textOn=""/>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 

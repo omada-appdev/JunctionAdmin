@@ -1,11 +1,13 @@
 package com.omada.junctionadmin.ui.create;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -20,13 +22,14 @@ import com.omada.junctionadmin.ui.metrics.MetricsActivity;
 import com.omada.junctionadmin.ui.profile.ProfileActivity;
 import com.omada.junctionadmin.ui.profile.ProfileFragment;
 import com.omada.junctionadmin.ui.venue.BookVenueFragment;
+import com.omada.junctionadmin.viewmodels.BookingViewModel;
 import com.omada.junctionadmin.viewmodels.CreatePostViewModel;
 import com.omada.junctionadmin.viewmodels.InstituteViewModel;
 
 public class CreateActivity extends AppCompatActivity {
 
     private CreatePostViewModel createPostViewModel;
-    private InstituteViewModel instituteViewModel;
+    private BookingViewModel bookingViewModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -34,7 +37,7 @@ public class CreateActivity extends AppCompatActivity {
         setContentView(R.layout.create_activity_layout);
 
         ViewModelProvider viewModelProvider = new ViewModelProvider(this);
-        instituteViewModel = viewModelProvider.get(InstituteViewModel.class);
+        bookingViewModel = viewModelProvider.get(BookingViewModel.class);
         createPostViewModel = viewModelProvider.get(CreatePostViewModel.class);
 
         if(savedInstanceState == null) {
@@ -46,6 +49,43 @@ public class CreateActivity extends AppCompatActivity {
 
         setupBottomNavigation();
         setUpTriggers();
+    }
+
+
+
+    private void setupBottomNavigation() {
+
+        BottomNavigationView bottomMenu = findViewById(R.id.bottom_navigation);
+        bottomMenu.getMenu().findItem(R.id.create_button).setChecked(true);
+        bottomMenu.setOnNavigationItemSelectedListener(item -> {
+
+            int itemId = item.getItemId();
+            Intent i = null;
+
+            if (itemId == R.id.profile_button){
+                i = new Intent(CreateActivity.this, ProfileActivity.class);
+            }
+            else if (itemId == R.id.metrics_button){
+                i = new Intent(CreateActivity.this, MetricsActivity.class);
+            }
+            else if (itemId == R.id.institute_button){
+                i = new Intent(CreateActivity.this, InstituteActivity.class);
+            }
+
+            if (i != null) {
+                i.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION|Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(i);
+                return true;
+
+            } else {
+                return false;
+            }
+
+        });
+
+    }
+
+    private void setUpTriggers() {
 
         createPostViewModel.getCreateEventTrigger().observe(this, booleanLiveEvent -> {
 
@@ -114,52 +154,33 @@ public class CreateActivity extends AppCompatActivity {
         });
     }
 
-
-
-    private void setupBottomNavigation() {
-
-        BottomNavigationView bottomMenu = findViewById(R.id.bottom_navigation);
-        bottomMenu.getMenu().findItem(R.id.profile_button).setChecked(true);
-        bottomMenu.setOnNavigationItemSelectedListener(item -> {
-
-            int itemId = item.getItemId();
-            Intent i = null;
-
-            if (itemId == R.id.profile_button){
-                i = new Intent(CreateActivity.this, ProfileActivity.class);
-            }
-            else if (itemId == R.id.metrics_button){
-                i = new Intent(CreateActivity.this, MetricsActivity.class);
-            }
-            else if (itemId == R.id.institute_button){
-                i = new Intent(CreateActivity.this, InstituteActivity.class);
-            }
-
-            if (i != null) {
-                i.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION|Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                startActivity(i);
-                return true;
-
-            } else {
-                return false;
-            }
-
-        });
-
-    }
-
-    private void setUpTriggers() {
-    }
-
     @Override
     public void onBackPressed() {
 
         int stackCount = getSupportFragmentManager().getBackStackEntryCount();
-        if(stackCount > 0) {
-            // TODO if exiting article screen ask if user wants to exit
+        if(stackCount == 1) {
+            if(createPostViewModel.getCurrentState() == CreatePostViewModel.CurrentState.CURRENT_STATE_IDLE) {
+                new AlertDialog.Builder(this)
+                        .setCancelable(false)
+                        .setTitle("Discard changes?")
+                        .setMessage("Any changes you made will be lost")
+                        .setPositiveButton("DISCARD", (dialog, which) -> {
+                            createPostViewModel.resetCreators();
+                            bookingViewModel.resetBookingDate();
+                            super.onBackPressed();
+                        })
+                        .setNegativeButton("Keep editing", (dialog, which) -> {
+                        }).show();
+            } else {
+                createPostViewModel.resetCreators();
+                bookingViewModel.resetBookingDate();
+                super.onBackPressed();
+            }
             Log.e("Create", "Attempt to exit before posting");
         }
-        super.onBackPressed();
+        else {
+            super.onBackPressed();
+        }
     }
 
     @Override

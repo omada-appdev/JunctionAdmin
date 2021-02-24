@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.firebase.Timestamp;
 import com.omada.junctionadmin.data.models.external.ArticleModel;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -54,7 +55,7 @@ public class MutableArticleModel extends ArticleModel {
         this.image = image;
     }
 
-    public void setTimeCreated(Date timeCreated){
+    public void setTimeCreated(LocalDateTime timeCreated){
         this.timeCreated = timeCreated;
     }
 }

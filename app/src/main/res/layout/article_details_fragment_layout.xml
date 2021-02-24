@@ -5,7 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <import type="com.omada.junctionadmin.utils.transform.TransformUtilities"/>
+        <import type="com.omada.junctionadmin.utils.TransformUtilities"/>
         <variable
             name="articleModel"
             type="com.omada.junctionadmin.data.models.external.ArticleModel" />

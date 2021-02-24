@@ -102,7 +102,6 @@ public class ArticleModelRemoteDB extends BaseModelInternal {
         return timeCreated;
     }
 
-    @ServerTimestamp
     @PropertyName("timeCreated")
     public void setTimeCreated(Timestamp timeCreated) {
         this.timeCreated = timeCreated;

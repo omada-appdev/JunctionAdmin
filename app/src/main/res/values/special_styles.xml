@@ -64,14 +64,14 @@
         <item name="android:layout_marginRight">10dp</item>
         <item name="android:padding">10dp</item>
         <item name="android:gravity">start|center</item>
-        <item name="android:background">@color/White</item>
+        <item name="android:background">@color/white</item>
     </style>
 
 
     <style name="bottom_toolbar_button" parent="Widget.AppCompat.Button">
         <item name="android:layout_width">50dp</item>
         <item name="android:layout_height">50dp</item>
-        <item name="android:background">@color/White</item>
+        <item name="android:background">@color/white</item>
         <item name="android:textColor">@color/JunctionLightGray</item>
     </style>
 

@@ -78,9 +78,7 @@ public class FastBlogEditor extends ConstraintLayout {
                         serializedComponent
                 );
             }
-
         }
-
         return serializedFastBlog;
     }
 

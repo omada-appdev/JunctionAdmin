@@ -3,9 +3,9 @@ package com.omada.junctionadmin.viewmodels;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 
-import com.omada.junctionadmin.data.DataRepository;
-import com.omada.junctionadmin.data.models.external.OrganizationModel;
+import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.models.external.PostModel;
+import com.omada.junctionadmin.data.models.external.ShowcaseModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.util.ArrayList;
@@ -15,13 +15,11 @@ public class ShowcaseFeedViewModel extends BaseViewModel {
 
     private MediatorLiveData<List<PostModel>> loadedShowcaseItems = new MediatorLiveData<>();
 
-    private final OrganizationModel organizationModel;
-    private final String showcaseID;
+    private final ShowcaseModel showcaseModel;
 
     // To be instantiated through a factory
-    public ShowcaseFeedViewModel(OrganizationModel organizationModel, String showcaseID){
-        this.organizationModel = organizationModel;
-        this.showcaseID = showcaseID;
+    public ShowcaseFeedViewModel(ShowcaseModel showcaseModel){
+        this.showcaseModel = showcaseModel;
         initializeDataLoaders();
     }
 
@@ -31,10 +29,10 @@ public class ShowcaseFeedViewModel extends BaseViewModel {
     public void loadShowcaseItems() {
 
         LiveData<LiveEvent<List<PostModel>>> source =
-                DataRepository
+                MainDataRepository
                 .getInstance()
                 .getPostDataHandler()
-                .getShowcasePosts(getDataRepositoryAccessIdentifier(), showcaseID);
+                .getShowcasePosts(getDataRepositoryAccessIdentifier(), showcaseModel.getId());
 
         loadedShowcaseItems.addSource(
                 source,
@@ -56,11 +54,11 @@ public class ShowcaseFeedViewModel extends BaseViewModel {
 
     }
 
-    public OrganizationModel getOrganizationModel() {
-        return organizationModel;
-    }
-
     public LiveData<List<PostModel>> getLoadedShowcaseItems(){
         return loadedShowcaseItems;
+    }
+
+    public ShowcaseModel getShowcaseModel() {
+        return showcaseModel;
     }
 }

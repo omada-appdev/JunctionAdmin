@@ -1,33 +1,53 @@
 package com.omada.junctionadmin.data.handler;
 
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.storage.UploadTask;
 import com.omada.junctionadmin.data.BaseDataHandler;
-import com.omada.junctionadmin.data.DataRepository;
+import com.omada.junctionadmin.data.models.converter.NotificationModelConverter;
+import com.omada.junctionadmin.data.models.external.NotificationModel;
+import com.omada.junctionadmin.data.models.internal.remote.NotificationModelRemoteDB;
+import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.models.converter.InstituteModelConverter;
 import com.omada.junctionadmin.data.models.external.InstituteModel;
 import com.omada.junctionadmin.data.models.internal.remote.InstituteModelRemoteDB;
+import com.omada.junctionadmin.data.models.mutable.MutableInstituteModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
+
 public class InstituteDataHandler extends BaseDataHandler {
+
+    private final InstituteModelConverter instituteModelConverter = new InstituteModelConverter();
+    private final NotificationModelConverter notificationModelConverter = new NotificationModelConverter();
 
     private static final Map<String, String> instituteHandleToIdCache = new HashMap<>();
     private static final Map<String, String> instituteIdToHandleCache = new HashMap<>();
 
     public LiveData<LiveEvent<InstituteModel>> getInstituteDetails(String instituteID) {
+
+        if(instituteID == null) {
+            return new MutableLiveData<>(new LiveEvent<>(new MutableInstituteModel()));
+        }
 
         MutableLiveData<LiveEvent<InstituteModel>> instituteModelLiveData = new MutableLiveData<>();
 
@@ -43,6 +63,7 @@ public class InstituteDataHandler extends BaseDataHandler {
                     if (modelRemoteDB == null) {
                         instituteModelLiveData.setValue(null);
                     } else {
+                        addToCache(instituteID, modelRemoteDB.getHandle());
                         modelRemoteDB.setId(snapshot.getId());
                         instituteModelLiveData.setValue(new LiveEvent<>(
                                 instituteModelConverter.convertRemoteDBToExternalModel(modelRemoteDB)
@@ -56,31 +77,58 @@ public class InstituteDataHandler extends BaseDataHandler {
                 });
 
         return instituteModelLiveData;
-
     }
-    private final InstituteModelConverter instituteModelConverter = new InstituteModelConverter();
 
-    public LiveData<LiveEvent<Boolean>> updateInstituteDetails(InstituteModel changedInstituteModel) {
+    public LiveData<LiveEvent<Boolean>> updateInstituteDetails(MutableUserInstituteModel changedInstituteModel) {
 
         MutableLiveData<LiveEvent<Boolean>> resultLiveData = new MutableLiveData<>();
 
-        String instituteId = DataRepository
+        String instituteId = MainDataRepository
                 .getInstance()
                 .getUserDataHandler()
                 .getCurrentUserModel()
                 .getInstitute();
 
+        Map<String, Object> changes = new HashMap<>();
+        changes.put("name", changedInstituteModel.getName());
+        changes.put("handle", changedInstituteModel.getHandle());
+
+        if (changedInstituteModel.getImagePath() != null) {
+            UploadTask uploadTask = MainDataRepository.getInstance()
+                    .getImageUploadHandler()
+                    .uploadInstituteImage(changedInstituteModel.getImagePath(), instituteId);
+            String imagePath = uploadTask.getSnapshot().getStorage().toString();
+            changes.put("image", imagePath);
+        }
+
         FirebaseFirestore
                 .getInstance()
                 .collection("institutes")
                 .document(instituteId)
-                .set(instituteModelConverter.convertExternalToRemoteDBModel(changedInstituteModel), SetOptions.merge())
+                .update(changes)
                 .addOnSuccessListener(aVoid -> {
-                    resultLiveData.setValue(new LiveEvent<>(true));
+                    Map<String, Object> updatedInstituteData = new HashMap<>();
+
+                    updatedInstituteData.put("/instituteIds/" + instituteId, changedInstituteModel.getHandle());
+                    updatedInstituteData.put("/instituteHandles/" + changedInstituteModel.getHandle(), instituteId);
+
+                    if (!changedInstituteModel.getHandle().equals(getCachedInstituteHandle(instituteId))) {
+                        updatedInstituteData.put("/instituteHandles/" + getCachedInstituteHandle(instituteId), null);
+                    }
+                    FirebaseDatabase.getInstance()
+                            .getReference()
+                            .updateChildren(updatedInstituteData)
+                            .addOnSuccessListener(aVoid1 -> {
+                                addToCache(instituteId, changedInstituteModel.getHandle());
+                                resultLiveData.setValue(new LiveEvent<>(true));
+                            })
+                            .addOnFailureListener(e -> {
+                                resultLiveData.setValue(new LiveEvent<>(false));
+                            });
                 })
                 .addOnFailureListener(e -> {
                     resultLiveData.setValue(new LiveEvent<>(false));
-                    Log.e("Institute", "Error updating institute details");
+                    Log.e("Institute", "Database error updating institute details");
                 });
 
         return resultLiveData;
@@ -92,6 +140,11 @@ public class InstituteDataHandler extends BaseDataHandler {
 
         if (code != null) {
 
+            String cachedId = getCachedInstituteId(code);
+            if (cachedId != null && !cachedId.equals("notFound")) {
+                return new MutableLiveData<>(new LiveEvent<>(true));
+            }
+
             FirebaseDatabase
                     .getInstance()
                     .getReference()
@@ -101,11 +154,10 @@ public class InstituteDataHandler extends BaseDataHandler {
 
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (snapshot.exists() && snapshot.getValue() instanceof String){
-                                instituteHandleToIdCache.put(snapshot.getKey(), (String) snapshot.getValue());
+                            if (snapshot.exists() && snapshot.getValue() instanceof String) {
+                                addToCache((String) snapshot.getValue(), snapshot.getKey());
                                 resultLiveData.setValue(new LiveEvent<>(true));
-                            }
-                            else {
+                            } else {
                                 resultLiveData.setValue(new LiveEvent<>(false));
                             }
                         }
@@ -116,11 +168,9 @@ public class InstituteDataHandler extends BaseDataHandler {
                             Log.e("Institute", "Error checking institute code validity");
                         }
                     });
-        }
-        else {
+        } else {
             resultLiveData.setValue(new LiveEvent<>(false));
         }
-
         return resultLiveData;
     }
 
@@ -128,13 +178,11 @@ public class InstituteDataHandler extends BaseDataHandler {
 
         MutableLiveData<LiveEvent<String>> resultLiveData = new MutableLiveData<>();
 
-        if (handle == null){
+        if (handle == null) {
             resultLiveData.setValue(new LiveEvent<>("notFound"));
-        }
-        else if (instituteHandleToIdCache.get(handle) != null) {
-            resultLiveData.setValue(new LiveEvent<>(instituteIdToHandleCache.get(handle)));
-        }
-        else {
+        } else if (getCachedInstituteId(handle) != null) {
+            resultLiveData.setValue(new LiveEvent<>(getCachedInstituteId(handle)));
+        } else {
             FirebaseDatabase
                     .getInstance()
                     .getReference()
@@ -144,13 +192,11 @@ public class InstituteDataHandler extends BaseDataHandler {
 
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (snapshot.exists() && snapshot.getValue() instanceof String){
-                                instituteHandleToIdCache.put(snapshot.getKey(), (String) snapshot.getValue());
-                                instituteIdToHandleCache.put((String)snapshot.getValue(), snapshot.getKey());
+                            if (snapshot.exists() && snapshot.getValue() instanceof String) {
+                                addToCache((String) snapshot.getValue(), snapshot.getKey());
                                 resultLiveData.setValue(new LiveEvent<>((String) snapshot.getValue()));
-                            }
-                            else {
-                                resultLiveData.setValue(new LiveEvent<>("notFound"));
+                            } else {
+                                resultLiveData.setValue(new LiveEvent<>(null));
                             }
                         }
 
@@ -169,13 +215,11 @@ public class InstituteDataHandler extends BaseDataHandler {
 
         MutableLiveData<LiveEvent<String>> resultLiveData = new MutableLiveData<>();
 
-        if (id == null){
+        if (id == null) {
             resultLiveData.setValue(new LiveEvent<>("notFound"));
-        }
-        else if (instituteIdToHandleCache.get(id) != null) {
-            resultLiveData.setValue(new LiveEvent<>(instituteIdToHandleCache.get(id)));
-        }
-        else {
+        } else if (getCachedInstituteHandle(id) != null) {
+            resultLiveData.setValue(new LiveEvent<>(getCachedInstituteHandle(id)));
+        } else {
             FirebaseDatabase
                     .getInstance()
                     .getReference()
@@ -185,12 +229,10 @@ public class InstituteDataHandler extends BaseDataHandler {
 
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (snapshot.exists() && snapshot.getValue() instanceof String){
-                                instituteHandleToIdCache.put(snapshot.getKey(), (String) snapshot.getValue());
-                                instituteIdToHandleCache.put((String)snapshot.getValue(), snapshot.getKey());
+                            if (snapshot.exists() && snapshot.getValue() instanceof String) {
+                                addToCache(snapshot.getKey(), (String) snapshot.getValue());
                                 resultLiveData.setValue(new LiveEvent<>((String) snapshot.getValue()));
-                            }
-                            else {
+                            } else {
                                 resultLiveData.setValue(new LiveEvent<>("notFound"));
                             }
                         }
@@ -205,11 +247,30 @@ public class InstituteDataHandler extends BaseDataHandler {
         return resultLiveData;
     }
 
-    public static String getCachedInstituteId(String handle) {
+    public static synchronized void addToCache(String id, String handle) {
+        instituteHandleToIdCache.put(handle, id);
+        instituteIdToHandleCache.put(id, handle);
+    }
+
+    public static synchronized String getCachedInstituteId(String handle) {
         return instituteHandleToIdCache.get(handle);
     }
 
-    public static String getCachedInstituteHandle(String id) {
+    public static synchronized String getCachedInstituteHandle(String id) {
         return instituteIdToHandleCache.get(id);
+    }
+
+    public static final class MutableUserInstituteModel extends MutableInstituteModel {
+
+        private Uri imagePath;
+        private String oldHandle;
+
+        public void setImagePath(Uri imagePath) {
+            this.imagePath = imagePath;
+        }
+
+        public Uri getImagePath() {
+            return imagePath;
+        }
     }
 }

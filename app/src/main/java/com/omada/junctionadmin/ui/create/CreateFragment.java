@@ -1,6 +1,7 @@
 package com.omada.junctionadmin.ui.create;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +23,6 @@ public class CreateFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         createPostViewModel = new ViewModelProvider(requireActivity()).get(CreatePostViewModel.class);
-
         return inflater.inflate(R.layout.create_fragment_layout, container, false);
     }
 

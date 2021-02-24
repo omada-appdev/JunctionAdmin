@@ -1,6 +1,7 @@
 package com.omada.junctionadmin.ui.profile;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -13,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -22,12 +24,13 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.imageview.ShapeableImageView;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.databinding.UserProfileEditDetailsLayoutBinding;
-import com.omada.junctionadmin.utils.image.ImageUtilities;
+import com.omada.junctionadmin.utils.ImageUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.viewmodels.UserProfileViewModel;
 
@@ -46,7 +49,6 @@ public class ProfileEditDetailsFragment extends Fragment {
                     startFilePicker();
                 }
             });
-
 
     private UserProfileEditDetailsLayoutBinding binding;
 
@@ -114,14 +116,14 @@ public class ProfileEditDetailsFragment extends Fragment {
             }
         });
 
-        binding.instituteInput.addTextChangedListener(new TextWatcher() {
+        binding.phoneInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                binding.instituteLayout.setError(null);
+                binding.phoneLayout.setError(null);
             }
 
             @Override
@@ -144,14 +146,17 @@ public class ProfileEditDetailsFragment extends Fragment {
                                     binding.nameLayout.setError("Invalid name");
                                 }
                                 break;
-                            case VALIDATION_POINT_INSTITUTE_HANDLE:
+                            case VALIDATION_POINT_PHONE:
                                 if(dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
-                                    binding.instituteLayout.setError("Invalid institute");
+                                    binding.phoneLayout.setError("Invalid phone number");
                                 }
                                 break;
                             case VALIDATION_POINT_ALL:
                                 if(dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                                     binding.doneButton.setEnabled(true);
+                                } else {
+                                    InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                                    imm.hideSoftInputFromWindow(binding.doneButton.getWindowToken(), 0);
                                 }
                                 break;
                             default:
@@ -241,17 +246,24 @@ public class ProfileEditDetailsFragment extends Fragment {
                         if(fileLiveEvent != null){
                             File file = fileLiveEvent.getDataOnceAndReset();
                             if(file != null) {
-                                binding.getViewModel().getOrganizationUpdater().newProfilePicture.setValue(Uri.fromFile(file));
+                                MutableLiveData<Uri> profilePictureLiveData = binding.getViewModel().getOrganizationUpdater().newProfilePicture;
+                                profilePictureLiveData.setValue(Uri.fromFile(file));
                             }
                             else {
                                 // Handle null case
                             }
                         }
                         else{
-                            Log.e("Profile", "Error ");
+                            Log.e("Profile", "Error : the provided fileLiveEvent was null");
                         }
                     });
 
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        binding.getViewModel().exitEditDetails();
+        super.onDestroyView();
     }
 }

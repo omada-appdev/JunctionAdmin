@@ -1,63 +1,61 @@
 package com.omada.junctionadmin.viewmodels;
 
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
 import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.common.collect.ImmutableList;
-import com.omada.junctionadmin.data.DataRepository;
+import com.omada.junctionadmin.data.models.testdummy.TestVenueModel;
+import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.handler.PostDataHandler;
-import com.omada.junctionadmin.data.handler.UserDataHandler;
-import com.omada.junctionadmin.data.models.external.InterestModel;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.external.VenueModel;
-import com.omada.junctionadmin.data.models.mutable.MutableArticleModel;
-import com.omada.junctionadmin.data.models.mutable.MutableEventModel;
-import com.omada.junctionadmin.data.models.testdummy.TestVenueModel;
-import com.omada.junctionadmin.ui.login.LoginActivity;
+import com.omada.junctionadmin.utils.StringUtilities;
+import com.omada.junctionadmin.utils.TransformUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
-import com.omada.junctionadmin.utils.taskhandler.LiveDataAggregator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
-import com.omada.junctionadmin.utils.transform.TransformUtilities;
 
-import java.sql.Date;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.omada.junctionadmin.data.DataRepository.getInstance;
-
-
+/*
+    For all dates and times all OUTPUTS are in system zone, all INPUTS are in UTC zone
+    Everything that the View layer directly interacts with must be in system zone by default
+ */
 public class CreatePostViewModel extends BaseViewModel {
 
-    private enum CurrentState {
+    public enum CurrentState {
         CURRENT_STATE_IDLE,
         CURRENT_STATE_UPLOADING,
-        CURRENT_STATE_UPLOAD_SUCCESS,
-        CURRENT_STATE_UPLOAD_FAILURE
+        CURRENT_STATE_UPLOAD_SUCCESS;
     }
 
     private CurrentState currentState = CurrentState.CURRENT_STATE_IDLE;
-    private final EventCreator eventCreator = new TestEventCreator();
-    private final ArticleCreator articleCreator = new ArticleCreator();
 
+    private final EventCreator eventCreator = new TestEventCreator();
+
+    private final ArticleCreator articleCreator = new ArticleCreator();
     private final MutableLiveData<LiveEvent<Boolean>> createEventTrigger = new MutableLiveData<>();
+
     private final MutableLiveData<LiveEvent<Boolean>> createArticleTrigger = new MutableLiveData<>();
     private final MutableLiveData<LiveEvent<Boolean>> createBookingTrigger = new MutableLiveData<>();
     private final MutableLiveData<LiveEvent<Boolean>> createFormTrigger = new MutableLiveData<>();
+
+    private final MutableLiveData<LiveEvent<Boolean>> bookingValidationTrigger = new MutableLiveData<>();
+    private final MutableLiveData<LiveEvent<Boolean>> formValidationTrigger = new MutableLiveData<>();
 
     public CreatePostViewModel() {
         initCalendar();
@@ -92,8 +90,37 @@ public class CreatePostViewModel extends BaseViewModel {
         return createEventTrigger;
     }
 
+    public MutableLiveData<LiveEvent<Boolean>> getBookingValidationTrigger() {
+        return bookingValidationTrigger;
+    }
+
+    public MutableLiveData<LiveEvent<Boolean>> getFormValidationTrigger() {
+        return formValidationTrigger;
+    }
+
     public MutableLiveData<LiveEvent<Boolean>> getCreateArticleTrigger() {
         return createArticleTrigger;
+    }
+
+    public LiveData<LiveEvent<Boolean>> addEventForm(String formLink) {
+
+        MutableLiveData<LiveEvent<Boolean>> result = new MutableLiveData<>();
+        dataValidator.validateFormLink(formLink, dataValidationInformation -> {
+            if (dataValidationInformation == null) {
+                return;
+            }
+            if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                Map<String, Map<String, Map<String, String>>> form = new HashMap<>();
+                form.put("links", new HashMap<>());
+                form.get("links").put("linkId", new HashMap<>());
+                form.get("links").get("linkId").put("url", formLink);
+                eventCreator.setForm(form);
+                result.setValue(new LiveEvent<>(true));
+            } else {
+                result.setValue(new LiveEvent<>(false));
+            }
+        });
+        return result;
     }
 
     public LiveData<LiveEvent<Boolean>> createEvent() {
@@ -102,28 +129,43 @@ public class CreatePostViewModel extends BaseViewModel {
 
         AtomicBoolean anyDetailsEntryInvalid = new AtomicBoolean(false);
 
+        if (eventCreator.startTime.getValue() == null || eventCreator.endTime.getValue() == null) {
+            anyDetailsEntryInvalid.set(true);
+            Log.e("Create", "Null start time or end time");
+            bookingValidationTrigger.setValue(new LiveEvent<>(false));
+        }
+        if (eventCreator.getVenueModel() == null) {
+            anyDetailsEntryInvalid.set(true);
+            Log.e("Create", "Null venue");
+            bookingValidationTrigger.setValue(new LiveEvent<>(false));
+        }
+
+        if (eventCreator.getForm() == null) {
+            anyDetailsEntryInvalid.set(true);
+            Log.e("Create", "Null form");
+            formValidationTrigger.setValue(new LiveEvent<>(false));
+        }
+
         dataValidator.validateEventTitle(eventCreator.title.getValue(), dataValidationInformation -> {
-            if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID){
+            if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                 eventModel.setTitle(eventCreator.title.getValue());
-            }
-            else {
+            } else {
                 anyDetailsEntryInvalid.set(true);
             }
             notifyValidity(dataValidationInformation);
         });
 
         dataValidator.validateImage(eventCreator.getImagePath(), dataValidationInformation -> {
-            if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID){
+            if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                 eventModel.setImagePath(eventCreator.getImagePath());
-            }
-            else {
+            } else {
                 anyDetailsEntryInvalid.set(true);
             }
             notifyValidity(dataValidationInformation);
         });
 
         dataValidator.validateEventDescription(eventCreator.description.getValue(), dataValidationInformation -> {
-            if(dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID){
+            if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                 eventModel.setDescription(eventCreator.description.getValue());
             } else {
                 anyDetailsEntryInvalid.set(true);
@@ -136,7 +178,7 @@ public class CreatePostViewModel extends BaseViewModel {
          In case of invalidity we return a constant live data (dummy) that indicates
          unsuccessful transaction
         */
-        if(anyDetailsEntryInvalid.get()) {
+        if (anyDetailsEntryInvalid.get()) {
             notifyValidity(
                     new DataValidator.DataValidationInformation(
                             DataValidator.DataValidationPoint.VALIDATION_POINT_ALL,
@@ -144,8 +186,7 @@ public class CreatePostViewModel extends BaseViewModel {
                     )
             );
             return new MutableLiveData<>(new LiveEvent<>(false));
-        }
-        else {
+        } else {
             notifyValidity(
                     new DataValidator.DataValidationInformation(
                             DataValidator.DataValidationPoint.VALIDATION_POINT_ALL,
@@ -155,7 +196,7 @@ public class CreatePostViewModel extends BaseViewModel {
         }
 
 
-        OrganizationModel organizationModel = DataRepository
+        OrganizationModel organizationModel = MainDataRepository
                 .getInstance()
                 .getUserDataHandler()
                 .getCurrentUserModel();
@@ -169,16 +210,18 @@ public class CreatePostViewModel extends BaseViewModel {
             eventModel.setCreatorPhone(organizationModel.getPhone());
             eventModel.setCreatorProfilePicture(organizationModel.getProfilePicture());
 
-            // TODO check how exactly parsing is done
-            eventModel.setStartTime(TransformUtilities.utcDateFromLocalDateTime(
-                    LocalDateTime.parse(eventCreator.startTime.getValue()))
+            eventModel.setStartTime(
+                    TransformUtilities.convertSystemZoneLocalDateTimeToUtc(
+                            eventCreator.startTime.getValue()
+                    )
             );
-            eventModel.setEndTime(TransformUtilities.utcDateFromLocalDateTime(
-                    LocalDateTime.parse(eventCreator.endTime.getValue()))
+            eventModel.setEndTime(
+                    TransformUtilities.convertSystemZoneLocalDateTimeToUtc(
+                            eventCreator.endTime.getValue()
+                    )
             );
 
-            //VenueModel venueModel = eventCreator.getVenueModel();
-            VenueModel venueModel = new TestVenueModel();
+            VenueModel venueModel = eventCreator.getVenueModel();
             eventModel.setVenue(venueModel.getId());
             eventModel.setVenueName(venueModel.getName());
             eventModel.setVenueAddress(venueModel.getAddress());
@@ -191,21 +234,20 @@ public class CreatePostViewModel extends BaseViewModel {
 
         currentState = CurrentState.CURRENT_STATE_UPLOADING;
         return Transformations.map(
-                DataRepository
-                    .getInstance()
-                    .getPostDataHandler()
-                    .createPost(eventModel),
+                MainDataRepository
+                        .getInstance()
+                        .getPostDataHandler()
+                        .createPost(eventModel),
 
                 input -> {
                     if (input == null) {
                         return null;
                     }
                     Boolean result = input.getDataOnceAndReset();
-                    if(result) {
+                    if (result) {
                         currentState = CurrentState.CURRENT_STATE_UPLOAD_SUCCESS;
-                    }
-                    else {
-                        currentState = CurrentState.CURRENT_STATE_UPLOAD_FAILURE;
+                    } else {
+                        currentState = CurrentState.CURRENT_STATE_IDLE;
                     }
                     return new LiveEvent<>(result);
                 }
@@ -214,7 +256,7 @@ public class CreatePostViewModel extends BaseViewModel {
 
     public LiveData<LiveEvent<Boolean>> createArticle() {
 
-        OrganizationModel organizationModel = DataRepository
+        OrganizationModel organizationModel = MainDataRepository
                 .getInstance()
                 .getUserDataHandler()
                 .getCurrentUserModel();
@@ -245,13 +287,13 @@ public class CreatePostViewModel extends BaseViewModel {
 
         // TODO validate
 
-        if(!valid){
+        if (!valid) {
             validityResult.setValue(new LiveEvent<>(false));
             return validityResult;
         }
 
         return Transformations.map(
-                DataRepository
+                MainDataRepository
                         .getInstance()
                         .getPostDataHandler()
                         .createPost(articleModel),
@@ -276,27 +318,34 @@ public class CreatePostViewModel extends BaseViewModel {
         return articleCreator;
     }
 
+    public CurrentState getCurrentState() {
+        return currentState;
+    }
+
     public void resetCreators() {
         eventCreator.resetData();
         articleCreator.resetData();
     }
 
 
+    private long invalidUpTo;
     private long endTime;
     private long startTime;
 
     private void initCalendar() {
 
-        long today = MaterialDatePicker.todayInUtcMilliseconds();
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        long today = ZonedDateTime.now(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
         calendar.clear();
         calendar.setTimeInMillis(today);
 
-        calendar.roll(Calendar.YEAR, -5);
+        startTime = calendar.getTimeInMillis();
+
+        invalidUpTo = startTime;
+
+        calendar.roll(Calendar.YEAR, 2);
         endTime = calendar.getTimeInMillis();
 
-        calendar.roll(Calendar.YEAR, -70);
-        startTime = calendar.getTimeInMillis();
     }
 
     public MaterialDatePicker.Builder<?> setupDateSelectorBuilder() {
@@ -304,7 +353,7 @@ public class CreatePostViewModel extends BaseViewModel {
         int inputMode = MaterialDatePicker.INPUT_MODE_CALENDAR;
 
         MaterialDatePicker.Builder<Long> builder = MaterialDatePicker.Builder.datePicker();
-        builder.setSelection(endTime);
+        builder.setSelection(startTime);
         builder.setInputMode(inputMode);
 
         return builder;
@@ -316,27 +365,31 @@ public class CreatePostViewModel extends BaseViewModel {
 
         constraintsBuilder.setStart(startTime);
         constraintsBuilder.setEnd(endTime);
-        constraintsBuilder.setOpenAt(endTime);
+        constraintsBuilder.setOpenAt(startTime);
+        constraintsBuilder.setValidator(DateValidatorPointForward.from(invalidUpTo));
 
         return constraintsBuilder;
     }
 
+
     public static class EventCreator {
 
-        private EventCreator(){
+        private EventCreator() {
         }
 
         public final MutableLiveData<String> title = new MutableLiveData<>();
         public final MutableLiveData<String> description = new MutableLiveData<>();
+
         protected Uri imagePath;
 
-
-        public final MutableLiveData<String> startTime = new MutableLiveData<>();
-        public final MutableLiveData<String> endTime = new MutableLiveData<>();
+        // in system zone
+        public final MutableLiveData<ZonedDateTime> startTime = new MutableLiveData<>();
+        // in system zone
+        public final MutableLiveData<ZonedDateTime> endTime = new MutableLiveData<>();
 
         protected VenueModel venueModel;
         protected ImmutableList<String> tags;
-        protected Map <String, Map <String, Map<String, String>>> form;
+        protected Map<String, Map<String, Map<String, String>>> form;
 
         public VenueModel getVenueModel() {
             return venueModel;
@@ -354,20 +407,34 @@ public class CreatePostViewModel extends BaseViewModel {
             this.tags = ImmutableList.copyOf(tags);
         }
 
-        public Map<String, Map<String, Map<String, String>>> getForm() {
+        private Map<String, Map<String, Map<String, String>>> getForm() {
             return form;
         }
 
-        public void setForm(Map<String, Map<String, Map<String, String>>> form) {
+        public String getFormLink() {
+            if (form == null) {
+                return null;
+            }
+            String link = null;
+            try {
+                link = form.get("links").get("linkId").get("url");
+            } catch (Exception e) {
+                return null;
+            }
+            return link;
+        }
+
+        protected void setForm(Map<String, Map<String, Map<String, String>>> form) {
             this.form = form;
         }
 
-        public void resetData(){
+        public void resetData() {
             resetData(true, true);
         }
 
         public void resetData(boolean resetForm, boolean resetVenueModel) {
 
+            Log.e("Create", "Resetting event");
             title.setValue(null);
             description.setValue(null);
             startTime.setValue(null);
@@ -436,13 +503,7 @@ public class CreatePostViewModel extends BaseViewModel {
     private static class TestEventCreator extends EventCreator {
 
         public TestEventCreator() {
-            setVenueModel(new TestVenueModel());
-            startTime.setValue(LocalDateTime.of(2021, 2, 5, 12, 0, 0).format(
-                    DateTimeFormatter.ISO_DATE_TIME
-            ));
-            endTime.setValue(LocalDateTime.of(2021, 2, 5, 12, 30, 0).format(
-                    DateTimeFormatter.ISO_DATE_TIME
-            ));
+            Log.e("Create", "Initialized event creator");
         }
 
         @Override
@@ -452,7 +513,7 @@ public class CreatePostViewModel extends BaseViewModel {
 
         @Override
         public void resetData(boolean resetForm, boolean resetVenueModel) {
-
+            Log.e("Create", "Resetting event");
             title.setValue(null);
             description.setValue(null);
             imagePath = null;

@@ -36,6 +36,7 @@ public class EventModelRemoteDB extends BaseModelInternal {
     private Map<String, String> venueCache;
 
     private List<String> tags;
+    private String booking;
 
     public EventModelRemoteDB(String id){
         super(id);
@@ -97,6 +98,11 @@ public class EventModelRemoteDB extends BaseModelInternal {
     @PropertyName("venueCache")
     public Map<String, String> getVenueCache() {
         return venueCache;
+    }
+
+    @PropertyName("booking")
+    public String getBooking() {
+        return booking;
     }
 
     @PropertyName("tags")
@@ -172,8 +178,6 @@ public class EventModelRemoteDB extends BaseModelInternal {
         this.tags = tags;
     }
 
-    @ServerTimestamp
-    @PropertyName("timeCreated")
     public void setTimeCreated(Timestamp timeCreated) {
         this.timeCreated = timeCreated;
     }
@@ -181,5 +185,15 @@ public class EventModelRemoteDB extends BaseModelInternal {
     @PropertyName("type")
     public String getType() {
         return type;
+    }
+
+    @PropertyName("booking")
+    public void setBooking(String booking) {
+        this.booking = booking;
+    }
+
+    @PropertyName("organizationHighlight")
+    public boolean getOrganizationHighlight() {
+        return true;
     }
 }

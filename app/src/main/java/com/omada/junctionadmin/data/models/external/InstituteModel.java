@@ -1,22 +1,21 @@
 package com.omada.junctionadmin.data.models.external;
 
 import android.os.Parcel;
-import android.os.Parcelable;
-
-import com.omada.junctionadmin.data.models.internal.remote.InstituteModelRemoteDB;
 
 public class InstituteModel extends BaseModel {
 
     protected String handle;
     protected String name;
+    protected String image;
 
-    protected InstituteModel(){
+    protected InstituteModel() {
     }
 
     protected InstituteModel(Parcel in) {
         id = in.readString();
         handle = in.readString();
         name = in.readString();
+        image = in.readString();
     }
 
     public static final Creator<InstituteModel> CREATOR = new Creator<InstituteModel>() {
@@ -31,12 +30,16 @@ public class InstituteModel extends BaseModel {
         }
     };
 
-    public String getHandle(){
+    public String getHandle() {
         return handle;
     }
 
-    public String getName(){
+    public String getName() {
         return name;
+    }
+
+    public String getImage() {
+        return image;
     }
 
     @Override
@@ -49,5 +52,6 @@ public class InstituteModel extends BaseModel {
         dest.writeString(id);
         dest.writeString(handle);
         dest.writeString(name);
+        dest.writeString(image);
     }
 }

@@ -4,6 +4,11 @@ import android.os.Parcel;
 
 import com.google.firebase.Timestamp;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+
 public class BookingModel extends BaseModel {
 
     protected String venue;
@@ -15,8 +20,8 @@ public class BookingModel extends BaseModel {
     protected String eventName;
     protected Timestamp timeCreated;
 
-    protected Timestamp startTime;
-    protected Timestamp endTime;
+    protected LocalDateTime startTime;
+    protected LocalDateTime endTime;
 
     protected String creator;
     protected String creatorName;
@@ -38,8 +43,8 @@ public class BookingModel extends BaseModel {
         event = in.readString();
         eventName = in.readString();
         timeCreated = in.readParcelable(Timestamp.class.getClassLoader());
-        startTime = in.readParcelable(Timestamp.class.getClassLoader());
-        endTime = in.readParcelable(Timestamp.class.getClassLoader());
+        startTime = Instant.ofEpochSecond(in.readLong()).atZone(ZoneId.of("UTC")).toLocalDateTime();
+        endTime = Instant.ofEpochSecond(in.readLong()).atZone(ZoneId.of("UTC")).toLocalDateTime();
         creator = in.readString();
         creatorName = in.readString();
         creatorProfilePicture = in.readString();
@@ -72,11 +77,11 @@ public class BookingModel extends BaseModel {
         return timeCreated;
     }
 
-    public Timestamp getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
-    public Timestamp getEndTime() {
+    public LocalDateTime getEndTime() {
         return endTime;
     }
 
@@ -136,8 +141,8 @@ public class BookingModel extends BaseModel {
         dest.writeString(event);
         dest.writeString(eventName);
         dest.writeParcelable(timeCreated, flags);
-        dest.writeParcelable(startTime, flags);
-        dest.writeParcelable(endTime, flags);
+        dest.writeLong(startTime.toEpochSecond(ZoneOffset.UTC));
+        dest.writeLong(endTime.toEpochSecond(ZoneOffset.UTC));
         dest.writeString(creator);
         dest.writeString(creatorName);
         dest.writeString(creatorProfilePicture);

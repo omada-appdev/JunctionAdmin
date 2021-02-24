@@ -29,6 +29,17 @@ public class OrganizationModelConverter extends BaseConverter <OrganizationModel
         model.setPhone(remoteModel.getPhone());
         model.setProfilePicture(remoteModel.getProfilePicture());
 
+        if(remoteModel.getIsInstituteAdmin() != null) {
+            model.setInstituteAdmin(remoteModel.getIsInstituteAdmin());
+        } else {
+            model.setInstituteAdmin(false);
+        }
+        if(remoteModel.getInstituteVerified() != null) {
+            model.setInstituteVerified(remoteModel.getInstituteVerified());
+        } else {
+            model.setInstituteVerified(false);
+        }
+
         return model;
 
     }

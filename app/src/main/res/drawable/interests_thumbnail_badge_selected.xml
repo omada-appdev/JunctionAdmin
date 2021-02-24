@@ -15,19 +15,7 @@
     <item
         android:gravity="top|right"
         android:right="8dp"
-        android:top="8dp">
-        <shape android:shape="oval">
-            <solid
-                android:color="#388E3C"/>
-            <size
-                android:width="40dp"
-                android:height="40dp"/>
-        </shape>
-    </item>
-    <item
-        android:drawable="@drawable/ic_done_24px"
-        android:gravity="top|right"
-        android:top="12dp"
-        android:right="12dp"/>
+        android:top="8dp"
+        android:drawable="@drawable/selected_badge"/>
 
 </layer-list>

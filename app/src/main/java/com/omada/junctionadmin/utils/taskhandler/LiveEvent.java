@@ -15,7 +15,7 @@ public class LiveEvent<T> {
         this.data = data;
     }
 
-    public T getDataOnce(){
+    protected T getDataOnce(){
         if(eventHandled){
             return null;
         }

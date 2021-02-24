@@ -2,6 +2,7 @@ package com.omada.junctionadmin.application;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -20,6 +21,7 @@ public class JunctionAdminApplication extends Application {
     @Override
     public void onCreate() {
         instance = this;
+        Log.e("JunctionAdminApp", "Current branch : master");
         super.onCreate();
     }
 }

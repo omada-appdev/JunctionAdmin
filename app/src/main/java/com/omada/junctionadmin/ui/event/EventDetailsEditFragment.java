@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.collection.CircularArray;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
@@ -133,6 +134,11 @@ public class EventDetailsEditFragment extends Fragment {
 
     private void buildDeleteConfirmationDialog() {
 
+        AlertDialog progressDialog = new MaterialAlertDialogBuilder(requireContext())
+                .setCancelable(false)
+                .setView(R.layout.deleting_alert_layout)
+                .create();
+
         new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Confirm deletion")
                 .setMessage("This action cannot be undone. Are you sure you want to delete?")
@@ -142,9 +148,12 @@ public class EventDetailsEditFragment extends Fragment {
                     binding.deleteButton.setText("Deleting");
                     LiveData<Boolean> resultLiveData = userProfileViewModel.deletePost(eventModel);
 
+                    progressDialog.show();
+
                     resultLiveData
                             .observe(getViewLifecycleOwner(), deleted -> {
                                 if (deleted != null) {
+                                    progressDialog.dismiss();
                                     if (deleted) {
                                         requireActivity().getSupportFragmentManager().popBackStack();
                                     } else {

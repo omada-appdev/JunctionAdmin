@@ -1,4 +1,4 @@
-package com.omada.junctionadmin.data.repository;
+package com.omada.junctionadmin.data.handler;
 
 import android.net.Uri;
 import android.util.Log;
@@ -16,8 +16,8 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.omada.junctionadmin.data.BaseDataHandler;
-import com.omada.junctionadmin.data.repositorytemp.DataRepositoryAccessIdentifier;
-import com.omada.junctionadmin.data.repositorytemp.MainDataRepository;
+import com.omada.junctionadmin.data.repository.DataRepositoryAccessIdentifier;
+import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.models.converter.ArticleModelConverter;
 import com.omada.junctionadmin.data.models.converter.EventModelConverter;
 import com.omada.junctionadmin.data.models.converter.RegistrationModelConverter;
@@ -33,12 +33,14 @@ import com.omada.junctionadmin.data.models.mutable.MutableBookingModel;
 import com.omada.junctionadmin.data.models.mutable.MutableEventModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PostDataRepository extends BaseDataHandler {
+public class PostDataHandler extends BaseDataHandler {
 
     private MutableLiveData<LiveEvent<List<PostModel>>> loadedInstituteHighlightsNotifier = new MutableLiveData<>();
     private MutableLiveData<LiveEvent<List<PostModel>>> loadedOrganizationHighlightsNotifier = new MutableLiveData<>();
@@ -47,7 +49,7 @@ public class PostDataRepository extends BaseDataHandler {
 
 
     public LiveData<LiveEvent<List<PostModel>>> getOrganizationHighlights(
-            DataRepositoryAccessIdentifier accessIdentifier, String organizationID) {
+            DataRepositoryAccessIdentifier accessIdentifier, String organizationID){
 
         MutableLiveData<LiveEvent<List<PostModel>>> loadedOrganizationHighlights = new MutableLiveData<>();
 
@@ -64,9 +66,9 @@ public class PostDataRepository extends BaseDataHandler {
 
                     List<PostModel> postModels = new ArrayList<>();
 
-                    for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
+                    for(DocumentSnapshot snapshot: queryDocumentSnapshots){
                         PostModel postModel = convertSnapshotToPostModel(snapshot);
-                        if (postModel != null) {
+                        if(postModel != null){
                             postModels.add(postModel);
                         }
                     }
@@ -83,11 +85,11 @@ public class PostDataRepository extends BaseDataHandler {
     }
 
     public void getInstituteHighlights(
-            DataRepositoryAccessIdentifier identifier) {
+            DataRepositoryAccessIdentifier identifier){
 
         String instituteId = MainDataRepository
                 .getInstance()
-                .getUserDataRepository()
+                .getUserDataHandler()
                 .getCurrentUserModel()
                 .getInstitute();
 
@@ -104,9 +106,14 @@ public class PostDataRepository extends BaseDataHandler {
 
                     List<PostModel> postModels = new ArrayList<>();
 
-                    for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
+                    for(DocumentSnapshot snapshot: queryDocumentSnapshots){
+                        if(!snapshot.exists()){
+                            continue;
+                        }
+                        Log.e("Posts", "Institute highlight fetch source is from cache : " + snapshot.getMetadata().isFromCache());
+                        Log.e("Posts", "Institute highlight fetch has pending writes : " + snapshot.getMetadata().hasPendingWrites());
                         PostModel postModel = convertSnapshotToPostModel(snapshot);
-                        if (postModel != null) {
+                        if(postModel != null){
                             postModels.add(postModel);
                         }
                     }
@@ -123,12 +130,12 @@ public class PostDataRepository extends BaseDataHandler {
     }
 
     public void getAllInstitutePosts(
-            DataRepositoryAccessIdentifier identifier) {
+            DataRepositoryAccessIdentifier identifier){
 
 
         String instituteId = MainDataRepository
                 .getInstance()
-                .getUserDataRepository()
+                .getUserDataHandler()
                 .getCurrentUserModel()
                 .getInstitute();
 
@@ -142,9 +149,9 @@ public class PostDataRepository extends BaseDataHandler {
 
                     List<PostModel> postModels = new ArrayList<>();
 
-                    for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
+                    for(DocumentSnapshot snapshot: queryDocumentSnapshots){
                         PostModel postModel = convertSnapshotToPostModel(snapshot);
-                        if (postModel != null) {
+                        if(postModel != null){
                             postModels.add(postModel);
                         }
                     }
@@ -160,7 +167,7 @@ public class PostDataRepository extends BaseDataHandler {
     }
 
     public void getAllOrganizationPosts(
-            DataRepositoryAccessIdentifier identifier, String organizationID) {
+            DataRepositoryAccessIdentifier identifier, String organizationID){
 
         FirebaseFirestore
                 .getInstance()
@@ -171,9 +178,9 @@ public class PostDataRepository extends BaseDataHandler {
 
                     List<PostModel> postModels = new ArrayList<>();
 
-                    for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
+                    for(DocumentSnapshot snapshot: queryDocumentSnapshots){
                         PostModel postModel = convertSnapshotToPostModel(snapshot);
-                        if (postModel != null) {
+                        if(postModel != null){
                             postModels.add(postModel);
                         }
                     }
@@ -202,9 +209,9 @@ public class PostDataRepository extends BaseDataHandler {
 
                     List<PostModel> postModels = new ArrayList<>();
 
-                    for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
+                    for(DocumentSnapshot snapshot: queryDocumentSnapshots){
                         PostModel postModel = convertSnapshotToPostModel(snapshot);
-                        if (postModel != null) {
+                        if(postModel != null){
                             postModels.add(postModel);
                         }
                     }
@@ -228,7 +235,7 @@ public class PostDataRepository extends BaseDataHandler {
      */
     // TODO changesInPostModel must be made immutable
 
-    public LiveData<LiveEvent<Boolean>> updatePost(String postId, PostModel mutableModel) {
+    public LiveData<LiveEvent<Boolean>> updatePost(String postId, PostModel mutableModel){
 
         /*
          I know I am abusing Java here but I think this is better and more scalable
@@ -276,7 +283,7 @@ public class PostDataRepository extends BaseDataHandler {
 
     }
 
-    public LiveData<LiveEvent<Boolean>> createPost(PostModel postModel) {
+    public LiveData<LiveEvent<Boolean>> createPost(PostModel postModel){
 
         MutableLiveData<LiveEvent<Boolean>> resultLiveData = new MutableLiveData<>();
 
@@ -306,18 +313,20 @@ public class PostDataRepository extends BaseDataHandler {
             */
             MainDataRepository
                     .getInstance()
-                    .getVenueDataRepository()
+                    .getVenueDataHandler()
                     .createNewBooking(MutableBookingModel.fromEventModel(eventModel), batch);
-        } else if (ArticleCreatorModel.class.equals(postClass)) {
-            imagePath = ((ArticleCreatorModel) postModel).getImagePath();
+        }
+        else if (ArticleCreatorModel.class.equals(postClass)) {
+            imagePath = ((ArticleCreatorModel)postModel).getImagePath();
             data = articleModelConverter.convertExternalToRemoteDBModel((ArticleModel) postModel);
-        } else {
+        }
+        else {
             throw new UnsupportedOperationException(
                     "Attempt to upload a post object that does not extend the required classes. Please ensure your post model extends ArticleCreatorModel or EventCreatorModel"
             );
         }
 
-        if (data == null) {
+        if(data == null){
             resultLiveData.setValue(new LiveEvent<>(false));
             return resultLiveData;
         }
@@ -330,11 +339,12 @@ public class PostDataRepository extends BaseDataHandler {
         Object finalData = data;
         Uri finalImagePath = imagePath;
         MainDataRepository.getInstance()
-                .getRemoteImageDataSink()
+                .getImageUploadHandler()
                 .uploadPostImage(imagePath, generatedEventId, postModel.getCreator())
                 .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        String path = task.getResult();
+                    if(task.isSuccessful()) {
+                        String path = task.getResult().getMetadata().getReference().toString();
+
                         setImagePath(finalData, path);
                         batch.set(postDocRef, finalData);
                         batch.commit()
@@ -344,24 +354,26 @@ public class PostDataRepository extends BaseDataHandler {
 
                                     MainDataRepository
                                             .getInstance()
-                                            .getUserDataRepository()
+                                            .getUserDataHandler()
                                             .incrementHeldEventsNumber();
                                 })
                                 .addOnFailureListener(e -> {
                                     resultLiveData.setValue(new LiveEvent<>(false));
                                     Log.e("Post", "Error creating post");
                                 });
-                    } else {
+                    }
+                    else {
                         resultLiveData.setValue(new LiveEvent<>(false));
                         Log.e("Post", "Error uploading post image");
                     }
+
                 });
 
         return resultLiveData;
 
     }
 
-    public LiveData<LiveEvent<Boolean>> deletePost(EventModel eventModel) {
+    public LiveData<LiveEvent<Boolean>> deletePost(EventModel eventModel){
 
         MutableLiveData<LiveEvent<Boolean>> resultLiveData = new MutableLiveData<>();
 
@@ -373,7 +385,7 @@ public class PostDataRepository extends BaseDataHandler {
 
         batch.delete(eventDocRef);
 
-        MainDataRepository.getInstance().getVenueDataRepository()
+        MainDataRepository.getInstance().getVenueDataHandler()
                 .deleteBooking(eventModel, batch);
 
         batch.commit()
@@ -388,12 +400,12 @@ public class PostDataRepository extends BaseDataHandler {
                             .child(eventModel.getId())
                             .delete()
                             .addOnCompleteListener(aVoid2 -> {
-                                Log.e("Posts", "Post image deletion successful");
+                               Log.e("Posts", "Post image deletion successful");
                             });
 
                     MainDataRepository
                             .getInstance()
-                            .getUserDataRepository()
+                            .getUserDataHandler()
                             .decrementHeldEventsNumber();
 
                     resultLiveData.setValue(new LiveEvent<>(true));
@@ -408,17 +420,17 @@ public class PostDataRepository extends BaseDataHandler {
     }
 
     private void setImagePath(Object data, String image) {
-        if (data instanceof EventModelRemoteDB) {
-            ((EventModelRemoteDB) data).setImage(image);
+        if(data instanceof EventModelRemoteDB) {
+            ((EventModelRemoteDB)data).setImage(image);
         } else if (data instanceof ArticleModelRemoteDB) {
-            ((ArticleModelRemoteDB) data).setImage(image);
+            ((ArticleModelRemoteDB)data).setImage(image);
         } else {
             throw new UnsupportedOperationException("Provided object does not meet requirements for being a post");
         }
     }
 
     public LiveData<LiveEvent<List<RegistrationModel>>> getEventRegistrations(
-            DataRepositoryAccessIdentifier identifier, String eventId) {
+            DataRepositoryAccessIdentifier identifier, String eventId){
 
         MutableLiveData<LiveEvent<List<RegistrationModel>>> registrationsLiveData = new MutableLiveData<>();
 
@@ -432,9 +444,9 @@ public class PostDataRepository extends BaseDataHandler {
 
                     List<RegistrationModel> registrationModels = new ArrayList<>();
 
-                    for (DocumentSnapshot snapshot : queryDocumentSnapshots) {
+                    for(DocumentSnapshot snapshot : queryDocumentSnapshots) {
                         RegistrationModel model = convertSnapshotToRegistrationModel(snapshot);
-                        if (model != null) {
+                        if(model != null) {
                             registrationModels.add(model);
                         }
                     }
@@ -457,7 +469,7 @@ public class PostDataRepository extends BaseDataHandler {
                 .getInstance()
                 .batch();
 
-        for (String add : added) {
+        for(String add : added) {
             DocumentReference documentReference = FirebaseFirestore
                     .getInstance()
                     .collection("posts")
@@ -465,7 +477,7 @@ public class PostDataRepository extends BaseDataHandler {
             batch.update(documentReference, "organizationHighlight", true);
         }
 
-        for (String remove : removed) {
+        for(String remove : removed) {
             DocumentReference documentReference = FirebaseFirestore
                     .getInstance()
                     .collection("posts")
@@ -485,7 +497,7 @@ public class PostDataRepository extends BaseDataHandler {
         return resultLiveData;
     }
 
-    public LiveData<LiveEvent<Boolean>> updateOrganizationShowcase(String showcaseId, ImmutableList<String> added, ImmutableList<String> removed) {
+    public LiveData<LiveEvent<Boolean>> updateOrganizationShowcase (String showcaseId, ImmutableList<String> added, ImmutableList<String> removed) {
 
         MutableLiveData<LiveEvent<Boolean>> resultLiveData = new MutableLiveData<>();
 
@@ -493,14 +505,14 @@ public class PostDataRepository extends BaseDataHandler {
                 .getInstance()
                 .batch();
 
-        for (String id : added) {
+        for(String id : added){
             DocumentReference reference = FirebaseFirestore
                     .getInstance()
                     .collection("posts")
                     .document(id);
             batch.update(reference, "showcase", showcaseId);
         }
-        for (String id : removed) {
+        for(String id : removed){
             DocumentReference reference = FirebaseFirestore
                     .getInstance()
                     .collection("posts")
@@ -547,11 +559,11 @@ public class PostDataRepository extends BaseDataHandler {
     private static final ArticleModelConverter articleModelConverter = new ArticleModelConverter();
     private static final RegistrationModelConverter registrationModelConverter = new RegistrationModelConverter();
 
-    private static PostModel convertSnapshotToPostModel(DocumentSnapshot snapshot) {
+    private static PostModel convertSnapshotToPostModel(DocumentSnapshot snapshot){
 
         String type = snapshot.getString("type");
 
-        if (type != null) {
+        if(type != null) {
             switch (type) {
                 case "event":
                     return convertSnapshotToEventModel(snapshot);
@@ -564,27 +576,30 @@ public class PostDataRepository extends BaseDataHandler {
         return null;
     }
 
-    private static EventModel convertSnapshotToEventModel(DocumentSnapshot snapshot) {
+    private static EventModel convertSnapshotToEventModel(DocumentSnapshot snapshot){
         EventModelRemoteDB modelRemoteDB = snapshot.toObject(EventModelRemoteDB.class);
-        if (modelRemoteDB == null) {
+        if (modelRemoteDB == null){
             return null;
+        } if (snapshot.getMetadata().hasPendingWrites()) {
+            Log.e("Posts", "Nullity of snapshot time created" + (snapshot.getTimestamp("timeCreated") == null));
+            modelRemoteDB.setTimeCreated(new Timestamp(Date.from(Instant.now())));
         }
         modelRemoteDB.setId(snapshot.getId());
         return eventModelConverter.convertRemoteDBToExternalModel(modelRemoteDB);
     }
 
-    private static ArticleModel convertSnapshotToArticleModel(DocumentSnapshot snapshot) {
+    private static ArticleModel convertSnapshotToArticleModel(DocumentSnapshot snapshot){
         ArticleModelRemoteDB modelRemoteDB = snapshot.toObject(ArticleModelRemoteDB.class);
-        if (modelRemoteDB == null) {
+        if (modelRemoteDB == null){
             return null;
         }
         modelRemoteDB.setId(snapshot.getId());
         return articleModelConverter.convertRemoteDBToExternalModel(modelRemoteDB);
     }
 
-    public static RegistrationModel convertSnapshotToRegistrationModel(DocumentSnapshot snapshot) {
+    public static RegistrationModel convertSnapshotToRegistrationModel(DocumentSnapshot snapshot){
         RegistrationModelRemoteDB modelRemoteDB = snapshot.toObject(RegistrationModelRemoteDB.class);
-        if (modelRemoteDB == null) {
+        if (modelRemoteDB == null){
             return null;
         }
         modelRemoteDB.setId(snapshot.getId());

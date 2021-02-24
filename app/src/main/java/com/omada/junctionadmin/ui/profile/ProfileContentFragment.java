@@ -29,6 +29,7 @@ import com.omada.junctionadmin.ui.uicomponents.models.LargeBoldHeaderModel;
 import com.omada.junctionadmin.viewmodels.FeedContentViewModel;
 import com.omada.junctionadmin.viewmodels.UserProfileViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import mva3.adapter.HeaderSection;
@@ -41,7 +42,7 @@ import mva3.adapter.util.OnSelectionChangedListener;
 public class ProfileContentFragment extends Fragment {
 
     private final MultiViewAdapter adapter = new MultiViewAdapter();
-    private final ListSection<BaseModel> highlightListSection = new ListSection<>();
+    private final ListSection<PostModel> highlightListSection = new ListSection<>();
     private final ItemSection<ListSection<ShowcaseModel>> showcaseSection = new ItemSection<>();
 
     private ListSection<NotificationModel> notificationListSection;
@@ -112,6 +113,13 @@ public class ProfileContentFragment extends Fragment {
                 new InstituteJoinResponseNotificationItemBinder(getViewLifecycleOwner(), userProfileViewModel)
         );
 
+        recyclerView = view.findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(
+                new LinearLayoutManager(view.getContext(), RecyclerView.VERTICAL, false)
+        );
+
+        recyclerView.setAdapter(adapter);
+
         userProfileViewModel.getLoadedOrganizationShowcases().observe(getViewLifecycleOwner(),
                 this::onShowcasesLoaded
         );
@@ -129,13 +137,6 @@ public class ProfileContentFragment extends Fragment {
                 notificationListSection.addAll(notificationModels.subList(notificationListSection.size(), notificationModels.size()));
             }
         });
-
-        recyclerView = view.findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(
-                new LinearLayoutManager(view.getContext(), RecyclerView.VERTICAL, false)
-        );
-
-        recyclerView.setAdapter(adapter);
     }
 
     private void onHighlightsLoaded(List<PostModel> postModels) {
@@ -144,14 +145,11 @@ public class ProfileContentFragment extends Fragment {
             return;
         }
         Log.e("UserProfile", "Highlights loaded : " + postModels.size());
-        if (highlightListSection.size() > postModels.size()) {
-            highlightListSection.clear();
-        }
-        highlightListSection.addAll(postModels);
+        highlightListSection.set(postModels);
         if (highlightHeaderSection.isSectionHidden() && highlightListSection.size() > 0) {
             highlightHeaderSection.showSection();
         }
-        if(highlightListSection.size() == 0) {
+        if (highlightListSection.size() == 0) {
             highlightHeaderSection.hideSection();
         }
         refreshHighlights = false;

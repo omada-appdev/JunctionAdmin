@@ -6,6 +6,7 @@ import com.google.firebase.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Objects;
 
 public abstract class PostModel extends BaseModel {
 
@@ -67,5 +68,18 @@ public abstract class PostModel extends BaseModel {
 
     public ImmutableList<String> getTags() {
         return tags;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PostModel postModel = (PostModel) o;
+        return id.equals(postModel.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

@@ -48,6 +48,7 @@ public class OrganizationModel extends BaseModel {
         heldEventsNumber = externalModel.getHeldEventsNumber();
 
         isInstituteAdmin = externalModel.isInstituteAdmin();
+        instituteVerified = externalModel.isInstituteVerified();
     }
 
     protected OrganizationModel(Parcel in) {

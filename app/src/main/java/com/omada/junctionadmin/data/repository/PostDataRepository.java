@@ -1,4 +1,4 @@
-package com.omada.junctionadmin.data.handler;
+package com.omada.junctionadmin.data.repository;
 
 import android.net.Uri;
 import android.util.Log;
@@ -16,8 +16,6 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.omada.junctionadmin.data.BaseDataHandler;
-import com.omada.junctionadmin.data.repository.DataRepositoryAccessIdentifier;
-import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.models.converter.ArticleModelConverter;
 import com.omada.junctionadmin.data.models.converter.EventModelConverter;
 import com.omada.junctionadmin.data.models.converter.RegistrationModelConverter;
@@ -31,6 +29,8 @@ import com.omada.junctionadmin.data.models.internal.remote.RegistrationModelRemo
 import com.omada.junctionadmin.data.models.mutable.MutableArticleModel;
 import com.omada.junctionadmin.data.models.mutable.MutableBookingModel;
 import com.omada.junctionadmin.data.models.mutable.MutableEventModel;
+import com.omada.junctionadmin.data.repositorytemp.DataRepositoryAccessIdentifier;
+import com.omada.junctionadmin.data.repositorytemp.MainDataRepository;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.time.Instant;
@@ -40,7 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PostDataHandler extends BaseDataHandler {
+public class PostDataRepository extends BaseDataHandler {
 
     private MutableLiveData<LiveEvent<List<PostModel>>> loadedInstituteHighlightsNotifier = new MutableLiveData<>();
     private MutableLiveData<LiveEvent<List<PostModel>>> loadedOrganizationHighlightsNotifier = new MutableLiveData<>();
@@ -89,7 +89,7 @@ public class PostDataHandler extends BaseDataHandler {
 
         String instituteId = MainDataRepository
                 .getInstance()
-                .getUserDataHandler()
+                .getUserDataRepository()
                 .getCurrentUserModel()
                 .getInstitute();
 
@@ -135,7 +135,7 @@ public class PostDataHandler extends BaseDataHandler {
 
         String instituteId = MainDataRepository
                 .getInstance()
-                .getUserDataHandler()
+                .getUserDataRepository()
                 .getCurrentUserModel()
                 .getInstitute();
 
@@ -313,7 +313,7 @@ public class PostDataHandler extends BaseDataHandler {
             */
             MainDataRepository
                     .getInstance()
-                    .getVenueDataHandler()
+                    .getVenueDataRepository()
                     .createNewBooking(MutableBookingModel.fromEventModel(eventModel), batch);
         }
         else if (ArticleCreatorModel.class.equals(postClass)) {
@@ -339,11 +339,11 @@ public class PostDataHandler extends BaseDataHandler {
         Object finalData = data;
         Uri finalImagePath = imagePath;
         MainDataRepository.getInstance()
-                .getImageUploadHandler()
+                .getRemoteImageDataSink()
                 .uploadPostImage(imagePath, generatedEventId, postModel.getCreator())
                 .addOnCompleteListener(task -> {
                     if(task.isSuccessful()) {
-                        String path = task.getResult().getMetadata().getReference().toString();
+                        String path = task.getResult();
 
                         setImagePath(finalData, path);
                         batch.set(postDocRef, finalData);
@@ -354,7 +354,7 @@ public class PostDataHandler extends BaseDataHandler {
 
                                     MainDataRepository
                                             .getInstance()
-                                            .getUserDataHandler()
+                                            .getUserDataRepository()
                                             .incrementHeldEventsNumber();
                                 })
                                 .addOnFailureListener(e -> {
@@ -385,7 +385,7 @@ public class PostDataHandler extends BaseDataHandler {
 
         batch.delete(eventDocRef);
 
-        MainDataRepository.getInstance().getVenueDataHandler()
+        MainDataRepository.getInstance().getVenueDataRepository()
                 .deleteBooking(eventModel, batch);
 
         batch.commit()
@@ -405,7 +405,7 @@ public class PostDataHandler extends BaseDataHandler {
 
                     MainDataRepository
                             .getInstance()
-                            .getUserDataHandler()
+                            .getUserDataRepository()
                             .decrementHeldEventsNumber();
 
                     resultLiveData.setValue(new LiveEvent<>(true));

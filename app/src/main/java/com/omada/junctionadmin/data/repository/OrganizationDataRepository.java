@@ -1,4 +1,4 @@
-package com.omada.junctionadmin.data.handler;
+package com.omada.junctionadmin.data.repository;
 
 
 import android.util.Log;
@@ -9,8 +9,8 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.omada.junctionadmin.data.BaseDataHandler;
-import com.omada.junctionadmin.data.repository.DataRepositoryAccessIdentifier;
-import com.omada.junctionadmin.data.repository.MainDataRepository;
+import com.omada.junctionadmin.data.repositorytemp.DataRepositoryAccessIdentifier;
+import com.omada.junctionadmin.data.repositorytemp.MainDataRepository;
 import com.omada.junctionadmin.data.models.converter.OrganizationModelConverter;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.internal.remote.OrganizationModelRemoteDB;
@@ -19,7 +19,7 @@ import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OrganizationDataHandler extends BaseDataHandler {
+public class OrganizationDataRepository extends BaseDataHandler {
 
     private MutableLiveData<LiveEvent<List<OrganizationModel>>> loadedInstituteOrganizationsNotifier = new MutableLiveData<>();
 
@@ -60,7 +60,7 @@ public class OrganizationDataHandler extends BaseDataHandler {
     public void getInstituteOrganizations(DataRepositoryAccessIdentifier identifier) {
 
         String instituteId = MainDataRepository.getInstance()
-                .getUserDataHandler()
+                .getUserDataRepository()
                 .getCurrentUserModel()
                 .getInstitute();
 

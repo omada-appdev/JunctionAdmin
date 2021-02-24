@@ -12,8 +12,8 @@ import androidx.lifecycle.Transformations;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
-import com.omada.junctionadmin.data.repository.MainDataRepository;
-import com.omada.junctionadmin.data.handler.UserDataHandler;
+import com.omada.junctionadmin.data.repositorytemp.MainDataRepository;
+import com.omada.junctionadmin.data.repository.UserDataRepository;
 import com.omada.junctionadmin.data.models.external.InterestModel;
 import com.omada.junctionadmin.ui.login.LoginActivity;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.omada.junctionadmin.data.repository.MainDataRepository.getInstance;
+import static com.omada.junctionadmin.data.repositorytemp.MainDataRepository.getInstance;
 
 
 public class LoginViewModel extends BaseViewModel {
@@ -33,7 +33,7 @@ public class LoginViewModel extends BaseViewModel {
     private final static int MAX_INTERESTS = 5;
 
     //action fields (setting values triggers events)
-    private final LiveData<LiveEvent<UserDataHandler.AuthStatus>> authResultAction;
+    private final LiveData<LiveEvent<UserDataRepository.AuthStatus>> authResultAction;
     private final MutableLiveData<LiveEvent<LoginActivity.FragmentIdentifier>> fragmentChangeAction = new MutableLiveData<>();
     private final MutableLiveData<LiveEvent<Boolean>> goToFeedAction = new MutableLiveData<>();
     private final MutableLiveData<LiveEvent<String>> toastMessageAction = new MutableLiveData<>();
@@ -59,10 +59,10 @@ public class LoginViewModel extends BaseViewModel {
         initCalendar();
 
         authResultAction = Transformations.map(
-                getInstance().getUserDataHandler().getAuthResponseNotifier(),
+                getInstance().getUserDataRepository().getAuthResponseNotifier(),
                 authResponse -> {
 
-                    UserDataHandler.AuthStatus receivedAuthResponse = authResponse.getDataOnceAndReset();
+                    UserDataRepository.AuthStatus receivedAuthResponse = authResponse.getDataOnceAndReset();
                     if (receivedAuthResponse == null) {
                         return authResponse;
                     }
@@ -93,7 +93,7 @@ public class LoginViewModel extends BaseViewModel {
                             //add code to tell user to verify mail
 
                             getInstance()
-                                    .getUserDataHandler()
+                                    .getUserDataRepository()
                                     .authenticateUser(email.getValue(), password.getValue());
                             break;
                         case ADD_EXTRA_DETAILS_FAILURE:
@@ -141,7 +141,7 @@ public class LoginViewModel extends BaseViewModel {
                     DataValidator.DataValidationResult.VALIDATION_RESULT_VALID
             ));
             getInstance()
-                    .getUserDataHandler()
+                    .getUserDataRepository()
                     .authenticateUser(email.getValue().trim(), password.getValue().trim());
         }
 
@@ -157,15 +157,15 @@ public class LoginViewModel extends BaseViewModel {
             return new MutableLiveData<>(new LiveEvent<>(false));
         }
         return MainDataRepository.getInstance()
-                .getUserDataHandler()
+                .getUserDataRepository()
                 .sendPasswordResetLink(email.getValue());
     }
 
-    private UserDataHandler.MutableUserOrganizationModel validatedUserModel;
+    private UserDataRepository.MutableUserOrganizationModel validatedUserModel;
 
     private LiveData<DataValidator.DataValidationInformation> validateDetails() {
 
-        validatedUserModel = new UserDataHandler.MutableUserOrganizationModel();
+        validatedUserModel = new UserDataRepository.MutableUserOrganizationModel();
         MediatorLiveData<DataValidator.DataValidationInformation> anyDetailsEntryInvalid = new MediatorLiveData<>();
 
         ValidationAggregator validationAggregator = ValidationAggregator
@@ -196,7 +196,7 @@ public class LoginViewModel extends BaseViewModel {
             if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                 LiveData<LiveEvent<String>> instituteId = MainDataRepository
                         .getInstance()
-                        .getInstituteDataHandler()
+                        .getInstituteDataRepository()
                         .getInstituteId(institute.getValue());
 
                 instituteId.observeForever(new Observer<LiveEvent<String>>() {
@@ -329,7 +329,7 @@ public class LoginViewModel extends BaseViewModel {
 
                         MainDataRepository
                                 .getInstance()
-                                .getUserDataHandler()
+                                .getUserDataRepository()
                                 .createNewUserWithEmailAndPassword(email.getValue(), password.getValue(), validatedUserModel);
                     }
                 }
@@ -375,7 +375,7 @@ public class LoginViewModel extends BaseViewModel {
         password.setValue(null);
     }
 
-    public LiveData<LiveEvent<UserDataHandler.AuthStatus>> getAuthResultAction() {
+    public LiveData<LiveEvent<UserDataRepository.AuthStatus>> getAuthResultAction() {
         return authResultAction;
     }
 
@@ -395,7 +395,7 @@ public class LoginViewModel extends BaseViewModel {
         if (allInterests.size() > 0) {
             return allInterests;
         }
-        return getInstance().getAppDataHandler().getInterestsList();
+        return getInstance().getAppDataRepository().getInterestsList();
     }
 
     private long endTime;

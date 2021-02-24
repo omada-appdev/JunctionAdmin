@@ -11,12 +11,10 @@ import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.common.collect.ImmutableList;
-import com.omada.junctionadmin.data.models.testdummy.TestVenueModel;
-import com.omada.junctionadmin.data.repository.MainDataRepository;
-import com.omada.junctionadmin.data.handler.PostDataHandler;
+import com.omada.junctionadmin.data.repositorytemp.MainDataRepository;
+import com.omada.junctionadmin.data.repository.PostDataRepository;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.external.VenueModel;
-import com.omada.junctionadmin.utils.StringUtilities;
 import com.omada.junctionadmin.utils.TransformUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
@@ -125,7 +123,7 @@ public class CreatePostViewModel extends BaseViewModel {
 
     public LiveData<LiveEvent<Boolean>> createEvent() {
 
-        PostDataHandler.EventCreatorModel eventModel = new PostDataHandler.EventCreatorModel();
+        PostDataRepository.EventCreatorModel eventModel = new PostDataRepository.EventCreatorModel();
 
         AtomicBoolean anyDetailsEntryInvalid = new AtomicBoolean(false);
 
@@ -198,7 +196,7 @@ public class CreatePostViewModel extends BaseViewModel {
 
         OrganizationModel organizationModel = MainDataRepository
                 .getInstance()
-                .getUserDataHandler()
+                .getUserDataRepository()
                 .getCurrentUserModel();
 
         // All other attributes that are guaranteed to be valid
@@ -236,7 +234,7 @@ public class CreatePostViewModel extends BaseViewModel {
         return Transformations.map(
                 MainDataRepository
                         .getInstance()
-                        .getPostDataHandler()
+                        .getPostDataRepository()
                         .createPost(eventModel),
 
                 input -> {
@@ -258,14 +256,14 @@ public class CreatePostViewModel extends BaseViewModel {
 
         OrganizationModel organizationModel = MainDataRepository
                 .getInstance()
-                .getUserDataHandler()
+                .getUserDataRepository()
                 .getCurrentUserModel();
 
 
         // TODO validate data
         MutableLiveData<LiveEvent<Boolean>> validityResult = new MutableLiveData<>();
 
-        PostDataHandler.ArticleCreatorModel articleModel = new PostDataHandler.ArticleCreatorModel();
+        PostDataRepository.ArticleCreatorModel articleModel = new PostDataRepository.ArticleCreatorModel();
 
         // accessing and setting atomically
         synchronized (articleCreator) {
@@ -295,7 +293,7 @@ public class CreatePostViewModel extends BaseViewModel {
         return Transformations.map(
                 MainDataRepository
                         .getInstance()
-                        .getPostDataHandler()
+                        .getPostDataRepository()
                         .createPost(articleModel),
 
                 input -> {

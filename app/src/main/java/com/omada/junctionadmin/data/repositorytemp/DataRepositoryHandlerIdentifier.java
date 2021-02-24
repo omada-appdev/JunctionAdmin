@@ -1,16 +1,16 @@
-package com.omada.junctionadmin.data.repository;
+package com.omada.junctionadmin.data.repositorytemp;
 
 import androidx.annotation.Nullable;
 
 /*
- This class identifies the data repository accessor so that state can be tracked without
- creating new instances for each accessor
+ Identifies each handler so that the data related to it can be stored in the data
+ repository accessor data
 */
-public final class DataRepositoryAccessIdentifier {
+public final class DataRepositoryHandlerIdentifier {
 
     private final String id;
 
-    DataRepositoryAccessIdentifier(String id){
+    DataRepositoryHandlerIdentifier(String id){
         this.id = id;
     }
 
@@ -29,7 +29,7 @@ public final class DataRepositoryAccessIdentifier {
         if (this.getClass() != obj.getClass()) {
             return false;
         }
-        DataRepositoryAccessIdentifier other = (DataRepositoryAccessIdentifier) obj;
+        DataRepositoryHandlerIdentifier other = (DataRepositoryHandlerIdentifier) obj;
         return this.id.equals(other.id);
     }
 

@@ -8,13 +8,11 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.Transformations;
 
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
-import com.omada.junctionadmin.data.repository.MainDataRepository;
+import com.omada.junctionadmin.data.repositorytemp.MainDataRepository;
 import com.omada.junctionadmin.data.models.external.VenueModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 import com.omada.junctionadmin.utils.TransformUtilities;
 
-import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -36,7 +34,7 @@ public class BookingViewModel extends BaseViewModel {
 
     public BookingViewModel() {
 
-        OrganizationModel model = MainDataRepository.getInstance().getUserDataHandler().getCurrentUserModel();
+        OrganizationModel model = MainDataRepository.getInstance().getUserDataRepository().getCurrentUserModel();
         instituteId = model.getInstitute();
         isInstituteAdmin = Boolean.TRUE.equals(model.isInstituteAdmin());
     }
@@ -71,7 +69,7 @@ public class BookingViewModel extends BaseViewModel {
 
         LiveData<LiveEvent<List<VenueModel>>> source = MainDataRepository
                 .getInstance()
-                .getVenueDataHandler()
+                .getVenueDataRepository()
                 .getAllVenues(getDataRepositoryAccessIdentifier(), instituteId);
 
         loadedInstituteVenues.addSource(source, venueModelsLiveEvent -> {
@@ -144,7 +142,7 @@ public class BookingViewModel extends BaseViewModel {
 
         LiveData<LiveEvent<List<Pair<LocalDateTime, LocalDateTime>>>> allBookingsOnDate =
                 MainDataRepository.getInstance()
-                .getVenueDataHandler()
+                .getVenueDataRepository()
                 .getVenueBookingsOn(getDataRepositoryAccessIdentifier(), bookingDate, venue);
 
 

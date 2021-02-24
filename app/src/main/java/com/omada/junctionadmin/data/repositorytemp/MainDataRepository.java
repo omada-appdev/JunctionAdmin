@@ -1,19 +1,18 @@
-package com.omada.junctionadmin.data.repository;
+package com.omada.junctionadmin.data.repositorytemp;
 
 import com.omada.junctionadmin.data.DataRepository;
-import com.omada.junctionadmin.data.handler.AppDataHandler;
-import com.omada.junctionadmin.data.handler.ArticleDataHandler;
-import com.omada.junctionadmin.data.handler.EventDataHandler;
-import com.omada.junctionadmin.data.handler.ImageUploadHandler;
-import com.omada.junctionadmin.data.handler.InstituteDataHandler;
-import com.omada.junctionadmin.data.handler.NotificationDataHandler;
-import com.omada.junctionadmin.data.handler.OrganizationDataHandler;
-import com.omada.junctionadmin.data.handler.PostDataHandler;
-import com.omada.junctionadmin.data.handler.ShowcaseDataHandler;
-import com.omada.junctionadmin.data.handler.UserDataHandler;
-import com.omada.junctionadmin.data.handler.VenueDataHandler;
-import com.omada.junctionadmin.data.source.DataSource;
-import com.omada.junctionadmin.data.source.DataSourceProvider;
+import com.omada.junctionadmin.data.repository.AppDataRepository;
+import com.omada.junctionadmin.data.repository.ArticleDataRepository;
+import com.omada.junctionadmin.data.repository.EventDataRepository;
+import com.omada.junctionadmin.data.sink.remote.RemoteImageDataSink;
+import com.omada.junctionadmin.data.repository.InstituteDataRepository;
+import com.omada.junctionadmin.data.repository.NotificationDataRepository;
+import com.omada.junctionadmin.data.repository.OrganizationDataRepository;
+import com.omada.junctionadmin.data.repository.PostDataRepository;
+import com.omada.junctionadmin.data.repository.ShowcaseDataRepository;
+import com.omada.junctionadmin.data.repository.UserDataRepository;
+import com.omada.junctionadmin.data.repository.VenueDataRepository;
+import com.omada.junctionadmin.data.source.providers.DataSourceProvider;
 import com.omada.junctionadmin.utils.StringUtilities;
 
 import java.util.HashMap;
@@ -32,19 +31,19 @@ public class MainDataRepository implements DataRepository {
 
     private static MainDataRepository mainDataRepository;
 
-    private final AppDataHandler appDataHandler = new AppDataHandler();
-    private final UserDataHandler userDataHandler = new UserDataHandler();
-    private final OrganizationDataHandler organizationDataHandler = new OrganizationDataHandler();
-    private final ArticleDataHandler articleDataHandler = new ArticleDataHandler();
-    private final ShowcaseDataHandler showcaseDataHandler = new ShowcaseDataHandler();
-    private final PostDataHandler postDataHandler = new PostDataHandler();
-    private final VenueDataHandler venueDataHandler = new VenueDataHandler();
-    private final InstituteDataHandler instituteDataHandler = new InstituteDataHandler();
-    private final ImageUploadHandler imageUploadHandler = new ImageUploadHandler();
-    private final NotificationDataHandler notificationDataHandler = new NotificationDataHandler();
+    private final AppDataRepository appDataRepository = new AppDataRepository();
+    private final UserDataRepository userDataRepository = new UserDataRepository();
+    private final OrganizationDataRepository organizationDataRepository = new OrganizationDataRepository();
+    private final ArticleDataRepository articleDataRepository = new ArticleDataRepository();
+    private final ShowcaseDataRepository showcaseDataRepository = new ShowcaseDataRepository();
+    private final PostDataRepository postDataRepository = new PostDataRepository();
+    private final VenueDataRepository venueDataRepository = new VenueDataRepository();
+    private final InstituteDataRepository instituteDataRepository = new InstituteDataRepository();
+    private final RemoteImageDataSink remoteImageDataSink = new RemoteImageDataSink();
+    private final NotificationDataRepository notificationDataRepository = new NotificationDataRepository();
 
     //this is only for events
-    private final EventDataHandler eventDataHandler = new EventDataHandler();
+    private final EventDataRepository eventDataRepository = new EventDataRepository();
 
 
     private MainDataRepository() {
@@ -58,48 +57,48 @@ public class MainDataRepository implements DataRepository {
         return mainDataRepository;
     }
 
-    public AppDataHandler getAppDataHandler() {
-        return appDataHandler;
+    public AppDataRepository getAppDataRepository() {
+        return appDataRepository;
     }
 
-    public UserDataHandler getUserDataHandler() {
-        return userDataHandler;
+    public UserDataRepository getUserDataRepository() {
+        return userDataRepository;
     }
 
-    public EventDataHandler getEventDataHandler() {
-        return eventDataHandler;
+    public EventDataRepository getEventDataRepository() {
+        return eventDataRepository;
     }
 
-    public ArticleDataHandler getArticleDataHandler() {
-        return articleDataHandler;
+    public ArticleDataRepository getArticleDataRepository() {
+        return articleDataRepository;
     }
 
-    public OrganizationDataHandler getOrganizationDataHandler() {
-        return organizationDataHandler;
+    public OrganizationDataRepository getOrganizationDataRepository() {
+        return organizationDataRepository;
     }
 
-    public ShowcaseDataHandler getShowcaseDataHandler() {
-        return showcaseDataHandler;
+    public ShowcaseDataRepository getShowcaseDataRepository() {
+        return showcaseDataRepository;
     }
 
-    public PostDataHandler getPostDataHandler() {
-        return postDataHandler;
+    public PostDataRepository getPostDataRepository() {
+        return postDataRepository;
     }
 
-    public VenueDataHandler getVenueDataHandler() {
-        return venueDataHandler;
+    public VenueDataRepository getVenueDataRepository() {
+        return venueDataRepository;
     }
 
-    public InstituteDataHandler getInstituteDataHandler() {
-        return instituteDataHandler;
+    public InstituteDataRepository getInstituteDataRepository() {
+        return instituteDataRepository;
     }
 
-    public ImageUploadHandler getImageUploadHandler() {
-        return imageUploadHandler;
+    public RemoteImageDataSink getRemoteImageDataSink() {
+        return remoteImageDataSink;
     }
 
-    public NotificationDataHandler getNotificationDataHandler() {
-        return notificationDataHandler;
+    public NotificationDataRepository getNotificationDataRepository() {
+        return notificationDataRepository;
     }
 
     public Object getAccessorDataForHandlerWithKey(DataRepositoryAccessIdentifier accessIdentifier, DataRepositoryHandlerIdentifier handlerIdentifier, String key) {

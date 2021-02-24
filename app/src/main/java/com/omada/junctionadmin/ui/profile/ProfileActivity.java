@@ -14,7 +14,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.omada.junctionadmin.R;
-import com.omada.junctionadmin.data.handler.UserDataHandler;
+import com.omada.junctionadmin.data.repository.UserDataRepository;
 import com.omada.junctionadmin.data.models.external.ArticleModel;
 import com.omada.junctionadmin.data.models.external.EventModel;
 import com.omada.junctionadmin.data.models.external.ShowcaseModel;
@@ -96,7 +96,7 @@ public class ProfileActivity extends AppCompatActivity {
                 .observe(this, authStatusLiveEvent -> {
 
                     if (authStatusLiveEvent != null) {
-                        UserDataHandler.AuthStatus authStatus = authStatusLiveEvent.getDataOnceAndReset();
+                        UserDataRepository.AuthStatus authStatus = authStatusLiveEvent.getDataOnceAndReset();
                         if (authStatus == null) {
                             return;
                         }

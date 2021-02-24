@@ -5,7 +5,7 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
-import com.omada.junctionadmin.data.repository.MainDataRepository;
+import com.omada.junctionadmin.data.repositorytemp.MainDataRepository;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.external.PostModel;
 import com.omada.junctionadmin.data.models.external.ShowcaseModel;
@@ -45,7 +45,7 @@ public class OrganizationProfileViewModel extends BaseViewModel {
             return organizationDetailsLiveData;
         }
         return Transformations.map(
-                MainDataRepository.getInstance().getOrganizationDataHandler().getOrganizationDetails(organizationID),
+                MainDataRepository.getInstance().getOrganizationDataRepository().getOrganizationDetails(organizationID),
                 input -> {
                     if(input == null){
                         return null;
@@ -64,7 +64,7 @@ public class OrganizationProfileViewModel extends BaseViewModel {
         LiveData<LiveEvent<List<PostModel>>> source =
                 MainDataRepository
                         .getInstance()
-                        .getPostDataHandler()
+                        .getPostDataRepository()
                         .getOrganizationHighlights(getDataRepositoryAccessIdentifier(), organizationID);
 
         loadedOrganizationHighlights.addSource(
@@ -102,7 +102,7 @@ public class OrganizationProfileViewModel extends BaseViewModel {
         LiveData<LiveEvent<List<ShowcaseModel>>> source =
                 MainDataRepository
                         .getInstance()
-                        .getShowcaseDataHandler()
+                        .getShowcaseDataRepository()
                         .getOrganizationShowcases(getDataRepositoryAccessIdentifier(), organizationID);
 
         loadedOrganizationShowcases.addSource(

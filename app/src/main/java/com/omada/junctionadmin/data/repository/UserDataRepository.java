@@ -1,4 +1,4 @@
-package com.omada.junctionadmin.data.handler;
+package com.omada.junctionadmin.data.repository;
 
 import android.net.Uri;
 import android.util.Log;
@@ -9,14 +9,12 @@ import androidx.lifecycle.Observer;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Source;
 import com.omada.junctionadmin.BuildConfig;
 import com.omada.junctionadmin.data.BaseDataHandler;
-import com.omada.junctionadmin.data.repository.MainDataRepository;
+import com.omada.junctionadmin.data.repositorytemp.MainDataRepository;
 import com.omada.junctionadmin.data.models.converter.OrganizationModelConverter;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.internal.remote.OrganizationModelRemoteDB;
@@ -24,11 +22,10 @@ import com.omada.junctionadmin.data.models.mutable.MutableOrganizationModel;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
-import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UserDataHandler extends BaseDataHandler {
+public class UserDataRepository extends BaseDataHandler {
 
     public enum AuthStatus {
 
@@ -62,7 +59,7 @@ public class UserDataHandler extends BaseDataHandler {
     private final OrganizationModelConverter organizationModelConverter = new OrganizationModelConverter();
 
 
-    public UserDataHandler() {
+    public UserDataRepository() {
 
         /*
         this is only to check for sign outs and token expiration (if needed)
@@ -128,8 +125,8 @@ public class UserDataHandler extends BaseDataHandler {
             */
             MainDataRepository
                     .getInstance()
-                    .getImageUploadHandler()
-                    .uploadProfilePictureWithTask(profilePicturePath, user.getUid())
+                    .getRemoteImageDataSink()
+                    .uploadProfilePicture(profilePicturePath, user.getUid())
                     .addOnCompleteListener(uri -> {
                         details.setProfilePicture(uri.getResult().toString());
                         FirebaseFirestore.getInstance()
@@ -139,7 +136,7 @@ public class UserDataHandler extends BaseDataHandler {
                                 .addOnSuccessListener(task -> {
 
                                     MainDataRepository.getInstance()
-                                            .getNotificationDataHandler()
+                                            .getNotificationDataRepository()
                                             .sendInstituteJoinRequestNotification(user.getUid(), details.getInstitute(), organizationModelConverter.convertRemoteDBToExternalModel(details));
 
                                     authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.ADD_EXTRA_DETAILS_SUCCESS));
@@ -305,8 +302,8 @@ public class UserDataHandler extends BaseDataHandler {
         Uri newProfilePicture = updatedUserModel.getProfilePicturePath();
         if (newProfilePicture != null) {
             MainDataRepository.getInstance()
-                    .getImageUploadHandler()
-                    .uploadProfilePictureWithTask(newProfilePicture, user.getUid())
+                    .getRemoteImageDataSink()
+                    .uploadProfilePicture(newProfilePicture, user.getUid())
                     .addOnCompleteListener(uri -> {
                         String httpUrl = uri.getResult().toString();
                         updates.put("profilePicture", httpUrl);
@@ -363,7 +360,7 @@ public class UserDataHandler extends BaseDataHandler {
     public void incrementHeldEventsNumber() {
 
         String id = MainDataRepository.getInstance()
-                .getUserDataHandler()
+                .getUserDataRepository()
                 .getCurrentUserModel()
                 .getId();
 
@@ -385,7 +382,7 @@ public class UserDataHandler extends BaseDataHandler {
     public void decrementHeldEventsNumber() {
 
         String id = MainDataRepository.getInstance()
-                .getUserDataHandler()
+                .getUserDataRepository()
                 .getCurrentUserModel()
                 .getId();
 

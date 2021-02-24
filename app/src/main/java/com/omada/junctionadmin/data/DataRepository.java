@@ -1,35 +1,35 @@
 package com.omada.junctionadmin.data;
 
-import com.omada.junctionadmin.data.handler.AppDataHandler;
-import com.omada.junctionadmin.data.handler.ArticleDataHandler;
-import com.omada.junctionadmin.data.handler.EventDataHandler;
-import com.omada.junctionadmin.data.handler.ImageUploadHandler;
-import com.omada.junctionadmin.data.handler.InstituteDataHandler;
-import com.omada.junctionadmin.data.handler.OrganizationDataHandler;
-import com.omada.junctionadmin.data.handler.PostDataHandler;
-import com.omada.junctionadmin.data.handler.ShowcaseDataHandler;
-import com.omada.junctionadmin.data.handler.UserDataHandler;
-import com.omada.junctionadmin.data.handler.VenueDataHandler;
+import com.omada.junctionadmin.data.repository.AppDataRepository;
+import com.omada.junctionadmin.data.repository.ArticleDataRepository;
+import com.omada.junctionadmin.data.repository.EventDataRepository;
+import com.omada.junctionadmin.data.sink.remote.RemoteImageDataSink;
+import com.omada.junctionadmin.data.repository.InstituteDataRepository;
+import com.omada.junctionadmin.data.repository.OrganizationDataRepository;
+import com.omada.junctionadmin.data.repository.PostDataRepository;
+import com.omada.junctionadmin.data.repository.ShowcaseDataRepository;
+import com.omada.junctionadmin.data.repository.UserDataRepository;
+import com.omada.junctionadmin.data.repository.VenueDataRepository;
 
 public interface DataRepository {
 
-    AppDataHandler getAppDataHandler();
+    AppDataRepository getAppDataRepository();
 
-    UserDataHandler getUserDataHandler();
+    UserDataRepository getUserDataRepository();
 
-    EventDataHandler getEventDataHandler();
+    EventDataRepository getEventDataRepository();
 
-    ArticleDataHandler getArticleDataHandler();
+    ArticleDataRepository getArticleDataRepository();
 
-    OrganizationDataHandler getOrganizationDataHandler();
+    OrganizationDataRepository getOrganizationDataRepository();
 
-    ShowcaseDataHandler getShowcaseDataHandler();
+    ShowcaseDataRepository getShowcaseDataRepository();
 
-    PostDataHandler getPostDataHandler();
+    PostDataRepository getPostDataRepository();
 
-    VenueDataHandler getVenueDataHandler();
+    VenueDataRepository getVenueDataRepository();
 
-    InstituteDataHandler getInstituteDataHandler();
+    InstituteDataRepository getInstituteDataRepository();
 
-    ImageUploadHandler getImageUploadHandler();
+    RemoteImageDataSink getRemoteImageDataSink();
 }

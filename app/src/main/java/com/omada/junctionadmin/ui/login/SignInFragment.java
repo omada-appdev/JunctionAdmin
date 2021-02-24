@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.omada.junctionadmin.R;
-import com.omada.junctionadmin.data.handler.UserDataHandler;
+import com.omada.junctionadmin.data.repository.UserDataRepository;
 import com.omada.junctionadmin.databinding.LoginSigninFragmentLayoutBinding;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.viewmodels.LoginViewModel;
@@ -49,7 +49,7 @@ public class SignInFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         loginViewModel.getAuthResultAction().observe(getViewLifecycleOwner(), authResult -> {
-            UserDataHandler.AuthStatus res = authResult.getDataOnceAndReset();
+            UserDataRepository.AuthStatus res = authResult.getDataOnceAndReset();
             binding.passwordLayout.clearFocus();
             if(res==null){
                 return;

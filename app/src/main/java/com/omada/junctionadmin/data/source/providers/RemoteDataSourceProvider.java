@@ -1,6 +1,5 @@
 package com.omada.junctionadmin.data.source.providers;
 
-import com.omada.junctionadmin.data.source.DataSourceProvider;
 import com.omada.junctionadmin.data.source.InstituteDataSource;
 import com.omada.junctionadmin.data.source.NotificationDataSource;
 import com.omada.junctionadmin.data.source.OrganizationDataSource;

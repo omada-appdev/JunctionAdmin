@@ -1,4 +1,4 @@
-package com.omada.junctionadmin.data.handler;
+package com.omada.junctionadmin.data.repository;
 
 import android.util.Log;
 import android.util.Pair;
@@ -18,7 +18,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 import com.omada.junctionadmin.data.BaseDataHandler;
-import com.omada.junctionadmin.data.repository.DataRepositoryAccessIdentifier;
+import com.omada.junctionadmin.data.repositorytemp.DataRepositoryAccessIdentifier;
 import com.omada.junctionadmin.data.models.converter.BookingModelConverter;
 import com.omada.junctionadmin.data.models.converter.VenueModelConverter;
 import com.omada.junctionadmin.data.models.external.BookingModel;
@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class VenueDataHandler extends BaseDataHandler {
+public class VenueDataRepository extends BaseDataHandler {
 
     private final VenueModelConverter venueModelConverter = new VenueModelConverter();
     private final BookingModelConverter bookingModelConverter = new BookingModelConverter();

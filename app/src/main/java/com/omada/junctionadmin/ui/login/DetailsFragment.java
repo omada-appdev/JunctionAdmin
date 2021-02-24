@@ -30,7 +30,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.imageview.ShapeableImageView;
 import com.omada.junctionadmin.R;
-import com.omada.junctionadmin.data.handler.UserDataHandler;
+import com.omada.junctionadmin.data.repository.UserDataRepository;
 import com.omada.junctionadmin.databinding.LoginDetailsFragmentLayoutBinding;
 import com.omada.junctionadmin.utils.ImageUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
@@ -166,7 +166,7 @@ public class DetailsFragment extends Fragment {
                         return;
                     }
 
-                    UserDataHandler.AuthStatus authStatus = authStatusLiveEvent.getDataOnceAndReset();
+                    UserDataRepository.AuthStatus authStatus = authStatusLiveEvent.getDataOnceAndReset();
                     if (authStatus == null) {
                         return;
                     }

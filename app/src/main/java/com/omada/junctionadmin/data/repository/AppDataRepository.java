@@ -1,4 +1,4 @@
-package com.omada.junctionadmin.data.handler;
+package com.omada.junctionadmin.data.repository;
 
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.data.BaseDataHandler;
@@ -8,7 +8,7 @@ import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 import java.util.Arrays;
 import java.util.List;
 
-public class AppDataHandler extends BaseDataHandler {
+public class AppDataRepository extends BaseDataHandler {
 
     public List<InterestModel> getInterestsList(){
 

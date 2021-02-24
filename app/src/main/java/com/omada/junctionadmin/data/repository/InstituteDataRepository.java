@@ -1,4 +1,4 @@
-package com.omada.junctionadmin.data.handler;
+package com.omada.junctionadmin.data.repository;
 
 import android.net.Uri;
 import android.util.Log;
@@ -13,29 +13,20 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.WriteBatch;
-import com.google.firebase.storage.UploadTask;
 import com.omada.junctionadmin.data.BaseDataHandler;
 import com.omada.junctionadmin.data.models.converter.NotificationModelConverter;
-import com.omada.junctionadmin.data.models.external.NotificationModel;
-import com.omada.junctionadmin.data.models.internal.remote.NotificationModelRemoteDB;
-import com.omada.junctionadmin.data.repository.MainDataRepository;
+import com.omada.junctionadmin.data.repositorytemp.MainDataRepository;
 import com.omada.junctionadmin.data.models.converter.InstituteModelConverter;
 import com.omada.junctionadmin.data.models.external.InstituteModel;
 import com.omada.junctionadmin.data.models.internal.remote.InstituteModelRemoteDB;
 import com.omada.junctionadmin.data.models.mutable.MutableInstituteModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
-
-public class InstituteDataHandler extends BaseDataHandler {
+public class InstituteDataRepository extends BaseDataHandler {
 
     private final InstituteModelConverter instituteModelConverter = new InstituteModelConverter();
     private final NotificationModelConverter notificationModelConverter = new NotificationModelConverter();
@@ -45,7 +36,7 @@ public class InstituteDataHandler extends BaseDataHandler {
 
     public LiveData<LiveEvent<InstituteModel>> getInstituteDetails(String instituteID) {
 
-        if(instituteID == null) {
+        if (instituteID == null) {
             return new MutableLiveData<>(new LiveEvent<>(new MutableInstituteModel()));
         }
 
@@ -85,7 +76,7 @@ public class InstituteDataHandler extends BaseDataHandler {
 
         String instituteId = MainDataRepository
                 .getInstance()
-                .getUserDataHandler()
+                .getUserDataRepository()
                 .getCurrentUserModel()
                 .getInstitute();
 
@@ -93,42 +84,55 @@ public class InstituteDataHandler extends BaseDataHandler {
         changes.put("name", changedInstituteModel.getName());
         changes.put("handle", changedInstituteModel.getHandle());
 
+        Task<String> uploadTask;
         if (changedInstituteModel.getImagePath() != null) {
-            UploadTask uploadTask = MainDataRepository.getInstance()
-                    .getImageUploadHandler()
+            uploadTask = MainDataRepository.getInstance()
+                    .getRemoteImageDataSink()
                     .uploadInstituteImage(changedInstituteModel.getImagePath(), instituteId);
-            String imagePath = uploadTask.getSnapshot().getStorage().toString();
-            changes.put("image", imagePath);
+        } else {
+            uploadTask = Tasks.forResult(null);
         }
 
-        FirebaseFirestore
-                .getInstance()
-                .collection("institutes")
-                .document(instituteId)
-                .update(changes)
+        uploadTask
                 .addOnSuccessListener(aVoid -> {
-                    Map<String, Object> updatedInstituteData = new HashMap<>();
+                    String imagePath = uploadTask.getResult();
+                    changes.put("image", imagePath);
 
-                    updatedInstituteData.put("/instituteIds/" + instituteId, changedInstituteModel.getHandle());
-                    updatedInstituteData.put("/instituteHandles/" + changedInstituteModel.getHandle(), instituteId);
-
-                    if (!changedInstituteModel.getHandle().equals(getCachedInstituteHandle(instituteId))) {
-                        updatedInstituteData.put("/instituteHandles/" + getCachedInstituteHandle(instituteId), null);
-                    }
-                    FirebaseDatabase.getInstance()
-                            .getReference()
-                            .updateChildren(updatedInstituteData)
+                    FirebaseFirestore
+                            .getInstance()
+                            .collection("institutes")
+                            .document(instituteId)
+                            .update(changes)
                             .addOnSuccessListener(aVoid1 -> {
-                                addToCache(instituteId, changedInstituteModel.getHandle());
-                                resultLiveData.setValue(new LiveEvent<>(true));
+
+                                Map<String, Object> updatedInstituteData = new HashMap<>();
+
+                                updatedInstituteData.put("/instituteIds/" + instituteId, changedInstituteModel.getHandle());
+                                updatedInstituteData.put("/instituteHandles/" + changedInstituteModel.getHandle(), instituteId);
+
+                                if (!changedInstituteModel.getHandle().equals(getCachedInstituteHandle(instituteId))) {
+                                    updatedInstituteData.put("/instituteHandles/" + getCachedInstituteHandle(instituteId), null);
+                                }
+                                FirebaseDatabase.getInstance()
+                                        .getReference()
+                                        .updateChildren(updatedInstituteData)
+                                        .addOnSuccessListener(aVoid2 -> {
+                                            addToCache(instituteId, changedInstituteModel.getHandle());
+                                            resultLiveData.setValue(new LiveEvent<>(true));
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            resultLiveData.setValue(new LiveEvent<>(false));
+                                            Log.e("Institute", "Database error updating institute handle");
+                                        });
                             })
                             .addOnFailureListener(e -> {
                                 resultLiveData.setValue(new LiveEvent<>(false));
+                                Log.e("Institute", "Database error updating institute details");
                             });
                 })
                 .addOnFailureListener(e -> {
                     resultLiveData.setValue(new LiveEvent<>(false));
-                    Log.e("Institute", "Database error updating institute details");
+                    Log.e("Institute", "Storage error updating institute image");
                 });
 
         return resultLiveData;

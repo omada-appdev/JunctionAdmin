@@ -1,4 +1,4 @@
-package com.omada.junctionadmin.data.handler;
+package com.omada.junctionadmin.data.repository;
 
 import android.util.Log;
 
@@ -22,7 +22,7 @@ import com.omada.junctionadmin.data.models.converter.NotificationModelConverter;
 import com.omada.junctionadmin.data.models.external.NotificationModel;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.internal.remote.NotificationModelRemoteDB;
-import com.omada.junctionadmin.data.repository.MainDataRepository;
+import com.omada.junctionadmin.data.repositorytemp.MainDataRepository;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.time.Instant;
@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class NotificationDataHandler extends BaseDataHandler {
+public class NotificationDataRepository extends BaseDataHandler {
 
     NotificationModelConverter notificationModelConverter = new NotificationModelConverter();
 
@@ -174,7 +174,7 @@ public class NotificationDataHandler extends BaseDataHandler {
                 if (responsePayload instanceof Boolean) {
 
                     String instituteId = MainDataRepository.getInstance()
-                            .getUserDataHandler()
+                            .getUserDataRepository()
                             .getCurrentUserModel()
                             .getInstitute();
 
@@ -241,7 +241,7 @@ public class NotificationDataHandler extends BaseDataHandler {
             case NOTIFICATION_TYPE_FEEDBACK_RESPONSE:
 
                 String userId = MainDataRepository.getInstance()
-                        .getUserDataHandler()
+                        .getUserDataRepository()
                         .getCurrentUserModel()
                         .getId();
 
@@ -266,7 +266,7 @@ public class NotificationDataHandler extends BaseDataHandler {
 
         String userId = MainDataRepository
                 .getInstance()
-                .getUserDataHandler()
+                .getUserDataRepository()
                 .getCurrentUserModel()
                 .getId();
 

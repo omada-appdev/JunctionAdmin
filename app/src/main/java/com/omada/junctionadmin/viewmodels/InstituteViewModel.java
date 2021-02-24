@@ -9,8 +9,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
 import com.omada.junctionadmin.data.models.external.NotificationModel;
-import com.omada.junctionadmin.data.repository.MainDataRepository;
-import com.omada.junctionadmin.data.handler.InstituteDataHandler;
+import com.omada.junctionadmin.data.repositorytemp.MainDataRepository;
+import com.omada.junctionadmin.data.repository.InstituteDataRepository;
 import com.omada.junctionadmin.data.models.external.InstituteModel;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.models.external.PostModel;
@@ -53,7 +53,7 @@ public class InstituteViewModel extends BaseViewModel {
     private void distributeLoadedData() {
 
         loadedInstituteHighlights.addSource(
-                MainDataRepository.getInstance().getPostDataHandler().getLoadedInstituteHighlightsNotifier(),
+                MainDataRepository.getInstance().getPostDataRepository().getLoadedInstituteHighlightsNotifier(),
                 input -> {
                     if (input != null) {
 
@@ -73,7 +73,7 @@ public class InstituteViewModel extends BaseViewModel {
         );
 
         loadedInstituteOrganizations.addSource(
-                MainDataRepository.getInstance().getOrganizationDataHandler().getLoadedInstituteOrganizationsNotifier(),
+                MainDataRepository.getInstance().getOrganizationDataRepository().getLoadedInstituteOrganizationsNotifier(),
                 input -> {
                     if (input != null) {
 
@@ -96,8 +96,8 @@ public class InstituteViewModel extends BaseViewModel {
     public LiveData<LiveEvent<Boolean>> detailsEntryDone() {
 
         updatingDetails = true;
-        InstituteDataHandler.MutableUserInstituteModel mutableUserInstituteModel =
-                new InstituteDataHandler.MutableUserInstituteModel();
+        InstituteDataRepository.MutableUserInstituteModel mutableUserInstituteModel =
+                new InstituteDataRepository.MutableUserInstituteModel();
 
         MediatorLiveData<DataValidator.DataValidationInformation> anyDetailsEntryInvalid = new MediatorLiveData<>();
 
@@ -189,7 +189,7 @@ public class InstituteViewModel extends BaseViewModel {
                     DataValidator.DataValidationResult dataValidationResult = input.getDataValidationResult();
                     if (dataValidationResult == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                         return MainDataRepository.getInstance()
-                                .getInstituteDataHandler()
+                                .getInstituteDataRepository()
                                 .updateInstituteDetails(mutableUserInstituteModel);
                     }
                     return new MutableLiveData<>(new LiveEvent<>(false));
@@ -233,7 +233,7 @@ public class InstituteViewModel extends BaseViewModel {
 
         instituteId = MainDataRepository
                 .getInstance()
-                .getUserDataHandler()
+                .getUserDataRepository()
                 .getCurrentUserModel()
                 .getInstitute();
 
@@ -243,7 +243,7 @@ public class InstituteViewModel extends BaseViewModel {
 
         return Transformations.map(
                 MainDataRepository.getInstance()
-                        .getInstituteDataHandler()
+                        .getInstituteDataRepository()
                         .getInstituteDetails(instituteId),
 
                 input -> {
@@ -268,27 +268,27 @@ public class InstituteViewModel extends BaseViewModel {
     public void loadInstituteHighlights() {
         MainDataRepository
                 .getInstance()
-                .getPostDataHandler()
+                .getPostDataRepository()
                 .getInstituteHighlights(getDataRepositoryAccessIdentifier());
     }
 
     public void loadInstituteOrganizations() {
         MainDataRepository
                 .getInstance()
-                .getOrganizationDataHandler()
+                .getOrganizationDataRepository()
                 .getInstituteOrganizations(getDataRepositoryAccessIdentifier());
     }
 
     public void loadAllVenues() {
 
         String instituteId = MainDataRepository.getInstance()
-                .getUserDataHandler()
+                .getUserDataRepository()
                 .getCurrentUserModel()
                 .getInstitute();
 
         LiveData<LiveEvent<List<VenueModel>>> source = MainDataRepository
                 .getInstance()
-                .getVenueDataHandler()
+                .getVenueDataRepository()
                 .getAllVenues(getDataRepositoryAccessIdentifier(), instituteId);
 
         loadedInstituteVenues.addSource(source, venueModelsLiveEvent -> {
@@ -317,12 +317,12 @@ public class InstituteViewModel extends BaseViewModel {
     public void loadInstituteNotifications() {
 
         String instituteId = MainDataRepository.getInstance()
-                .getUserDataHandler()
+                .getUserDataRepository()
                 .getCurrentUserModel()
                 .getInstitute();
 
         LiveData<LiveEvent<List<NotificationModel>>> source = MainDataRepository.getInstance()
-                .getNotificationDataHandler()
+                .getNotificationDataRepository()
                 .getPendingNotifications(instituteId);
 
         loadedInstituteNotifications.addSource(
@@ -344,7 +344,7 @@ public class InstituteViewModel extends BaseViewModel {
     public LiveData<LiveEvent<Boolean>> handleJoinRequest(NotificationModel model, Boolean response) {
         return Transformations.map(
                 MainDataRepository.getInstance()
-                        .getNotificationDataHandler()
+                        .getNotificationDataRepository()
                         .handleNotification(model, response),
                 input -> input
         );

@@ -31,6 +31,7 @@ import com.omada.junctionadmin.data.models.internal.remote.RegistrationModelRemo
 import com.omada.junctionadmin.data.models.mutable.MutableArticleModel;
 import com.omada.junctionadmin.data.models.mutable.MutableBookingModel;
 import com.omada.junctionadmin.data.models.mutable.MutableEventModel;
+import com.omada.junctionadmin.utils.taskhandler.DefaultExecutorSupplier;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
 import java.time.Instant;
@@ -62,7 +63,7 @@ public class PostDataHandler extends BaseDataHandler {
                 .orderBy("timeCreated", Query.Direction.DESCENDING)
                 .limit(5)
                 .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
+                .addOnSuccessListener(DefaultExecutorSupplier.getInstance().getBackgroundTaskExecutor(), queryDocumentSnapshots -> {
 
                     List<PostModel> postModels = new ArrayList<>();
 

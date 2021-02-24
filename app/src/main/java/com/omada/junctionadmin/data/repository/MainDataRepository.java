@@ -12,6 +12,8 @@ import com.omada.junctionadmin.data.handler.PostDataHandler;
 import com.omada.junctionadmin.data.handler.ShowcaseDataHandler;
 import com.omada.junctionadmin.data.handler.UserDataHandler;
 import com.omada.junctionadmin.data.handler.VenueDataHandler;
+import com.omada.junctionadmin.data.source.DataSource;
+import com.omada.junctionadmin.data.source.DataSourceProvider;
 import com.omada.junctionadmin.utils.StringUtilities;
 
 import java.util.HashMap;
@@ -22,8 +24,11 @@ public class MainDataRepository implements DataRepository {
     // All the data related to state is to be stored here so that it can be read from handlers.
     // private because the get and set operations need to be performed atomically through synchronized.
     // methods which are package-private.
-
     private static final Map<DataRepositoryAccessIdentifier, DataRepositoryAccessorData> accessTracker = new HashMap<>();
+
+    private DataSourceProvider localDataSourceProvider;
+    private DataSourceProvider remoteDataSourceProvider;
+    private DataSourceProvider memoryDataSourceProvider;
 
     private static MainDataRepository mainDataRepository;
 

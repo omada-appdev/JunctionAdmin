@@ -1,5 +1,7 @@
 package com.omada.junctionadmin.viewmodels.content;
 
+import android.util.Pair;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -14,7 +16,6 @@ public class EventViewHandler {
     private final MutableLiveData<LiveEvent<EventModel>> editEventDetailsTrigger = new MutableLiveData<>();
     private final MutableLiveData<LiveEvent<EventModel>> eventFormTrigger = new MutableLiveData<>();
     private final MutableLiveData<LiveEvent<EventModel>> upcomingEventDetailsTrigger = new MutableLiveData<>();
-
 
     public LiveData<LiveEvent<EventModel>> getEventCardDetailsTrigger() {
         return eventCardDetailsTrigger;

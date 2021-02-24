@@ -33,6 +33,7 @@ public class SplashActivity extends AppCompatActivity {
                 if(authStatus==null) return;
                 Log.e("Splash", "AuthStatus : " + authStatus.toString());
                 Intent i;
+                Log.e("Splash", authStatus.toString());
                 switch (authStatus){
                     case CURRENT_USER_SUCCESS:
                         break;

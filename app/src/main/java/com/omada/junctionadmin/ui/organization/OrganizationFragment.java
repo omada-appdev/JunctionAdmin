@@ -167,7 +167,7 @@ public class OrganizationFragment extends Fragment {
                 case 0:
                     return new OrganizationContentFragment();
                 case 1:
-                    return new OrganizationAboutFragment();
+                    return OrganizationAboutFragment.newInstance();
             }
             return null;
         }

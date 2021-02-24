@@ -5,6 +5,8 @@ import android.os.Parcelable;
 
 import com.google.firebase.firestore.PropertyName;
 
+import java.util.Objects;
+
 public class VenueModel extends BaseModel {
 
     protected String name;
@@ -56,5 +58,18 @@ public class VenueModel extends BaseModel {
         dest.writeString(name);
         dest.writeString(address);
         dest.writeString(institute);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        VenueModel that = (VenueModel) o;
+        return Objects.equals(name, that.name) && Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name);
     }
 }

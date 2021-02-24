@@ -46,9 +46,12 @@ public class DetailsFragment extends Fragment {
     private static final int REQUEST_CODE_PROFILE_PICTURE_CHOOSER = 4;
     private final AtomicBoolean compressingImage = new AtomicBoolean(false);
 
-    private final ActivityResultLauncher<String> storagePermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
+    private final ActivityResultLauncher<String[]> storagePermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), stringBooleanMap -> {
+                boolean res = true;
+                for (boolean result : stringBooleanMap.values()) {
+                    res = res & result;
+                } if(res) {
                     startFilePicker();
                 }
             });
@@ -191,8 +194,7 @@ public class DetailsFragment extends Fragment {
                     PackageManager.PERMISSION_GRANTED) {
                 startFilePicker();
             } else {
-                storagePermissionLauncher.launch(
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                storagePermissionLauncher.launch(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE});
             }
 
         });
@@ -282,7 +284,7 @@ public class DetailsFragment extends Fragment {
     private void startFilePicker() {
         Intent intent = new Intent();
         intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CODE_PROFILE_PICTURE_CHOOSER);
 
     }
@@ -352,7 +354,7 @@ public class DetailsFragment extends Fragment {
     private AlertDialog.Builder createJoinRequestSentDialog() {
         return new AlertDialog.Builder(requireContext())
                 .setTitle("Join " + binding.getViewModel().institute.getValue())
-                .setMessage("You can view the institute temporarily but cannot post to it until your join request is accepted by the administrator");
+                .setMessage("You can view the institute temporarily but cannot post to it until your join request is accepted by the administrator. Your institute cannot be changed later. Proceed?");
     }
 
 }

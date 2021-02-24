@@ -248,7 +248,7 @@ public final class ImageUtilities {
         Compress.Companion
                 .with(context, cropToRatio(bitmap, 4/3f))
                 .setQuality(100)
-                .setTargetDir(PathUtils.getExternalPicturesPath())
+                .setTargetDir(PathUtils.getInternalAppFilesPath())
                 .setCompressListener(new CompressListener() {
                     @Override
                     public void onStart() {
@@ -307,7 +307,7 @@ public final class ImageUtilities {
         Compress.Companion
                 .with(context, cropToRatio(bitmap, 4/3f))
                 .setQuality(100)
-                .setTargetDir(PathUtils.getExternalPicturesPath())
+                .setTargetDir(PathUtils.getInternalAppFilesPath())
                 .setCompressListener(new CompressListener() {
                     @Override
                     public void onStart() {
@@ -377,6 +377,5 @@ public final class ImageUtilities {
 
         return Bitmap.createBitmap(bitmap, cropW, cropH, newWidth, newHeight);
     }
-
 
 }

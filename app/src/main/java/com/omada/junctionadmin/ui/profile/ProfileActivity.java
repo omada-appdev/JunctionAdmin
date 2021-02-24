@@ -1,7 +1,10 @@
 package com.omada.junctionadmin.ui.profile;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
+import android.util.Pair;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -28,6 +31,8 @@ import com.omada.junctionadmin.ui.organization.OrganizationShowcaseFragment;
 import com.omada.junctionadmin.viewmodels.FeedContentViewModel;
 import com.omada.junctionadmin.viewmodels.UserProfileViewModel;
 
+import java.util.Map;
+
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -40,7 +45,9 @@ public class ProfileActivity extends AppCompatActivity {
 
         userProfileViewModel = new ViewModelProvider(this).get(UserProfileViewModel.class);
 
-        if(savedInstanceState == null) {
+        if (savedInstanceState == null) {
+            userProfileViewModel.loadOrganizationHighlights();
+            userProfileViewModel.loadOrganizationShowcases();
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.profile_content_placeholder, new ProfileFragment())
@@ -51,7 +58,7 @@ public class ProfileActivity extends AppCompatActivity {
         setupTriggers();
     }
 
-    private void setupBottomNavigation(){
+    private void setupBottomNavigation() {
 
         BottomNavigationView bottomMenu = findViewById(R.id.bottom_navigation);
         bottomMenu.getMenu().findItem(R.id.profile_button).setChecked(true);
@@ -60,18 +67,18 @@ public class ProfileActivity extends AppCompatActivity {
             int itemId = item.getItemId();
             Intent i = null;
 
-            if (itemId == R.id.create_button){
+            if (itemId == R.id.create_button) {
                 i = new Intent(ProfileActivity.this, CreateActivity.class);
-            }
-            else if (itemId == R.id.metrics_button){
+            } else if (itemId == R.id.metrics_button) {
                 i = new Intent(ProfileActivity.this, MetricsActivity.class);
-            }
-            else if (itemId == R.id.institute_button){
+            } else if (itemId == R.id.institute_button) {
                 i = new Intent(ProfileActivity.this, InstituteActivity.class);
+            } else if (itemId == R.id.profile_button) {
+                getSupportFragmentManager().popBackStack(null, 0);
             }
 
             if (i != null) {
-                i.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION|Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                i.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION | Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(i);
                 return true;
 
@@ -83,14 +90,14 @@ public class ProfileActivity extends AppCompatActivity {
 
     }
 
-    private void setupTriggers(){
+    private void setupTriggers() {
 
         userProfileViewModel.getAuthStatusTrigger()
                 .observe(this, authStatusLiveEvent -> {
 
-                    if(authStatusLiveEvent != null){
+                    if (authStatusLiveEvent != null) {
                         UserDataHandler.AuthStatus authStatus = authStatusLiveEvent.getDataOnceAndReset();
-                        if(authStatus == null) {
+                        if (authStatus == null) {
                             return;
                         }
                         switch (authStatus) {
@@ -117,11 +124,11 @@ public class ProfileActivity extends AppCompatActivity {
         userProfileViewModel.getEditDetailsTrigger()
                 .observe(this, booleanLiveEvent -> {
 
-                    if(booleanLiveEvent == null) {
+                    if (booleanLiveEvent == null) {
                         return;
                     }
                     boolean trigger = booleanLiveEvent.getDataOnceAndReset();
-                    if(trigger) {
+                    if (trigger) {
 
                         getSupportFragmentManager()
                                 .beginTransaction()
@@ -136,14 +143,85 @@ public class ProfileActivity extends AppCompatActivity {
 
         FeedContentViewModel feedContentViewModel = new ViewModelProvider(this).get(FeedContentViewModel.class);
 
+        feedContentViewModel
+                .getOrganizationViewHandler()
+                .getCallOrganizationTrigger().observe(this, stringLiveEvent -> {
+
+            if (stringLiveEvent != null) {
+                String data = stringLiveEvent.getDataOnceAndReset();
+                if (data == null) {
+                    return;
+                }
+                Intent intent = new Intent(Intent.ACTION_DIAL);
+                intent.setData(Uri.parse("tel:" + data));
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(intent);
+                }
+            }
+
+        });
+
+        feedContentViewModel
+                .getOrganizationViewHandler()
+                .getMailOrganizationTrigger().observe(this, pairLiveEvent -> {
+
+            if (pairLiveEvent != null) {
+
+                Pair<String, String> data = pairLiveEvent.getDataOnceAndReset();
+                if (data == null) {
+                    return;
+                }
+
+                Intent intent = new Intent(Intent.ACTION_SENDTO);
+                intent.setData(Uri.parse("mailto:")); // only email apps should handle this
+                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{data.second});
+                intent.putExtra(Intent.EXTRA_SUBJECT, "Regarding " + data.first);
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(intent);
+                }
+            }
+
+        });
+
         feedContentViewModel.getEventViewHandler()
-                .getEventCardDetailsTrigger()
+                .getEventFormTrigger()
                 .observe(this, eventModelLiveEvent -> {
-                    if(eventModelLiveEvent == null) {
+                    if (eventModelLiveEvent == null) {
                         return;
                     }
                     EventModel eventModel = eventModelLiveEvent.getDataOnceAndReset();
-                    if(eventModel == null) {
+                    if (eventModel == null) {
+                        return;
+                    }
+                    Map<String, Map<String, Map<String, String>>> form = eventModel.getForm();
+                    String url;
+                    try {
+                        url = form.get("links").get("linkId").get("url");
+                    } catch (Exception e) {
+                        url = null;
+                    }
+
+                    if (url != null) {
+                        if (!url.startsWith("http://") && !url.startsWith("https://"))
+                            url = "http://" + url;
+
+                        try {
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                            startActivity(browserIntent);
+                        } catch (Exception e) {
+                            Log.e("Event", "Invalid form URL");
+                        }
+                    }
+                });
+
+        feedContentViewModel.getEventViewHandler()
+                .getEventCardDetailsTrigger()
+                .observe(this, eventModelLiveEvent -> {
+                    if (eventModelLiveEvent == null) {
+                        return;
+                    }
+                    EventModel eventModel = eventModelLiveEvent.getDataOnceAndReset();
+                    if (eventModel == null) {
                         return;
                     }
                     if (eventModel.getCreator().equals(userProfileViewModel.getUserId())) {
@@ -153,8 +231,7 @@ public class ProfileActivity extends AppCompatActivity {
                                 .replace(R.id.profile_content_placeholder, EventDetailsEditFragment.newInstance(eventModel))
                                 .addToBackStack(null)
                                 .commit();
-                    }
-                    else {
+                    } else {
                         getSupportFragmentManager()
                                 .beginTransaction()
                                 .replace(R.id.profile_content_placeholder, EventDetailsFragment.newInstance(eventModel))
@@ -166,11 +243,11 @@ public class ProfileActivity extends AppCompatActivity {
         feedContentViewModel.getArticleViewHandler()
                 .getArticleCardDetailsTrigger()
                 .observe(this, articleModelLiveEvent -> {
-                    if(articleModelLiveEvent == null) {
+                    if (articleModelLiveEvent == null) {
                         return;
                     }
                     ArticleModel articleModel = articleModelLiveEvent.getDataOnceAndReset();
-                    if(articleModel == null) {
+                    if (articleModel == null) {
                         return;
                     }
                     if (articleModel.getCreator().equals(userProfileViewModel.getUserId())) {
@@ -180,8 +257,7 @@ public class ProfileActivity extends AppCompatActivity {
                                 .replace(R.id.profile_content_placeholder, ArticleDetailsEditFragment.newInstance(articleModel))
                                 .addToBackStack(null)
                                 .commit();
-                    }
-                    else {
+                    } else {
                         getSupportFragmentManager()
                                 .beginTransaction()
                                 .replace(R.id.profile_content_placeholder, ArticleDetailsFragment.newInstance(articleModel))
@@ -193,11 +269,11 @@ public class ProfileActivity extends AppCompatActivity {
         feedContentViewModel.getOrganizationViewHandler()
                 .getOrganizationShowcaseDetailsTrigger()
                 .observe(this, showcaseModelLiveEvent -> {
-                    if(showcaseModelLiveEvent == null) {
+                    if (showcaseModelLiveEvent == null) {
                         return;
                     }
                     ShowcaseModel showcaseModel = showcaseModelLiveEvent.getDataOnceAndReset();
-                    if(showcaseModel == null) {
+                    if (showcaseModel == null) {
                         return;
                     }
                     if (showcaseModel.getCreator().equals(userProfileViewModel.getUserId())) {
@@ -206,8 +282,7 @@ public class ProfileActivity extends AppCompatActivity {
                                 .replace(R.id.profile_content_placeholder, OrganizationShowcaseEditFragment.newInstance(showcaseModel))
                                 .addToBackStack(null)
                                 .commit();
-                    }
-                    else {
+                    } else {
                         getSupportFragmentManager()
                                 .beginTransaction()
                                 .replace(R.id.profile_content_placeholder, OrganizationShowcaseFragment.newInstance(showcaseModel))

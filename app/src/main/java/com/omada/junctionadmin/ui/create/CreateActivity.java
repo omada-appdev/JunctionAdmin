@@ -1,11 +1,13 @@
 package com.omada.junctionadmin.ui.create;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -156,11 +158,29 @@ public class CreateActivity extends AppCompatActivity {
     public void onBackPressed() {
 
         int stackCount = getSupportFragmentManager().getBackStackEntryCount();
-        if(stackCount > 0) {
-            // TODO if exiting article screen ask if user wants to exit
+        if(stackCount == 1) {
+            if(createPostViewModel.getCurrentState() == CreatePostViewModel.CurrentState.CURRENT_STATE_IDLE) {
+                new AlertDialog.Builder(this)
+                        .setCancelable(false)
+                        .setTitle("Discard changes?")
+                        .setMessage("Any changes you made will be lost")
+                        .setPositiveButton("DISCARD", (dialog, which) -> {
+                            createPostViewModel.resetCreators();
+                            bookingViewModel.resetBookingDate();
+                            super.onBackPressed();
+                        })
+                        .setNegativeButton("Keep editing", (dialog, which) -> {
+                        }).show();
+            } else {
+                createPostViewModel.resetCreators();
+                bookingViewModel.resetBookingDate();
+                super.onBackPressed();
+            }
             Log.e("Create", "Attempt to exit before posting");
         }
-        super.onBackPressed();
+        else {
+            super.onBackPressed();
+        }
     }
 
     @Override

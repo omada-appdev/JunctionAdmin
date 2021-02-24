@@ -1,6 +1,7 @@
 package com.omada.junctionadmin.ui.profile;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -13,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -152,6 +154,9 @@ public class ProfileEditDetailsFragment extends Fragment {
                             case VALIDATION_POINT_ALL:
                                 if(dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                                     binding.doneButton.setEnabled(true);
+                                } else {
+                                    InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                                    imm.hideSoftInputFromWindow(binding.doneButton.getWindowToken(), 0);
                                 }
                                 break;
                             default:

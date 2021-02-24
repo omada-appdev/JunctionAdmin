@@ -167,6 +167,10 @@ public class InstituteAdminFragment extends Fragment {
                 Toast.makeText(requireContext(), "Please Wait", Toast.LENGTH_SHORT).show();
                 return;
             }
+            if(!v.isEnabled()) {
+                return;
+            }
+            v.setEnabled(false);
             if (ContextCompat.checkSelfPermission(
                     requireContext(),
                     Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
@@ -275,6 +279,7 @@ public class InstituteAdminFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
+        binding.profilePictureImage.setEnabled(true);
         if (data == null) {
             return;
         }

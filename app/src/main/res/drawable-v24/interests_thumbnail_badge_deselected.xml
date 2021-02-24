@@ -13,15 +13,9 @@
         </shape>
     </item>
     <item
-        android:gravity="top|right"
         android:right="8dp"
-        android:top="8dp">
-        <shape android:shape="oval">
-            <solid
-                android:color="#55FFFFFF"/>
-            <size
-                android:width="40dp"
-                android:height="40dp"/>
-        </shape>
-    </item>
+        android:top="8dp"
+        android:gravity="top|right"
+        android:drawable="@drawable/deselected_badge"/>
+
 </layer-list>

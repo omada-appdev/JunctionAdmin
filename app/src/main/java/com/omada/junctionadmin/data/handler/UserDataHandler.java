@@ -202,10 +202,6 @@ public class UserDataHandler extends BaseDataHandler {
         }
     }
 
-    /*
-    This method is called when firebase already has a current user. It sets details into the signed
-    in user notifier live data.
-     */
     private LiveData<Boolean> getUserDetailsFromRemote(String uid) {
 
         MutableLiveData<Boolean> resultLiveData = new MutableLiveData<>();

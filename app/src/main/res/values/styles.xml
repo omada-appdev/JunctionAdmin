@@ -3,8 +3,8 @@
     <!-- Base application theme. -->
     <style name="Theme.AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">#512DA8</item>
-        <item name="colorPrimaryDark">#311B92</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
 
         <item name="android:windowDisablePreview">true</item>
@@ -33,6 +33,11 @@
     <style name="ShapeAppearance.AppTheme.GlobalCardAppearance" parent="ShapeAppearance.MaterialComponents.MediumComponent">
         <item name="cornerFamily">rounded</item>
         <item name="cornerSize">8dp</item>
+    </style>
+
+    <style name="ColorOverlay.AppTheme.NavigationIcon" parent="AppTheme">
+        <item name="itemIconTint">@color/main_bottom_navigation_color</item>
+        <item name="itemTextColor">@color/main_bottom_navigation_color</item>
     </style>
 
     <style name="Widget.AppTheme.Button.Empty.IconOnly" parent="Widget.MaterialComponents.Button.TextButton">

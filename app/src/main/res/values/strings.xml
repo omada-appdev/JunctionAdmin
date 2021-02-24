@@ -104,4 +104,7 @@
     </string>
     <string name="title_activity_scrolling">ScrollingActivity</string>
     <string name="action_settings">Settings</string>
+    <string name="feedback_message_text">We value your experience on Junction and will do everything we can to help you. Send us feature requests, bug reports, appreciation or anything in between</string>
+    <string name="send_feedback_error_message">There was an error sending your feedback.</string>
+    <string name="send_feedback_success_message">All set. You might be sent a notification about the status of your feedback</string>
 </resources>

@@ -21,6 +21,10 @@ public class MetricsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.metrics_activity_layout);
 
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.metrics_content_placeholder, new MetricsFragment())
+                .commit();
+
         setupBottomNavigation();
         setupTriggers();
     }

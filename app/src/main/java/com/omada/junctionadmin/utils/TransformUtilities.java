@@ -17,17 +17,19 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import javax.annotation.Nonnull;
+
 public class TransformUtilities {
 
     public static float DP_TO_PX(Context context, float dp_value){
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp_value, context.getResources().getDisplayMetrics());
     }
 
-    public static ZonedDateTime convertUtcLocalDateTimeToSystemZone(LocalDateTime time) {
+    public static ZonedDateTime convertUtcLocalDateTimeToSystemZone(@Nonnull LocalDateTime time) {
         return time.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.systemDefault());
     }
 
-    public static LocalDateTime convertSystemZoneLocalDateTimeToUtc(ZonedDateTime time) {
+    public static LocalDateTime convertSystemZoneLocalDateTimeToUtc(@Nonnull ZonedDateTime time) {
         return time.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
     }
 

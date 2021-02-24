@@ -34,6 +34,7 @@ import com.omada.junctionadmin.viewmodels.FeedContentViewModel;
 import com.omada.junctionadmin.viewmodels.InstituteViewModel;
 import com.omada.junctionadmin.viewmodels.UserProfileViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import mva3.adapter.ItemSection;
@@ -183,9 +184,8 @@ public class InstituteFeedFragment extends Fragment implements AppBarLayout.OnOf
     }
 
     private void onHighlightsLoaded(List<PostModel> highlights) {
-
-        if (highlights != null && (refreshHighlights || highlightSection.size() == 0)) {
-            highlightSection.addAll(highlights);
+        if (highlights != null && (refreshHighlights || highlightSection.size() == 0 || highlights.size() != highlightSection.size())) {
+            highlightSection.set(highlights);
             refreshHighlights = false;
         }
     }

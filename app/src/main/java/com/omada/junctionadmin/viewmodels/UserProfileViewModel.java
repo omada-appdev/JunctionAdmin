@@ -83,7 +83,7 @@ public class UserProfileViewModel extends BaseViewModel {
                     if (temp != null) {
                         /*
                          update happened from somewhere else
-                         TODO use a DataStore and query that
+                         TODO use a repository and query that
                         */
                         if(!temp.getHeldEventsNumber().equals(organizationModel.getHeldEventsNumber())) {
                             loadOrganizationHighlights();

@@ -29,11 +29,9 @@ import mva3.adapter.ItemViewHolder;
 public class InstituteJoinResponseNotificationItemBinder extends ItemBinder<NotificationModel, InstituteJoinResponseNotificationItemBinder.NotificationItemViewHolder> {
 
     private final UserProfileViewModel viewModel;
-    private final LifecycleOwner lifecycleOwner;
 
     public InstituteJoinResponseNotificationItemBinder(LifecycleOwner lifecycleOwner, UserProfileViewModel viewModel) {
         this.viewModel = viewModel;
-        this.lifecycleOwner = lifecycleOwner;
     }
 
     @Override

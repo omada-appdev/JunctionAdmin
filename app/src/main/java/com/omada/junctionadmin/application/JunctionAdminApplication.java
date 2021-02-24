@@ -4,7 +4,12 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
+
+import me.shouheng.utils.UtilsApp;
 
 public class JunctionAdminApplication extends Application {
 
@@ -14,14 +19,17 @@ public class JunctionAdminApplication extends Application {
         return instance;
     }
 
-    public static Context getContext(){
+    public static Context getContext() {
         return instance;
     }
 
     @Override
     public void onCreate() {
+
         instance = this;
         Log.e("JunctionAdminApp", "Current branch : master");
+
         super.onCreate();
+        UtilsApp.init(this);
     }
 }

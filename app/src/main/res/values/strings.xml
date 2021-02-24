@@ -107,4 +107,6 @@
     <string name="feedback_message_text">We value your experience on Junction and will do everything we can to help you. Send us feature requests, bug reports, appreciation or anything in between</string>
     <string name="send_feedback_error_message">There was an error sending your feedback.</string>
     <string name="send_feedback_success_message">All set. You might be sent a notification about the status of your feedback</string>
+    <string name="delete_progress_message">Deleting, please wait</string>
+    <string name="posting_progress_message">Reaching your users\' feeds. Hang on.</string>
 </resources>

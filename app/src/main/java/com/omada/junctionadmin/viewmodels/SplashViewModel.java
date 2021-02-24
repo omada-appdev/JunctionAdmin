@@ -21,7 +21,6 @@ public class SplashViewModel extends BaseViewModel {
     public SplashViewModel() {
 
         // clear all files on startup
-        UtilsApp.init(JunctionAdminApplication.getInstance());
         FileUtilities.Companion.clearTemporaryFiles();
 
         authResultAction = Transformations.map(

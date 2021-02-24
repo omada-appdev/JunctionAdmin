@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.data.repository.DataRepositoryAccessIdentifier;
 import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
@@ -46,5 +47,9 @@ public abstract class BaseViewModel extends ViewModel {
 
     public final String getUserId() {
         return MainDataRepository.getInstance().getUserDataHandler().getCurrentUserModel().getId();
+    }
+
+    public final OrganizationModel getUserModel() {
+        return MainDataRepository.getInstance().getUserDataHandler().getCurrentUserModel();
     }
 }

@@ -33,7 +33,9 @@ import com.omada.junctionadmin.data.models.mutable.MutableBookingModel;
 import com.omada.junctionadmin.data.models.mutable.MutableEventModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,6 +107,11 @@ public class PostDataHandler extends BaseDataHandler {
                     List<PostModel> postModels = new ArrayList<>();
 
                     for(DocumentSnapshot snapshot: queryDocumentSnapshots){
+                        if(!snapshot.exists()){
+                            continue;
+                        }
+                        Log.e("Posts", "Institute highlight fetch source is from cache : " + snapshot.getMetadata().isFromCache());
+                        Log.e("Posts", "Institute highlight fetch has pending writes : " + snapshot.getMetadata().hasPendingWrites());
                         PostModel postModel = convertSnapshotToPostModel(snapshot);
                         if(postModel != null){
                             postModels.add(postModel);
@@ -573,6 +580,9 @@ public class PostDataHandler extends BaseDataHandler {
         EventModelRemoteDB modelRemoteDB = snapshot.toObject(EventModelRemoteDB.class);
         if (modelRemoteDB == null){
             return null;
+        } if (snapshot.getMetadata().hasPendingWrites()) {
+            Log.e("Posts", "Nullity of snapshot time created" + (snapshot.getTimestamp("timeCreated") == null));
+            modelRemoteDB.setTimeCreated(new Timestamp(Date.from(Instant.now())));
         }
         modelRemoteDB.setId(snapshot.getId());
         return eventModelConverter.convertRemoteDBToExternalModel(modelRemoteDB);

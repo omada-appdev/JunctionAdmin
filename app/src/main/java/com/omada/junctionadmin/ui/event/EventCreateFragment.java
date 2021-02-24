@@ -179,14 +179,11 @@ public class EventCreateFragment extends Fragment {
                 }
                 if (result) {
                     Toast.makeText(requireContext(), "Uploaded post successfully", Toast.LENGTH_SHORT).show();
-                    dialog.dismiss();
+                    requireActivity().onBackPressed();
                 } else {
-                    dialog.findViewById(R.id.constraint_layout).setVisibility(View.GONE);
-                    dialog.setMessage("There was a problem processing your request");
-                    dialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", (dialog1, which) -> {
-                    });
                     Toast.makeText(requireContext(), "Could not upload. Please try again", Toast.LENGTH_SHORT).show();
                 }
+                dialog.dismiss();
             });
         });
 

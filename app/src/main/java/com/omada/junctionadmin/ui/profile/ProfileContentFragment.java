@@ -145,13 +145,23 @@ public class ProfileContentFragment extends Fragment {
             return;
         }
         Log.e("UserProfile", "Highlights loaded : " + postModels.size());
-        highlightListSection.set(postModels);
+        if (postModels.size() == 0) {
+            Log.e("Profile", "Breakpoint 1");
+            highlightListSection.clear();
+            adapter.notifyDataSetChanged();
+        } else {
+            Log.e("Profile", "Breakpoint 2");
+            highlightListSection.set(postModels);
+        }
         if (highlightHeaderSection.isSectionHidden() && highlightListSection.size() > 0) {
+            Log.e("Profile", "Breakpoint 3");
             highlightHeaderSection.showSection();
         }
         if (highlightListSection.size() == 0) {
+            Log.e("Profile", "Breakpoint 4");
             highlightHeaderSection.hideSection();
         }
+        Log.e("Profile", "Breakpoint 5");
         refreshHighlights = false;
     }
 

@@ -26,6 +26,8 @@ import java.time.LocalDateTime;
  */
 public class DataValidator {
 
+    public static final int PASSWORD_MIN_SIZE = 8;
+
     public static final int EVENT_DESCRIPTION_MAX_SIZE = 2000;
     public static final int EVENT_TITLE_MAX_SIZE = 30;
     public static final int EVENT_TITLE_MIN_SIZE = 5;
@@ -429,10 +431,15 @@ public class DataValidator {
     }
 
     private DataValidationInformation validatePassword(String password) {
-        if (password == null || password.equals("")) {
+        if (password == null || password.equals("")){
             return new DataValidationInformation(
                     DataValidationPoint.VALIDATION_POINT_PASSWORD,
                     DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        } else if (password.length() < PASSWORD_MIN_SIZE) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_PASSWORD,
+                    DataValidationResult.VALIDATION_RESULT_UNDERFLOW
             );
         }
         return new DataValidationInformation(

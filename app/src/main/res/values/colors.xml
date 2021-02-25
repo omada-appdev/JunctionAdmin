@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary1">#673AB7</color>
     <color name="colorPrimary">#512DA8</color>
-    <color name="colorPrimaryDark">#512DA8</color>
+    <color name="colorPrimaryDark">#4527A0</color>
     <color name="colorAccent">#FF8F00</color>
     <color name = "JunctionLightGray">#EEEEEE</color>
     <color name = "white">#FFFFFF</color>
@@ -11,5 +11,4 @@
     <color name="backdrop">#EFEFEF</color>
     <color name="black">#000000</color>
     <color name="green">#43A047</color>
-
 </resources>

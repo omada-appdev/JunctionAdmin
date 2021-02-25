@@ -111,7 +111,11 @@ public class DetailsFragment extends Fragment {
                             }
                             break;
                         case VALIDATION_POINT_PASSWORD:
-                            if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                            if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_BLANK_VALUE) {
+                                binding.passwordLayout.setError("Please provide a password");
+                            } else if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_UNDERFLOW) {
+                                binding.passwordLayout.setError("Please enter at least " + DataValidator.PASSWORD_MIN_SIZE + " characters");
+                            } else {
                                 binding.passwordLayout.setError("Invalid password");
                             }
                             break;
@@ -122,7 +126,7 @@ public class DetailsFragment extends Fragment {
                             break;
                         case VALIDATION_POINT_INSTITUTE_HANDLE:
                             if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
-                                binding.instituteLayout.setError("Invalid institute");
+                                binding.instituteLayout.setError("This institute does not exist");
                             }
                             break;
                         case VALIDATION_POINT_PROFILE_PICTURE:

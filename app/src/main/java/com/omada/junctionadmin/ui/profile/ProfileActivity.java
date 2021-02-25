@@ -74,7 +74,11 @@ public class ProfileActivity extends AppCompatActivity {
             } else if (itemId == R.id.institute_button) {
                 i = new Intent(ProfileActivity.this, InstituteActivity.class);
             } else if (itemId == R.id.profile_button) {
-                getSupportFragmentManager().popBackStack(null, 0);
+                if(getSupportFragmentManager().getBackStackEntryCount() != 0 ) {
+                    getSupportFragmentManager().popBackStack(null, 0);
+                } else {
+                    userProfileViewModel.reloadOrganizationHighlights();
+                }
             }
 
             if (i != null) {

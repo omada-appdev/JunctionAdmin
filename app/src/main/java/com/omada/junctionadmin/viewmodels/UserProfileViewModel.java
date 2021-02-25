@@ -257,6 +257,16 @@ public class UserProfileViewModel extends BaseViewModel {
         );
     }
 
+    public void reloadOrganizationHighlights() {
+        if(loadedOrganizationHighlights != null) {
+            if(loadedOrganizationHighlights.getValue() != null) {
+                loadedOrganizationHighlights.getValue().clear();
+            }
+        } else {
+            loadedOrganizationHighlights = new MediatorLiveData<>();
+        }
+        loadOrganizationHighlights();
+    }
 
     public void loadOrganizationHighlights() {
 

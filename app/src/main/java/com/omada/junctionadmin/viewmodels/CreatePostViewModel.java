@@ -43,7 +43,7 @@ public class CreatePostViewModel extends BaseViewModel {
 
     private CurrentState currentState = CurrentState.CURRENT_STATE_IDLE;
 
-    private final EventCreator eventCreator = new TestEventCreator();
+    private final EventCreator eventCreator = new EventCreator();
 
     private final ArticleCreator articleCreator = new ArticleCreator();
     private final MutableLiveData<LiveEvent<Boolean>> createEventTrigger = new MutableLiveData<>();
@@ -321,6 +321,7 @@ public class CreatePostViewModel extends BaseViewModel {
     }
 
     public void resetCreators() {
+        currentState = CurrentState.CURRENT_STATE_IDLE;
         eventCreator.resetData();
         articleCreator.resetData();
     }
@@ -495,34 +496,6 @@ public class CreatePostViewModel extends BaseViewModel {
 
         public void setImagePath(Uri imagePath) {
             this.imagePath = imagePath;
-        }
-    }
-
-    private static class TestEventCreator extends EventCreator {
-
-        public TestEventCreator() {
-            Log.e("Create", "Initialized event creator");
-        }
-
-        @Override
-        public void resetData() {
-            resetData(true, true);
-        }
-
-        @Override
-        public void resetData(boolean resetForm, boolean resetVenueModel) {
-            Log.e("Create", "Resetting event");
-            title.setValue(null);
-            description.setValue(null);
-            imagePath = null;
-            tags = null;
-
-            if (resetForm) {
-                form = null;
-            }
-            if (resetVenueModel) {
-                venueModel = null;
-            }
         }
     }
 }

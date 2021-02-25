@@ -82,7 +82,11 @@ public class InstituteActivity extends AppCompatActivity {
             } else if (itemId == R.id.create_button) {
                 i = new Intent(InstituteActivity.this, CreateActivity.class);
             } else if (itemId == R.id.institute_button) {
-                getSupportFragmentManager().popBackStack(null, 0);
+                if (getSupportFragmentManager().getBackStackEntryCount() != 0) {
+                    getSupportFragmentManager().popBackStack(null, 0);
+                } else {
+                    instituteViewModel.reloadInstituteHighlights();
+                }
             }
 
             if (i != null) {
@@ -193,11 +197,11 @@ public class InstituteActivity extends AppCompatActivity {
         feedContentViewModel.getEventViewHandler()
                 .getEventFormTrigger()
                 .observe(this, eventModelLiveEvent -> {
-                    if(eventModelLiveEvent == null) {
+                    if (eventModelLiveEvent == null) {
                         return;
                     }
                     EventModel eventModel = eventModelLiveEvent.getDataOnceAndReset();
-                    if(eventModel == null) {
+                    if (eventModel == null) {
                         return;
                     }
                     Map<String, Map<String, Map<String, String>>> form = eventModel.getForm();
@@ -208,7 +212,7 @@ public class InstituteActivity extends AppCompatActivity {
                         url = null;
                     }
 
-                    if(url != null) {
+                    if (url != null) {
                         if (!url.startsWith("http://") && !url.startsWith("https://"))
                             url = "http://" + url;
 

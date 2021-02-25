@@ -265,6 +265,14 @@ public class InstituteViewModel extends BaseViewModel {
         return instituteUpdater;
     }
 
+    public void reloadInstituteHighlights() {
+        List<PostModel> highlights = loadedInstituteHighlights.getValue();
+        if (!(highlights == null || highlights.size() == 0)){
+            highlights.clear();
+        }
+        loadInstituteHighlights();
+    }
+
     public void loadInstituteHighlights() {
         MainDataRepository
                 .getInstance()

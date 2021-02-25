@@ -74,7 +74,7 @@ public class PostDataRepository extends BaseDataHandler {
                         }
                     }
 
-                    loadedOrganizationHighlights.setValue(new LiveEvent<>(postModels));
+                    loadedOrganizationHighlights.postValue(new LiveEvent<>(postModels));
 
                 })
                 .addOnFailureListener(e -> {
@@ -119,14 +119,13 @@ public class PostDataRepository extends BaseDataHandler {
                         }
                     }
 
-                    loadedInstituteHighlightsNotifier.setValue(new LiveEvent<>(postModels));
+                    loadedInstituteHighlightsNotifier.postValue(new LiveEvent<>(postModels));
 
                 })
                 .addOnFailureListener(e -> {
                     Log.e("Posts", "Error retrieving organization highlights");
                     loadedAllOrganizationPostsNotifier.setValue(null);
                 });
-
 
     }
 

@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 
 import com.omada.junctionadmin.application.JunctionAdminApplication;
-import com.omada.junctionadmin.data.repository.MainDataRepository;
-import com.omada.junctionadmin.data.handler.UserDataHandler;
+import com.omada.junctionadmin.data.repositorytemp.MainDataRepository;
+import com.omada.junctionadmin.data.repository.UserDataRepository;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
 import com.omada.junctionadmin.utils.FileUtilities;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
@@ -15,18 +15,17 @@ import me.shouheng.utils.UtilsApp;
 
 public class SplashViewModel extends BaseViewModel {
 
-    private final LiveData<LiveEvent<UserDataHandler.AuthStatus>> authResultAction;
+    private final LiveData<LiveEvent<UserDataRepository.AuthStatus>> authResultAction;
     private final LiveData<LiveEvent<OrganizationModel>> signedInUserAction;
 
     public SplashViewModel() {
 
         // clear all files on startup
-        UtilsApp.init(JunctionAdminApplication.getInstance());
         FileUtilities.Companion.clearTemporaryFiles();
 
         authResultAction = Transformations.map(
                 MainDataRepository.getInstance()
-                        .getUserDataHandler()
+                        .getUserDataRepository()
                         .getAuthResponseNotifier(),
 
                 authResponse->{
@@ -34,7 +33,7 @@ public class SplashViewModel extends BaseViewModel {
                         return null;
                     }
 
-                    UserDataHandler.AuthStatus receivedAuthResponse = authResponse.getDataOnceAndReset();
+                    UserDataRepository.AuthStatus receivedAuthResponse = authResponse.getDataOnceAndReset();
                     if(receivedAuthResponse == null) {
                         return null;
                     }
@@ -50,7 +49,7 @@ public class SplashViewModel extends BaseViewModel {
 
         signedInUserAction = Transformations.map(
                 MainDataRepository.getInstance()
-                        .getUserDataHandler()
+                        .getUserDataRepository()
                         .getSignedInUserNotifier(),
 
                 userModelLiveEvent->{
@@ -66,11 +65,11 @@ public class SplashViewModel extends BaseViewModel {
 
     public void getCurrentUser(){
         MainDataRepository.getInstance()
-                .getUserDataHandler()
+                .getUserDataRepository()
                 .getCurrentUserDetails();
     }
 
-    public LiveData<LiveEvent<UserDataHandler.AuthStatus>> getAuthResultAction() {
+    public LiveData<LiveEvent<UserDataRepository.AuthStatus>> getAuthResultAction() {
         return authResultAction;
     }
 

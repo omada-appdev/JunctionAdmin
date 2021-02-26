@@ -1,11 +1,9 @@
 package com.omada.junctionadmin.viewmodels.content;
 
-import android.util.Pair;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.omada.junctionadmin.data.repository.MainDataRepository;
+import com.omada.junctionadmin.data.repositorytemp.MainDataRepository;
 import com.omada.junctionadmin.data.models.external.EventModel;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
@@ -36,7 +34,7 @@ public class EventViewHandler {
     public final void goToEditEventDetails(EventModel eventModel) {
 
         String userId = MainDataRepository.getInstance()
-                .getUserDataHandler()
+                .getUserDataRepository()
                 .getCurrentUserModel()
                 .getId();
         if (eventModel.getCreator().equals(userId)) {

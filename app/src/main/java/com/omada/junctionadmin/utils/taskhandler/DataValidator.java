@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 
-import com.omada.junctionadmin.data.repository.MainDataRepository;
+import com.omada.junctionadmin.data.repositorytemp.MainDataRepository;
 
 import java.time.LocalDateTime;
 
@@ -25,6 +25,8 @@ import java.time.LocalDateTime;
 * TODO make all methods static and use a builder for batch validation
  */
 public class DataValidator {
+
+    public static final int PASSWORD_MIN_SIZE = 8;
 
     public static final int EVENT_DESCRIPTION_MAX_SIZE = 2000;
     public static final int EVENT_TITLE_MAX_SIZE = 30;
@@ -328,7 +330,7 @@ public class DataValidator {
         return Transformations.map(
                 MainDataRepository
                         .getInstance()
-                        .getInstituteDataHandler()
+                        .getInstituteDataRepository()
                         .checkInstituteCodeValidity(institute),
 
                 input -> {
@@ -429,10 +431,15 @@ public class DataValidator {
     }
 
     private DataValidationInformation validatePassword(String password) {
-        if (password == null || password.equals("")) {
+        if (password == null || password.equals("")){
             return new DataValidationInformation(
                     DataValidationPoint.VALIDATION_POINT_PASSWORD,
                     DataValidationResult.VALIDATION_RESULT_BLANK_VALUE
+            );
+        } else if (password.length() < PASSWORD_MIN_SIZE) {
+            return new DataValidationInformation(
+                    DataValidationPoint.VALIDATION_POINT_PASSWORD,
+                    DataValidationResult.VALIDATION_RESULT_UNDERFLOW
             );
         }
         return new DataValidationInformation(

@@ -9,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.omada.junctionadmin.R;
-import com.omada.junctionadmin.data.handler.UserDataHandler;
+import com.omada.junctionadmin.data.repository.UserDataRepository;
 import com.omada.junctionadmin.ui.login.LoginActivity;
 import com.omada.junctionadmin.ui.profile.ProfileActivity;
 import com.omada.junctionadmin.viewmodels.SplashViewModel;
@@ -29,7 +29,7 @@ public class SplashActivity extends AppCompatActivity {
 
         splashViewModel.getAuthResultAction().observe(this, authStatusLiveEvent -> {
             if(authStatusLiveEvent != null){
-                UserDataHandler.AuthStatus authStatus = authStatusLiveEvent.getDataOnceAndReset();
+                UserDataRepository.AuthStatus authStatus = authStatusLiveEvent.getDataOnceAndReset();
                 if(authStatus==null) return;
                 Log.e("Splash", "AuthStatus : " + authStatus.toString());
                 Intent i;

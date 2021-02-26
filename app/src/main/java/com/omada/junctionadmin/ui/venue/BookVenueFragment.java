@@ -1,9 +1,12 @@
 package com.omada.junctionadmin.ui.venue;
 
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +14,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -19,10 +23,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.data.models.external.VenueModel;
+import com.omada.junctionadmin.ui.uicomponents.TimeDurationInputCreator;
 import com.omada.junctionadmin.ui.uicomponents.animations.VenueItemAnimator;
 import com.omada.junctionadmin.ui.uicomponents.binders.VenueBookingItemBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.VenueSelectionItemBinder;
@@ -30,7 +36,9 @@ import com.omada.junctionadmin.viewmodels.BookingViewModel;
 import com.omada.junctionadmin.viewmodels.CreatePostViewModel;
 
 import java.time.Instant;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -103,7 +111,10 @@ public class BookVenueFragment extends Fragment {
         recyclerView.setItemAnimator(new VenueItemAnimator(0));
         recyclerView.addItemDecoration(adapter.getItemDecoration());
 
-        if (bookingViewModel.getZonedBookingDate() != null) {
+        if (bookingViewModel.getZonedBookingDate() != null
+                && createPostViewModel.getEventCreator().startTime.getValue() != null
+                && createPostViewModel.getEventCreator().endTime.getValue() != null) {
+
             dateInput.setText(
                     bookingViewModel.getZonedBookingDate().toLocalDate().format(DateTimeFormatter.ISO_DATE)
             );
@@ -159,23 +170,16 @@ public class BookVenueFragment extends Fragment {
                 MaterialDatePicker<?> picker = builder.build();
 
                 picker.addOnPositiveButtonClickListener(selection -> {
-
                     bookingViewModel.setBookingDate(
                             Instant.ofEpochMilli((Long) selection)
                                     .atZone(ZoneId.systemDefault())
                                     .withZoneSameInstant(ZoneId.of("UTC"))
                                     .toLocalDateTime()
                     );
-
-                    createPostViewModel.getEventCreator().startTime.setValue(bookingViewModel.getZonedBookingDate());
-                    createPostViewModel.getEventCreator().endTime.setValue(bookingViewModel.getZonedBookingDate().plusHours(1));
-
-                    bookingViewModel.getLoadedInstituteVenues().observe(getViewLifecycleOwner(), this::onVenuesLoaded);
-
                     dateInput.setText(
                             Instant.ofEpochMilli((Long) selection).atZone(ZoneId.systemDefault()).toLocalDateTime().format(DateTimeFormatter.ISO_DATE)
                     );
-                    adapter.collapseAllItems();
+                    createTimeInputDialog();
                 });
 
                 picker.show(getChildFragmentManager(), picker.toString());
@@ -194,6 +198,48 @@ public class BookVenueFragment extends Fragment {
         editText.setBackgroundColor(Color.TRANSPARENT);
     }
 
+
+    public void createTimeInputDialog() {
+
+        TimeDurationInputCreator creator = new TimeDurationInputCreator(requireContext());
+        AlertDialog dialog = creator.initializeDefaultTextWatchers();
+
+        dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
+
+            LocalTime startTime = creator.getEnteredStartTime();
+            LocalTime endTime = creator.getEnteredEndTime();
+
+            ZonedDateTime startDate = null;
+            ZonedDateTime endDate = null;
+
+            if (startTime != null && endTime != null) {
+                startDate = startTime.atDate(bookingViewModel.getZonedBookingDate().toLocalDate()).atZone(ZoneId.systemDefault());
+                endDate = endTime.atDate(bookingViewModel.getZonedBookingDate().toLocalDate()).atZone(ZoneId.systemDefault());
+            } else {
+                return;
+            }
+
+            if (!startTime.isBefore(endTime)) {
+                creator.setError("Invalid timing");
+            } else if (startDate != null && endDate != null) {
+                creator.setError(null);
+                createPostViewModel.getEventCreator().startTime.setValue(startDate);
+                createPostViewModel.getEventCreator().endTime.setValue(endDate);
+
+                bookingViewModel
+                        .getLoadedInstituteVenues()
+                        .observe(getViewLifecycleOwner(), this::onVenuesLoaded);
+
+                dialog.dismiss();
+            }
+        });
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", (dialog1, which) -> {
+            bookingViewModel.resetBookingDate();
+            createPostViewModel.getEventCreator().startTime.postValue(null);
+            createPostViewModel.getEventCreator().endTime.postValue(null);
+            dateInput.setText(null);
+        });
+    }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {

@@ -79,7 +79,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
-                    android:hint="Your email address">
+                    android:hint="Organization email address">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/email_input"
@@ -97,7 +97,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
-                    android:hint="Organization Name">
+                    android:hint="Organization name">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/name_input"
@@ -115,7 +115,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
-                    android:hint="Institute Code">
+                    android:hint="Institute code">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/institute_input"
@@ -169,6 +169,10 @@
                         android:text="@={viewModel.password}" />
 
                 </com.google.android.material.textfield.TextInputLayout>
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp" />
 
             </LinearLayout>
         </ScrollView>

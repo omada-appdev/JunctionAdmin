@@ -1,8 +1,7 @@
 package com.omada.junctionadmin.data;
 
-import com.bumptech.glide.load.DataSource;
-import com.omada.junctionadmin.data.repository.DataRepositoryHandlerIdentifier;
-import com.omada.junctionadmin.data.repository.MainDataRepository;
+import com.omada.junctionadmin.data.repositorytemp.DataRepositoryHandlerIdentifier;
+import com.omada.junctionadmin.data.repositorytemp.MainDataRepository;
 
 public abstract class BaseDataHandler {
 

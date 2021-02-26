@@ -20,7 +20,7 @@
             app:layout_constraintBottom_toTopOf="@id/guideline"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            android:src="@drawable/ic_junction_logo"
+            android:src="@drawable/junction_text"
             app:tint="@color/colorPrimaryDark"/>
 
         <com.google.android.material.textview.MaterialTextView

@@ -14,7 +14,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.omada.junctionadmin.R;
-import com.omada.junctionadmin.data.handler.UserDataHandler;
+import com.omada.junctionadmin.data.repository.UserDataRepository;
 import com.omada.junctionadmin.data.models.external.ArticleModel;
 import com.omada.junctionadmin.data.models.external.EventModel;
 import com.omada.junctionadmin.data.models.external.ShowcaseModel;
@@ -74,7 +74,11 @@ public class ProfileActivity extends AppCompatActivity {
             } else if (itemId == R.id.institute_button) {
                 i = new Intent(ProfileActivity.this, InstituteActivity.class);
             } else if (itemId == R.id.profile_button) {
-                getSupportFragmentManager().popBackStack(null, 0);
+                if(getSupportFragmentManager().getBackStackEntryCount() != 0 ) {
+                    getSupportFragmentManager().popBackStack(null, 0);
+                } else {
+                    userProfileViewModel.reloadOrganizationHighlights();
+                }
             }
 
             if (i != null) {
@@ -96,7 +100,7 @@ public class ProfileActivity extends AppCompatActivity {
                 .observe(this, authStatusLiveEvent -> {
 
                     if (authStatusLiveEvent != null) {
-                        UserDataHandler.AuthStatus authStatus = authStatusLiveEvent.getDataOnceAndReset();
+                        UserDataRepository.AuthStatus authStatus = authStatusLiveEvent.getDataOnceAndReset();
                         if (authStatus == null) {
                             return;
                         }

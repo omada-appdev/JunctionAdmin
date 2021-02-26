@@ -17,11 +17,11 @@ import mva3.adapter.ItemBinder;
 import mva3.adapter.ItemViewHolder;
 
 
-public class InstituteJoinResponseNotificationItemBinder extends ItemBinder<NotificationModel, InstituteJoinResponseNotificationItemBinder.NotificationItemViewHolder> {
+public class InstituteAdminResponseNotificationItemBinder extends ItemBinder<NotificationModel, InstituteAdminResponseNotificationItemBinder.NotificationItemViewHolder> {
 
     private final UserProfileViewModel viewModel;
 
-    public InstituteJoinResponseNotificationItemBinder(LifecycleOwner lifecycleOwner, UserProfileViewModel viewModel) {
+    public InstituteAdminResponseNotificationItemBinder(LifecycleOwner lifecycleOwner, UserProfileViewModel viewModel) {
         this.viewModel = viewModel;
     }
 
@@ -41,7 +41,7 @@ public class InstituteJoinResponseNotificationItemBinder extends ItemBinder<Noti
 
     @Override
     public boolean canBindData(Object item) {
-        return item instanceof NotificationModel && ((NotificationModel) item).getNotificationType().equals("instituteJoinResponse");
+        return item instanceof NotificationModel && ((NotificationModel) item).getNotificationType().equals("instituteAdminResponse");
     }
 
     public static class NotificationItemViewHolder extends ItemViewHolder<NotificationModel> {
@@ -67,14 +67,13 @@ public class InstituteJoinResponseNotificationItemBinder extends ItemBinder<Noti
             Boolean accepted = model.getData().get("response").equals("accepted");
 
             if (accepted) {
-                constraintLayout.setBackgroundColor(resources.getColor(R.color.green, theme));
-                titleText.setText("Your join request has been accepted");
-                messageText.setText("You can now post events and reach the users of your requested institute");
+                constraintLayout.setBackgroundColor(resources.getColor(R.color.blue, theme));
+                titleText.setText("You are now an admin");
+                messageText.setText("You can accept other organizations into your institute and edit the institute");
             } else {
-                constraintLayout.setBackgroundColor(resources.getColor(R.color.design_default_color_error, theme));
-                titleText.setText("Your join request has been denied");
-                messageText.setText("You cannot view your requested institute any longer");
-
+                constraintLayout.setBackgroundColor(resources.getColor(R.color.errorDark, theme));
+                titleText.setText("You are not an admin");
+                messageText.setText("Any admin privileges your organization had will be revoked");
             }
         }
 

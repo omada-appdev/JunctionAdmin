@@ -1,4 +1,4 @@
-package com.omada.junctionadmin.data.handler;
+package com.omada.junctionadmin.data.repository;
 
 import android.util.Log;
 
@@ -9,7 +9,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.omada.junctionadmin.data.BaseDataHandler;
-import com.omada.junctionadmin.data.repository.DataRepositoryAccessIdentifier;
+import com.omada.junctionadmin.data.repositorytemp.DataRepositoryAccessIdentifier;
 import com.omada.junctionadmin.data.models.converter.ShowcaseModelConverter;
 import com.omada.junctionadmin.data.models.external.ShowcaseModel;
 import com.omada.junctionadmin.data.models.internal.remote.ShowcaseModelRemoteDB;
@@ -18,7 +18,7 @@ import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ShowcaseDataHandler extends BaseDataHandler {
+public class ShowcaseDataRepository extends BaseDataHandler {
 
     private final ShowcaseModelConverter showcaseModelConverter = new ShowcaseModelConverter();
 

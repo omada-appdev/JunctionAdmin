@@ -6,6 +6,8 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -107,7 +109,10 @@ public class InstituteAdminFragment extends Fragment {
         );
 
         notificationsListSection.setOnSelectionChangedListener((item, isSelected, selectedItems) -> {
-            notificationsListSection.remove(notificationsListSection.getData().indexOf(item));
+            int index = notificationsListSection.getData().indexOf(item);
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                notificationsListSection.remove(index);
+            }, 200);
             notificationsListSection.clearSelections();
         });
 

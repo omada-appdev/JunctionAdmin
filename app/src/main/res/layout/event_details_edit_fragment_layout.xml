@@ -109,31 +109,88 @@
                     android:layout_height="0dp"
                     android:layout_marginTop="12dp"
                     android:scaleType="centerCrop"
-                    app:layout_constraintBottom_toTopOf="@id/event_time_start_text"
+                    app:layout_constraintBottom_toTopOf="@id/event_date_text"
                     app:layout_constraintDimensionRatio="W, 4:3"
                     app:layout_constraintTop_toBottomOf="@id/organizer_profile_image" />
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/event_time_start_text"
-                    android:layout_width="0dp"
+                    android:id="@+id/event_date_text"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="50dp"
-                    android:layout_marginEnd="16dp"
-                    android:text="@{TransformUtilities.convertUtcLocalDateTimeToHHMM(eventDetails.startTime)}"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline2"
-                    app:layout_constraintEnd_toStartOf="@+id/event_time_guideline"
+                    android:layout_marginTop="24dp"
+                    android:text="@{TransformUtilities.convertUtcLocalDateTimeToddDDMM(eventDetails.startTime)}"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                    android:textColor="@color/grey"
+                    android:textStyle="normal"
+                    app:layout_constraintBottom_toTopOf="@id/event_time_start_text"
+                    app:layout_constraintStart_toStartOf="@id/event_time_start_text"
                     app:layout_constraintTop_toBottomOf="@id/event_poster_image" />
 
                 <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/event_time_end_text"
-                    android:layout_width="0dp"
+                    android:id="@+id/event_time_start_text"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="50dp"
+                    android:layout_marginTop="0dp"
+                    android:text="@{TransformUtilities.convertUtcLocalDateTimeToHHMM(eventDetails.startTime)}"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline2"
+                    app:layout_constraintEnd_toStartOf="@+id/event_time_end_text"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/event_date_text" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/event_time_end_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
                     android:text="@{TransformUtilities.convertUtcLocalDateTimeToHHMM(eventDetails.endTime)}"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Headline2"
-                    app:layout_constraintStart_toStartOf="@+id/event_time_guideline"
-                    app:layout_constraintTop_toBottomOf="@id/event_poster_image" />
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/event_time_start_text"
+                    app:layout_constraintTop_toBottomOf="@id/event_date_text" />
+
+                <ImageView
+                    android:id="@+id/venue_image"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginEnd="24dp"
+                    android:layout_marginTop="8dp"
+                    android:src="@drawable/ic_place_24px"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/event_venue_text"
+                    app:tint="@color/colorPrimary" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/event_venue_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="32dp"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="24dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="@{eventDetails.venueName}"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                    android:textColor="@color/grey"
+                    android:textStyle="normal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/venue_image"
+                    app:layout_constraintTop_toBottomOf="@+id/event_time_start_text" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/event_venue_address_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginEnd="24dp"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="@{eventDetails.venueAddress}"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                    android:textColor="@color/grey"
+                    android:textStyle="normal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/venue_image"
+                    app:layout_constraintTop_toBottomOf="@+id/event_venue_text" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/event_description_layout"
@@ -154,7 +211,7 @@
                     app:hintEnabled="false"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/event_time_end_text">
+                    app:layout_constraintTop_toBottomOf="@id/event_venue_address_text">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/event_description_text"

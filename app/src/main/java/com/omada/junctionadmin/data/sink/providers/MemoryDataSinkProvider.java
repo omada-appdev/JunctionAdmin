@@ -1,6 +1,5 @@
 package com.omada.junctionadmin.data.sink.providers;
 
-import com.omada.junctionadmin.data.sink.DataSinkProvider;
 import com.omada.junctionadmin.data.sink.InstituteDataSink;
 import com.omada.junctionadmin.data.sink.NotificationDataSink;
 import com.omada.junctionadmin.data.sink.OrganizationDataSink;

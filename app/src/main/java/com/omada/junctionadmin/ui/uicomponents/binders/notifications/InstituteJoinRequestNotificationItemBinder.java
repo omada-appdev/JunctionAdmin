@@ -20,7 +20,7 @@ import mva3.adapter.ItemViewHolder;
 public class InstituteJoinRequestNotificationItemBinder extends ItemBinder<NotificationModel, InstituteJoinRequestNotificationItemBinder.NotificationItemViewHolder> {
 
     private final InstituteViewModel viewModel;
-    private LifecycleOwner lifecycleOwner;
+    private final LifecycleOwner lifecycleOwner;
 
     public InstituteJoinRequestNotificationItemBinder(InstituteViewModel viewModel, LifecycleOwner lifecycleOwner) {
         this.viewModel = viewModel;

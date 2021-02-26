@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -51,7 +52,13 @@ public class CreateActivity extends AppCompatActivity {
         setUpTriggers();
     }
 
-
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(!createPostViewModel.getUserModel().isInstituteVerified()) {
+            findViewById(R.id.institute_warning_constraint_layout).setVisibility(View.VISIBLE);
+        }
+    }
 
     private void setupBottomNavigation() {
 

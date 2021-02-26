@@ -17,7 +17,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -30,9 +29,8 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.imageview.ShapeableImageView;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.omada.junctionadmin.R;
@@ -169,6 +167,8 @@ public class EventCreateFragment extends Fragment {
 
         binding.postButton.setOnClickListener(v -> {
             binding.postButton.setEnabled(false);
+            androidx.appcompat.app.AlertDialog dialog = createPostProgressDialog();
+            dialog.show();
             createPostViewModel.createEvent().observe(getViewLifecycleOwner(), booleanLiveEvent -> {
                 if (booleanLiveEvent == null) {
                     return;
@@ -179,9 +179,11 @@ public class EventCreateFragment extends Fragment {
                 }
                 if (result) {
                     Toast.makeText(requireContext(), "Uploaded post successfully", Toast.LENGTH_SHORT).show();
+                    requireActivity().onBackPressed();
                 } else {
                     Toast.makeText(requireContext(), "Could not upload. Please try again", Toast.LENGTH_SHORT).show();
                 }
+                dialog.dismiss();
             });
         });
 
@@ -270,7 +272,7 @@ public class EventCreateFragment extends Fragment {
         editText.setHint("Your link");
 
         alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL).setOnClickListener(v -> {
-            if(editText.getText() != null) {
+            if (editText.getText() != null) {
 
                 String url = editText.getText().toString();
 
@@ -319,6 +321,13 @@ public class EventCreateFragment extends Fragment {
             public void afterTextChanged(Editable s) {
             }
         });
+    }
+
+    private androidx.appcompat.app.AlertDialog createPostProgressDialog() {
+        return new MaterialAlertDialogBuilder(requireContext())
+                .setCancelable(false)
+                .setView(R.layout.posting_alert_layout)
+                .create();
     }
 
     private void startFilePicker() {

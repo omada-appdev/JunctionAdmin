@@ -2,6 +2,8 @@ package com.omada.junctionadmin.ui.profile;
 
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,12 +25,14 @@ import com.omada.junctionadmin.ui.uicomponents.binders.articlecard.ArticleCardLa
 import com.omada.junctionadmin.ui.uicomponents.binders.articlecard.ArticleCardMediumNoTitleBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.eventcard.EventCardMediumNoTitleBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.misc.LargeBoldHeaderBinder;
+import com.omada.junctionadmin.ui.uicomponents.binders.notifications.InstituteAdminResponseNotificationItemBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.notifications.InstituteJoinResponseNotificationItemBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.organizationfeed.OrganizationShowcaseThumbnailListBinder;
 import com.omada.junctionadmin.ui.uicomponents.models.LargeBoldHeaderModel;
 import com.omada.junctionadmin.viewmodels.FeedContentViewModel;
 import com.omada.junctionadmin.viewmodels.UserProfileViewModel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import mva3.adapter.HeaderSection;
@@ -41,7 +45,7 @@ import mva3.adapter.util.OnSelectionChangedListener;
 public class ProfileContentFragment extends Fragment {
 
     private final MultiViewAdapter adapter = new MultiViewAdapter();
-    private final ListSection<BaseModel> highlightListSection = new ListSection<>();
+    private final ListSection<PostModel> highlightListSection = new ListSection<>();
     private final ItemSection<ListSection<ShowcaseModel>> showcaseSection = new ItemSection<>();
 
     private ListSection<NotificationModel> notificationListSection;
@@ -85,9 +89,11 @@ public class ProfileContentFragment extends Fragment {
 
         notificationListSection.setOnSelectionChangedListener((item, isSelected, selectedItems) -> {
             if (isSelected) {
-                notificationListSection.remove(
-                        notificationListSection.getData().indexOf(item)
-                );
+                int index = notificationListSection.getData().indexOf(item);
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    notificationListSection.remove(index);
+                    notificationListSection.clearSelections();
+                }, 200);
             }
         });
     }
@@ -109,8 +115,16 @@ public class ProfileContentFragment extends Fragment {
                 new ArticleCardMediumNoTitleBinder(feedContentViewModel),
                 new OrganizationShowcaseThumbnailListBinder(feedContentViewModel),
                 new LargeBoldHeaderBinder(),
+                new InstituteAdminResponseNotificationItemBinder(getViewLifecycleOwner(), userProfileViewModel),
                 new InstituteJoinResponseNotificationItemBinder(getViewLifecycleOwner(), userProfileViewModel)
         );
+
+        recyclerView = view.findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(
+                new LinearLayoutManager(view.getContext(), RecyclerView.VERTICAL, false)
+        );
+
+        recyclerView.setAdapter(adapter);
 
         userProfileViewModel.getLoadedOrganizationShowcases().observe(getViewLifecycleOwner(),
                 this::onShowcasesLoaded
@@ -129,13 +143,6 @@ public class ProfileContentFragment extends Fragment {
                 notificationListSection.addAll(notificationModels.subList(notificationListSection.size(), notificationModels.size()));
             }
         });
-
-        recyclerView = view.findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(
-                new LinearLayoutManager(view.getContext(), RecyclerView.VERTICAL, false)
-        );
-
-        recyclerView.setAdapter(adapter);
     }
 
     private void onHighlightsLoaded(List<PostModel> postModels) {
@@ -144,16 +151,23 @@ public class ProfileContentFragment extends Fragment {
             return;
         }
         Log.e("UserProfile", "Highlights loaded : " + postModels.size());
-        if (highlightListSection.size() > postModels.size()) {
+        if (postModels.size() == 0) {
+            Log.e("Profile", "Breakpoint 1");
             highlightListSection.clear();
+            adapter.notifyDataSetChanged();
+        } else {
+            Log.e("Profile", "Breakpoint 2");
+            highlightListSection.set(postModels);
         }
-        highlightListSection.addAll(postModels);
         if (highlightHeaderSection.isSectionHidden() && highlightListSection.size() > 0) {
+            Log.e("Profile", "Breakpoint 3");
             highlightHeaderSection.showSection();
         }
-        if(highlightListSection.size() == 0) {
+        if (highlightListSection.size() == 0) {
+            Log.e("Profile", "Breakpoint 4");
             highlightHeaderSection.hideSection();
         }
+        Log.e("Profile", "Breakpoint 5");
         refreshHighlights = false;
     }
 

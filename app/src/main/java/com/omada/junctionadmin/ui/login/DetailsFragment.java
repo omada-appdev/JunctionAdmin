@@ -28,9 +28,10 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.omada.junctionadmin.R;
-import com.omada.junctionadmin.data.handler.UserDataHandler;
+import com.omada.junctionadmin.data.repository.UserDataRepository;
 import com.omada.junctionadmin.databinding.LoginDetailsFragmentLayoutBinding;
 import com.omada.junctionadmin.utils.ImageUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
@@ -111,7 +112,11 @@ public class DetailsFragment extends Fragment {
                             }
                             break;
                         case VALIDATION_POINT_PASSWORD:
-                            if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                            if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_BLANK_VALUE) {
+                                binding.passwordLayout.setError("Please provide a password");
+                            } else if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_UNDERFLOW) {
+                                binding.passwordLayout.setError("Please enter at least " + DataValidator.PASSWORD_MIN_SIZE + " characters");
+                            } else if(dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                                 binding.passwordLayout.setError("Invalid password");
                             }
                             break;
@@ -122,7 +127,7 @@ public class DetailsFragment extends Fragment {
                             break;
                         case VALIDATION_POINT_INSTITUTE_HANDLE:
                             if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
-                                binding.instituteLayout.setError("Invalid institute");
+                                binding.instituteLayout.setError("This institute does not exist");
                             }
                             break;
                         case VALIDATION_POINT_PROFILE_PICTURE:
@@ -140,6 +145,11 @@ public class DetailsFragment extends Fragment {
                                         .setPositiveButton("Continue", (dialog, which) -> {
                                             Log.e("Login", "Sending join request and adding details");
                                             binding.getViewModel().validateDetailsInputAndCreateAccount();
+                                            new MaterialAlertDialogBuilder(requireContext())
+                                                    .setCancelable(false)
+                                                    .setView(R.layout.creating_account_alert_layout)
+                                                    .create()
+                                                    .show();
                                         })
                                         .setNegativeButton("Cancel", (dialog, which) -> {
                                             Log.e("Login", "Cancelled sending join request and adding details");
@@ -166,7 +176,7 @@ public class DetailsFragment extends Fragment {
                         return;
                     }
 
-                    UserDataHandler.AuthStatus authStatus = authStatusLiveEvent.getDataOnceAndReset();
+                    UserDataRepository.AuthStatus authStatus = authStatusLiveEvent.getDataOnceAndReset();
                     if (authStatus == null) {
                         return;
                     }
@@ -284,7 +294,7 @@ public class DetailsFragment extends Fragment {
     private void startFilePicker() {
         Intent intent = new Intent();
         intent.setType("image/*");
-        intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
+        intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CODE_PROFILE_PICTURE_CHOOSER);
 
     }

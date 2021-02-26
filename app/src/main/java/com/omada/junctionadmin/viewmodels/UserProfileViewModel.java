@@ -12,8 +12,8 @@ import androidx.lifecycle.ViewModel;
 
 import com.google.common.collect.ImmutableList;
 import com.omada.junctionadmin.data.models.external.NotificationModel;
-import com.omada.junctionadmin.data.repository.MainDataRepository;
-import com.omada.junctionadmin.data.handler.UserDataHandler;
+import com.omada.junctionadmin.data.repositorytemp.MainDataRepository;
+import com.omada.junctionadmin.data.repository.UserDataRepository;
 import com.omada.junctionadmin.data.models.external.ArticleModel;
 import com.omada.junctionadmin.data.models.external.EventModel;
 import com.omada.junctionadmin.data.models.external.OrganizationModel;
@@ -24,9 +24,6 @@ import com.omada.junctionadmin.data.models.mutable.MutableEventModel;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -46,7 +43,7 @@ public class UserProfileViewModel extends BaseViewModel {
     private OrganizationModel organizationModel;
     private final String organizationId;
 
-    private LiveData<LiveEvent<UserDataHandler.AuthStatus>> authStatusTrigger;
+    private LiveData<LiveEvent<UserDataRepository.AuthStatus>> authStatusTrigger;
 
     // No live event because the changes should always be subscribed to by all observers
     private LiveData<OrganizationModel> userUpdateAction;
@@ -63,7 +60,7 @@ public class UserProfileViewModel extends BaseViewModel {
 
         authStatusTrigger = Transformations.map(
                 MainDataRepository.getInstance()
-                        .getUserDataHandler()
+                        .getUserDataRepository()
                         .getAuthResponseNotifier(),
 
                 authStatusLiveEvent -> authStatusLiveEvent
@@ -72,7 +69,7 @@ public class UserProfileViewModel extends BaseViewModel {
         // TODO since multiple possible observers, remember to make it thread safe just in case
         userUpdateAction = Transformations.map(
                 MainDataRepository.getInstance()
-                        .getUserDataHandler()
+                        .getUserDataRepository()
                         .getSignedInUserNotifier(),
 
                 organizationModelLiveEvent -> {
@@ -83,7 +80,7 @@ public class UserProfileViewModel extends BaseViewModel {
                     if (temp != null) {
                         /*
                          update happened from somewhere else
-                         TODO use a DataStore and query that
+                         TODO use a repository and query that
                         */
                         if(!temp.getHeldEventsNumber().equals(organizationModel.getHeldEventsNumber())) {
                             loadOrganizationHighlights();
@@ -99,7 +96,7 @@ public class UserProfileViewModel extends BaseViewModel {
         editDetailsTrigger = new MutableLiveData<>();
 
         organizationModel = MainDataRepository.getInstance()
-                .getUserDataHandler()
+                .getUserDataRepository()
                 .getCurrentUserModel();
         organizationId = organizationModel.getId();
         organizationUpdater.setValues(organizationModel);
@@ -112,7 +109,7 @@ public class UserProfileViewModel extends BaseViewModel {
     public LiveData<List<NotificationModel>> getOrganizationNotifications() {
         return Transformations.map(
                 MainDataRepository.getInstance()
-                        .getNotificationDataHandler()
+                        .getNotificationDataRepository()
                         .getPendingNotifications(organizationId),
                 input -> {
                     if (input == null) {
@@ -123,11 +120,11 @@ public class UserProfileViewModel extends BaseViewModel {
                         return null;
                     }
                     notificationModels.removeIf(model -> model == null
-                            || !Arrays.asList("instituteJoinResponse", "feedbackResponse").contains(model.getNotificationType()));
+                            || !Arrays.asList("instituteJoinResponse", "feedbackResponse", "instituteAdminResponse").contains(model.getNotificationType()));
                     if (notificationModels.size() > 0) {
                         // Because institute data is changed
                         MainDataRepository.getInstance()
-                                .getUserDataHandler()
+                                .getUserDataRepository()
                                 .getCurrentUserDetailsFromRemote();
                     }
                     return notificationModels;
@@ -138,7 +135,7 @@ public class UserProfileViewModel extends BaseViewModel {
     public LiveData<LiveEvent<Boolean>> handleJoinResponseNotification(NotificationModel model) {
         return Transformations.map(
                 MainDataRepository.getInstance()
-                        .getNotificationDataHandler()
+                        .getNotificationDataRepository()
                         .handleNotification(model, null),
                 input -> {
                     if (input == null) {
@@ -190,7 +187,7 @@ public class UserProfileViewModel extends BaseViewModel {
         ));
         return Transformations.map(
                 MainDataRepository.getInstance()
-                        .getPostDataHandler()
+                        .getPostDataRepository()
                         .updatePost(updater.getId(), mutableEventModel),
 
                 booleanLiveEvent -> {
@@ -215,7 +212,7 @@ public class UserProfileViewModel extends BaseViewModel {
 
         return Transformations.map(
                 MainDataRepository.getInstance()
-                        .getPostDataHandler()
+                        .getPostDataRepository()
                         .updatePost(updater.getId(), mutableArticleModel),
 
                 booleanLiveEvent -> {
@@ -235,7 +232,7 @@ public class UserProfileViewModel extends BaseViewModel {
 
         return Transformations.map(MainDataRepository
                         .getInstance()
-                        .getPostDataHandler()
+                        .getPostDataRepository()
                         .deletePost(eventModel),
 
                 resultLiveEvent -> {
@@ -260,6 +257,16 @@ public class UserProfileViewModel extends BaseViewModel {
         );
     }
 
+    public void reloadOrganizationHighlights() {
+        if(loadedOrganizationHighlights != null) {
+            if(loadedOrganizationHighlights.getValue() != null) {
+                loadedOrganizationHighlights.getValue().clear();
+            }
+        } else {
+            loadedOrganizationHighlights = new MediatorLiveData<>();
+        }
+        loadOrganizationHighlights();
+    }
 
     public void loadOrganizationHighlights() {
 
@@ -269,7 +276,7 @@ public class UserProfileViewModel extends BaseViewModel {
         LiveData<LiveEvent<List<PostModel>>> source =
                 MainDataRepository
                         .getInstance()
-                        .getPostDataHandler()
+                        .getPostDataRepository()
                         .getOrganizationHighlights(getDataRepositoryAccessIdentifier(), organizationId);
 
         loadedOrganizationHighlights.addSource(
@@ -301,7 +308,7 @@ public class UserProfileViewModel extends BaseViewModel {
         LiveData<LiveEvent<List<ShowcaseModel>>> source =
                 MainDataRepository
                         .getInstance()
-                        .getShowcaseDataHandler()
+                        .getShowcaseDataRepository()
                         .getOrganizationShowcases(getDataRepositoryAccessIdentifier(), organizationId);
 
         loadedOrganizationHighlights.addSource(
@@ -341,7 +348,7 @@ public class UserProfileViewModel extends BaseViewModel {
     }
 
     public void signOutUser() {
-        MainDataRepository.getInstance().getUserDataHandler().signOutCurrentUser();
+        MainDataRepository.getInstance().getUserDataRepository().signOutCurrentUser();
     }
 
     public void goToEditDetails() {
@@ -360,8 +367,8 @@ public class UserProfileViewModel extends BaseViewModel {
         }
 
         updatingDetails = true;
-        UserDataHandler.MutableUserOrganizationModel userOrganizationModel =
-                new UserDataHandler.MutableUserOrganizationModel();
+        UserDataRepository.MutableUserOrganizationModel userOrganizationModel =
+                new UserDataRepository.MutableUserOrganizationModel();
 
         MediatorLiveData<DataValidator.DataValidationInformation> anyDetailsEntryInvalid = new MediatorLiveData<>();
 
@@ -410,7 +417,7 @@ public class UserProfileViewModel extends BaseViewModel {
                             && dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                         updatingDetails = false;
                         MainDataRepository.getInstance()
-                                .getUserDataHandler()
+                                .getUserDataRepository()
                                 .updateCurrentUserDetails(userOrganizationModel);
                     } else {
                     }
@@ -447,7 +454,7 @@ public class UserProfileViewModel extends BaseViewModel {
         return new ShowcaseUpdater(showcaseModel);
     }
 
-    public LiveData<LiveEvent<UserDataHandler.AuthStatus>> getAuthStatusTrigger() {
+    public LiveData<LiveEvent<UserDataRepository.AuthStatus>> getAuthStatusTrigger() {
         return authStatusTrigger;
     }
 
@@ -479,7 +486,7 @@ public class UserProfileViewModel extends BaseViewModel {
         return Transformations.map(
                 MainDataRepository
                         .getInstance()
-                        .getNotificationDataHandler()
+                        .getNotificationDataRepository()
                         .sendFeedbackNotification(feedback, feedbackType),
                 input -> input
         );
@@ -509,7 +516,7 @@ public class UserProfileViewModel extends BaseViewModel {
             Log.e("Profile", "stats integer : " + model.getAttendedUsersNumber() + " " + model.getHeldEventsNumber()    );
 
             LiveData<LiveEvent<String>> handleLiveData = MainDataRepository.getInstance()
-                    .getInstituteDataHandler()
+                    .getInstituteDataRepository()
                     .getInstituteHandle(model.getInstitute());
 
             handleLiveData.observeForever(new Observer<LiveEvent<String>>() {

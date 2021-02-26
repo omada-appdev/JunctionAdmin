@@ -1,4 +1,4 @@
-package com.omada.junctionadmin.data.handler;
+package com.omada.junctionadmin.data.repository;
 
 import android.net.Uri;
 import android.util.Log;
@@ -16,8 +16,6 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.omada.junctionadmin.data.BaseDataHandler;
-import com.omada.junctionadmin.data.repository.DataRepositoryAccessIdentifier;
-import com.omada.junctionadmin.data.repository.MainDataRepository;
 import com.omada.junctionadmin.data.models.converter.ArticleModelConverter;
 import com.omada.junctionadmin.data.models.converter.EventModelConverter;
 import com.omada.junctionadmin.data.models.converter.RegistrationModelConverter;
@@ -31,14 +29,19 @@ import com.omada.junctionadmin.data.models.internal.remote.RegistrationModelRemo
 import com.omada.junctionadmin.data.models.mutable.MutableArticleModel;
 import com.omada.junctionadmin.data.models.mutable.MutableBookingModel;
 import com.omada.junctionadmin.data.models.mutable.MutableEventModel;
+import com.omada.junctionadmin.data.repositorytemp.DataRepositoryAccessIdentifier;
+import com.omada.junctionadmin.data.repositorytemp.MainDataRepository;
+import com.omada.junctionadmin.utils.taskhandler.DefaultExecutorSupplier;
 import com.omada.junctionadmin.utils.taskhandler.LiveEvent;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PostDataHandler extends BaseDataHandler {
+public class PostDataRepository extends BaseDataHandler {
 
     private MutableLiveData<LiveEvent<List<PostModel>>> loadedInstituteHighlightsNotifier = new MutableLiveData<>();
     private MutableLiveData<LiveEvent<List<PostModel>>> loadedOrganizationHighlightsNotifier = new MutableLiveData<>();
@@ -60,7 +63,7 @@ public class PostDataHandler extends BaseDataHandler {
                 .orderBy("timeCreated", Query.Direction.DESCENDING)
                 .limit(5)
                 .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
+                .addOnSuccessListener(DefaultExecutorSupplier.getInstance().getBackgroundTaskExecutor(), queryDocumentSnapshots -> {
 
                     List<PostModel> postModels = new ArrayList<>();
 
@@ -71,7 +74,7 @@ public class PostDataHandler extends BaseDataHandler {
                         }
                     }
 
-                    loadedOrganizationHighlights.setValue(new LiveEvent<>(postModels));
+                    loadedOrganizationHighlights.postValue(new LiveEvent<>(postModels));
 
                 })
                 .addOnFailureListener(e -> {
@@ -87,7 +90,7 @@ public class PostDataHandler extends BaseDataHandler {
 
         String instituteId = MainDataRepository
                 .getInstance()
-                .getUserDataHandler()
+                .getUserDataRepository()
                 .getCurrentUserModel()
                 .getInstitute();
 
@@ -100,25 +103,29 @@ public class PostDataHandler extends BaseDataHandler {
                 .orderBy("startTime", Query.Direction.ASCENDING)
                 .limit(10)
                 .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
+                .addOnSuccessListener(DefaultExecutorSupplier.getInstance().getBackgroundTaskExecutor(), queryDocumentSnapshots -> {
 
                     List<PostModel> postModels = new ArrayList<>();
 
                     for(DocumentSnapshot snapshot: queryDocumentSnapshots){
+                        if(!snapshot.exists()){
+                            continue;
+                        }
+                        Log.e("Posts", "Institute highlight fetch source is from cache : " + snapshot.getMetadata().isFromCache());
+                        Log.e("Posts", "Institute highlight fetch has pending writes : " + snapshot.getMetadata().hasPendingWrites());
                         PostModel postModel = convertSnapshotToPostModel(snapshot);
                         if(postModel != null){
                             postModels.add(postModel);
                         }
                     }
 
-                    loadedInstituteHighlightsNotifier.setValue(new LiveEvent<>(postModels));
+                    loadedInstituteHighlightsNotifier.postValue(new LiveEvent<>(postModels));
 
                 })
                 .addOnFailureListener(e -> {
                     Log.e("Posts", "Error retrieving organization highlights");
                     loadedAllOrganizationPostsNotifier.setValue(null);
                 });
-
 
     }
 
@@ -128,7 +135,7 @@ public class PostDataHandler extends BaseDataHandler {
 
         String instituteId = MainDataRepository
                 .getInstance()
-                .getUserDataHandler()
+                .getUserDataRepository()
                 .getCurrentUserModel()
                 .getInstitute();
 
@@ -306,7 +313,7 @@ public class PostDataHandler extends BaseDataHandler {
             */
             MainDataRepository
                     .getInstance()
-                    .getVenueDataHandler()
+                    .getVenueDataRepository()
                     .createNewBooking(MutableBookingModel.fromEventModel(eventModel), batch);
         }
         else if (ArticleCreatorModel.class.equals(postClass)) {
@@ -332,11 +339,11 @@ public class PostDataHandler extends BaseDataHandler {
         Object finalData = data;
         Uri finalImagePath = imagePath;
         MainDataRepository.getInstance()
-                .getImageUploadHandler()
+                .getRemoteImageDataSink()
                 .uploadPostImage(imagePath, generatedEventId, postModel.getCreator())
                 .addOnCompleteListener(task -> {
                     if(task.isSuccessful()) {
-                        String path = task.getResult().getMetadata().getReference().toString();
+                        String path = task.getResult();
 
                         setImagePath(finalData, path);
                         batch.set(postDocRef, finalData);
@@ -347,7 +354,7 @@ public class PostDataHandler extends BaseDataHandler {
 
                                     MainDataRepository
                                             .getInstance()
-                                            .getUserDataHandler()
+                                            .getUserDataRepository()
                                             .incrementHeldEventsNumber();
                                 })
                                 .addOnFailureListener(e -> {
@@ -378,7 +385,7 @@ public class PostDataHandler extends BaseDataHandler {
 
         batch.delete(eventDocRef);
 
-        MainDataRepository.getInstance().getVenueDataHandler()
+        MainDataRepository.getInstance().getVenueDataRepository()
                 .deleteBooking(eventModel, batch);
 
         batch.commit()
@@ -398,7 +405,7 @@ public class PostDataHandler extends BaseDataHandler {
 
                     MainDataRepository
                             .getInstance()
-                            .getUserDataHandler()
+                            .getUserDataRepository()
                             .decrementHeldEventsNumber();
 
                     resultLiveData.setValue(new LiveEvent<>(true));
@@ -573,6 +580,9 @@ public class PostDataHandler extends BaseDataHandler {
         EventModelRemoteDB modelRemoteDB = snapshot.toObject(EventModelRemoteDB.class);
         if (modelRemoteDB == null){
             return null;
+        } if (snapshot.getMetadata().hasPendingWrites()) {
+            Log.e("Posts", "Nullity of snapshot time created" + (snapshot.getTimestamp("timeCreated") == null));
+            modelRemoteDB.setTimeCreated(new Timestamp(Date.from(Instant.now())));
         }
         modelRemoteDB.setId(snapshot.getId());
         return eventModelConverter.convertRemoteDBToExternalModel(modelRemoteDB);

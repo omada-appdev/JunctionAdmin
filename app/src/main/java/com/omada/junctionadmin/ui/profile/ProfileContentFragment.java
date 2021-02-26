@@ -2,6 +2,8 @@ package com.omada.junctionadmin.ui.profile;
 
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -87,9 +89,10 @@ public class ProfileContentFragment extends Fragment {
 
         notificationListSection.setOnSelectionChangedListener((item, isSelected, selectedItems) -> {
             if (isSelected) {
-                notificationListSection.remove(
-                        notificationListSection.getData().indexOf(item)
-                );
+                int index = notificationListSection.getData().indexOf(item);
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    notificationListSection.remove(index);
+                }, 200);
             }
         });
     }

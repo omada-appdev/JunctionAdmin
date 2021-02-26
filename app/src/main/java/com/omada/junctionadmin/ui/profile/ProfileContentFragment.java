@@ -92,6 +92,7 @@ public class ProfileContentFragment extends Fragment {
                 int index = notificationListSection.getData().indexOf(item);
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     notificationListSection.remove(index);
+                    notificationListSection.clearSelections();
                 }, 200);
             }
         });

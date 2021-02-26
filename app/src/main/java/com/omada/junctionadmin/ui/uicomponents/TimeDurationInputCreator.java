@@ -2,8 +2,11 @@ package com.omada.junctionadmin.ui.uicomponents;
 
 import android.content.Context;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
+import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -76,23 +79,33 @@ public class TimeDurationInputCreator {
         return createdDialog;
     }
 
+    public AlertDialog initializeDefaultKeyListeners() {
+
+        return createdDialog;
+    }
+
     public AlertDialog initializeDefaultTextWatchers() {
 
         startHourText1.addTextChangedListener(new TextWatcher() {
+            int editedAt = 0;
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                editedAt = start;
             }
 
             @Override
             public void afterTextChanged(Editable s) {
                 if (s == null || "".equals(s.toString())) {
                     return;
+                } else if (s.length() > 1) {
+                    startHourText1.setText(Character.toString(s.charAt(editedAt)));
                 } else if (!s.toString().matches("[0-2]")) {
-                    startHourText1.setText("");
+                    startHourText1.setText("2");
                 } else {
                     startHourText2.requestFocus();
                 }
@@ -100,25 +113,29 @@ public class TimeDurationInputCreator {
         });
 
         startHourText2.addTextChangedListener(new TextWatcher() {
+            int editedAt = 0;
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+                editedAt = start;
             }
 
             @Override
             public void afterTextChanged(Editable s) {
                 if (s == null || "".equals(s.toString())) {
                     return;
+                } else if (s.length() > 1) {
+                    startHourText2.setText(Character.toString(s.charAt(editedAt)));
                 } else if (!s.toString().matches("[0-9]")) {
-                    startHourText2.setText("");
-                } else if (startHourText1.getText().toString().equals("2") 
+                    startHourText2.setText("0");
+                } else if (startHourText1.getText().toString().equals("2")
                         && !s.toString().matches("[0-3]")) {
-                    
-                    startHourText2.setText("");
+
+                    startHourText2.setText("3");
                 } else {
                     startMinuteText1.requestFocus();
                 }
@@ -126,21 +143,25 @@ public class TimeDurationInputCreator {
         });
 
         startMinuteText1.addTextChangedListener(new TextWatcher() {
+            int editedAt = 0;
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+                editedAt = start;
             }
 
             @Override
             public void afterTextChanged(Editable s) {
                 if (s == null || "".equals(s.toString())) {
                     return;
+                } else if (s.length() > 1) {
+                    startMinuteText1.setText(Character.toString(s.charAt(editedAt)));
                 } else if (!s.toString().matches("[0-5]")) {
-                    startMinuteText1.setText("");
+                    startMinuteText1.setText("5");
                 } else {
                     startMinuteText2.requestFocus();
                 }
@@ -148,21 +169,25 @@ public class TimeDurationInputCreator {
         });
 
         startMinuteText2.addTextChangedListener(new TextWatcher() {
+            int editedAt = 0;
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+                editedAt = start;
             }
 
             @Override
             public void afterTextChanged(Editable s) {
                 if (s == null || "".equals(s.toString())) {
                     return;
+                } else if (s.length() > 1) {
+                    startMinuteText2.setText(Character.toString(s.charAt(editedAt)));
                 } else if (!s.toString().matches("[0-9]")) {
-                    startMinuteText2.setText("");
+                    startMinuteText2.setText("0");
                 } else {
                     endHourText1.requestFocus();
                 }
@@ -170,20 +195,25 @@ public class TimeDurationInputCreator {
         });
 
         endHourText1.addTextChangedListener(new TextWatcher() {
+            int editedAt = 0;
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                editedAt = start;
             }
 
             @Override
             public void afterTextChanged(Editable s) {
                 if (s == null || "".equals(s.toString())) {
                     return;
+                } else if (s.length() > 1) {
+                    endHourText1.setText(Character.toString(s.charAt(editedAt)));
                 } else if (!s.toString().matches("[0-2]")) {
-                    endHourText1.setText("");
+                    endHourText1.setText("2");
                 } else {
                     endHourText2.requestFocus();
                 }
@@ -191,25 +221,29 @@ public class TimeDurationInputCreator {
         });
 
         endHourText2.addTextChangedListener(new TextWatcher() {
+            int editedAt = 0;
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+                editedAt = start;
             }
 
             @Override
             public void afterTextChanged(Editable s) {
                 if (s == null || "".equals(s.toString())) {
                     return;
+                } else if (s.length() > 1) {
+                    endHourText2.setText(Character.toString(s.charAt(editedAt)));
                 } else if (!s.toString().matches("[0-9]")) {
                     endHourText2.setText("");
                 } else if (endHourText1.getText().toString().equals("2")
-                        && !s.toString().matches("[0-4]")) {
+                        && !s.toString().matches("[0-3]")) {
 
-                    endHourText2.setText("");
+                    endHourText2.setText("3");
                 } else {
                     endMinuteText1.requestFocus();
                 }
@@ -217,21 +251,25 @@ public class TimeDurationInputCreator {
         });
 
         endMinuteText1.addTextChangedListener(new TextWatcher() {
+            int editedAt = 0;
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+                editedAt = start;
             }
 
             @Override
             public void afterTextChanged(Editable s) {
                 if (s == null || "".equals(s.toString())) {
                     return;
+                } else if (s.length() > 1) {
+                    endMinuteText1.setText(Character.toString(s.charAt(editedAt)));
                 } else if (!s.toString().matches("[0-5]")) {
-                    endMinuteText1.setText("");
+                    endMinuteText1.setText("5");
                 } else {
                     endMinuteText2.requestFocus();
                 }
@@ -239,21 +277,26 @@ public class TimeDurationInputCreator {
         });
 
         endMinuteText2.addTextChangedListener(new TextWatcher() {
+
+            int editedAt = 0;
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+                editedAt = start;
             }
 
             @Override
             public void afterTextChanged(Editable s) {
                 if (s == null || "".equals(s.toString())) {
                     return;
+                } else if (s.length() > 1) {
+                    endMinuteText2.setText(Character.toString(s.charAt(editedAt)));
                 } else if (!s.toString().matches("[0-9]")) {
-                    endMinuteText2.setText("");
+                    endMinuteText2.setText("0");
                 }
             }
         });
@@ -262,7 +305,7 @@ public class TimeDurationInputCreator {
     }
 
     public void setError(@Nullable String errorText) {
-        if(errorText == null || errorText.equals("")) {
+        if (errorText == null || errorText.equals("")) {
             errorTextView.setText(null);
         } else {
             errorTextView.setText(errorText);
@@ -277,10 +320,15 @@ public class TimeDurationInputCreator {
         m1 = startMinuteText1.getText().toString();
         m2 = startMinuteText2.getText().toString();
 
-        h1 = (h1 != null && !h1.equals("")) ? h1 : "0";
-        h2 = (h2 != null && !h2.equals("")) ? h2 : "0";
-        m1 = (m1 != null && !m1.equals("")) ? m1 : "0";
-        m2 = (m2 != null && !m2.equals("")) ? m2 : "0";
+        boolean invalid1 = h1 == null || h1.equals("");
+        boolean invalid2 = h2 == null || h2.equals("") || invalid1;
+        boolean invalid3 = m1 == null || m1.equals("") || invalid2;
+        boolean invalid4 = m2 == null || m2.equals("") || invalid3;
+
+        if (invalid4) {
+            setError("Please enter all values");
+            return null;
+        }
 
         int hours = Integer.parseInt(h1 + h2);
         int minutes = Integer.parseInt(m1 + m2);
@@ -296,10 +344,15 @@ public class TimeDurationInputCreator {
         m1 = endMinuteText1.getText().toString();
         m2 = endMinuteText2.getText().toString();
 
-        h1 = (h1 != null && !h1.equals("")) ? h1 : "0";
-        h2 = (h2 != null && !h2.equals("")) ? h2 : "0";
-        m1 = (m1 != null && !m1.equals("")) ? m1 : "0";
-        m2 = (m2 != null && !m2.equals("")) ? m2 : "0";
+        boolean invalid1 = h1 == null || h1.equals("");
+        boolean invalid2 = h2 == null || h2.equals("") || invalid1;
+        boolean invalid3 = m1 == null || m1.equals("") || invalid2;
+        boolean invalid4 = m2 == null || m2.equals("") || invalid3;
+
+        if (invalid4) {
+            setError("Please enter all values");
+            return null;
+        }
 
         int hours = Integer.parseInt(h1 + h2);
         int minutes = Integer.parseInt(m1 + m2);

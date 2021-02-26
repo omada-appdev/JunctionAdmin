@@ -146,6 +146,7 @@ public class DetailsFragment extends Fragment {
                                             Log.e("Login", "Sending join request and adding details");
                                             binding.getViewModel().validateDetailsInputAndCreateAccount();
                                             new MaterialAlertDialogBuilder(requireContext())
+                                                    .setCancelable(false)
                                                     .setView(R.layout.creating_account_alert_layout)
                                                     .create()
                                                     .show();

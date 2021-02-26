@@ -36,6 +36,7 @@ import com.omada.junctionadmin.viewmodels.BookingViewModel;
 import com.omada.junctionadmin.viewmodels.CreatePostViewModel;
 
 import java.time.Instant;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -205,18 +206,25 @@ public class BookVenueFragment extends Fragment {
 
         dialog.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
 
-            ZonedDateTime startTime = creator.getEnteredStartTime()
-                    .atDate(bookingViewModel.getZonedBookingDate().toLocalDate()).atZone(ZoneId.systemDefault());
-            ZonedDateTime endTime = creator.getEnteredEndTime()
-                    .atDate(bookingViewModel.getZonedBookingDate().toLocalDate()).atZone(ZoneId.systemDefault());
+            LocalTime startTime = creator.getEnteredStartTime();
+            LocalTime endTime = creator.getEnteredEndTime();
+
+            ZonedDateTime startDate = null;
+            ZonedDateTime endDate = null;
+
+            if (startTime != null && endTime != null) {
+                startDate = startTime.atDate(bookingViewModel.getZonedBookingDate().toLocalDate()).atZone(ZoneId.systemDefault());
+                endDate = endTime.atDate(bookingViewModel.getZonedBookingDate().toLocalDate()).atZone(ZoneId.systemDefault());
+            } else {
+                return;
+            }
 
             if (!startTime.isBefore(endTime)) {
                 creator.setError("Invalid timing");
-            } else {
-
+            } else if (startDate != null && endDate != null) {
                 creator.setError(null);
-                createPostViewModel.getEventCreator().startTime.setValue(startTime);
-                createPostViewModel.getEventCreator().endTime.setValue(endTime);
+                createPostViewModel.getEventCreator().startTime.setValue(startDate);
+                createPostViewModel.getEventCreator().endTime.setValue(endDate);
 
                 bookingViewModel
                         .getLoadedInstituteVenues()

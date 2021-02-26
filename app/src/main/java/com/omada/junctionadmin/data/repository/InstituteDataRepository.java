@@ -95,9 +95,11 @@ public class InstituteDataRepository extends BaseDataHandler {
 
         uploadTask
                 .addOnSuccessListener(aVoid -> {
-                    String imagePath = uploadTask.getResult();
-                    changes.put("image", imagePath);
 
+                    String imagePath = uploadTask.getResult();
+                    if (imagePath != null) {
+                        changes.put("image", imagePath);
+                    }
                     FirebaseFirestore
                             .getInstance()
                             .collection("institutes")

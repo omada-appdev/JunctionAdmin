@@ -23,6 +23,7 @@ import com.omada.junctionadmin.ui.uicomponents.binders.articlecard.ArticleCardLa
 import com.omada.junctionadmin.ui.uicomponents.binders.articlecard.ArticleCardMediumNoTitleBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.eventcard.EventCardMediumNoTitleBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.misc.LargeBoldHeaderBinder;
+import com.omada.junctionadmin.ui.uicomponents.binders.notifications.InstituteAdminResponseNotificationItemBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.notifications.InstituteJoinResponseNotificationItemBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.organizationfeed.OrganizationShowcaseThumbnailListBinder;
 import com.omada.junctionadmin.ui.uicomponents.models.LargeBoldHeaderModel;
@@ -110,6 +111,7 @@ public class ProfileContentFragment extends Fragment {
                 new ArticleCardMediumNoTitleBinder(feedContentViewModel),
                 new OrganizationShowcaseThumbnailListBinder(feedContentViewModel),
                 new LargeBoldHeaderBinder(),
+                new InstituteAdminResponseNotificationItemBinder(getViewLifecycleOwner(), userProfileViewModel),
                 new InstituteJoinResponseNotificationItemBinder(getViewLifecycleOwner(), userProfileViewModel)
         );
 

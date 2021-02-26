@@ -40,6 +40,7 @@ public class NotificationDataRepository extends BaseDataHandler {
 
         NOTIFICATION_TYPE_INSTITUTE_JOIN_REQUEST("instituteJoinRequest"),
         NOTIFICATION_TYPE_INSTITUTE_JOIN_RESPONSE("instituteJoinResponse"),
+        NOTIFICATION_TYPE_INSTITUTE_ADMIN_RESPONSE("instituteAdminResponse"),
         NOTIFICATION_TYPE_FEEDBACK_RESPONSE("feedbackResponse");
 
         private static final Map<String, NotificationType> nameMapping = new HashMap<>();
@@ -237,6 +238,8 @@ public class NotificationDataRepository extends BaseDataHandler {
                     Log.e("Institute", "Invalid response type");
                     return Tasks.forException(new Exception("Invalid response type for: " + notificationType.name()));
                 }
+
+            case NOTIFICATION_TYPE_INSTITUTE_ADMIN_RESPONSE:
             case NOTIFICATION_TYPE_INSTITUTE_JOIN_RESPONSE:
             case NOTIFICATION_TYPE_FEEDBACK_RESPONSE:
 

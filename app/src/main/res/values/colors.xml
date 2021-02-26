@@ -11,4 +11,6 @@
     <color name="backdrop">#EFEFEF</color>
     <color name="black">#000000</color>
     <color name="green">#43A047</color>
+    <color name="blue">#303F9F</color>
+    <color name="errorDark">#8F1515</color>
 </resources>

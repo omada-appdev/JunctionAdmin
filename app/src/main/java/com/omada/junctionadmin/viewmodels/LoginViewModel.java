@@ -127,13 +127,6 @@ public class LoginViewModel extends BaseViewModel {
             }
             notifyValidity(dataValidationInformation);
         });
-        dataValidator.validatePassword(password.getValue(), dataValidationInformation -> {
-            if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
-                invalidData.set(true);
-            }
-            notifyValidity(dataValidationInformation);
-        });
-
         if (!invalidData.get()) {
 
             notifyValidity(new DataValidator.DataValidationInformation(

@@ -120,7 +120,7 @@ public class UserProfileViewModel extends BaseViewModel {
                         return null;
                     }
                     notificationModels.removeIf(model -> model == null
-                            || !Arrays.asList("instituteJoinResponse", "feedbackResponse").contains(model.getNotificationType()));
+                            || !Arrays.asList("instituteJoinResponse", "feedbackResponse", "instituteAdminResponse").contains(model.getNotificationType()));
                     if (notificationModels.size() > 0) {
                         // Because institute data is changed
                         MainDataRepository.getInstance()

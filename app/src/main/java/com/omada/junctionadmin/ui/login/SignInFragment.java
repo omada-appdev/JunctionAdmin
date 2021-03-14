@@ -2,6 +2,8 @@ package com.omada.junctionadmin.ui.login;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,12 +59,13 @@ public class SignInFragment extends Fragment {
             switch (res){
                 case AUTHENTICATION_SUCCESS:
                     break;
+                case USER_TOKEN_EXPIRED:
                 case AUTHENTICATION_FAILURE:
                 case LOGIN_FAILURE:
                     binding.loginButton.setEnabled(true);
-                    binding.emailLayout.setError("invalid account details");
-                    binding.emailInput.setText("");
                     binding.passwordInput.setText("");
+                    binding.emailInput.setText("");
+                    binding.emailLayout.setError("invalid account details");
                     break;
                 case LOGIN_SUCCESS:
                     break;
@@ -110,6 +113,40 @@ public class SignInFragment extends Fragment {
 
         binding.passwordInput.setText("");
         binding.emailInput.setText("");
+
+        binding.emailInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                binding.emailLayout.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        binding.passwordInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                binding.passwordLayout.setError(null);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
     }
 

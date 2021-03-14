@@ -211,7 +211,7 @@ public class UserDataRepository extends BaseDataHandler {
 
                     if (!documentSnapshot.exists()) {
                         resultLiveData.setValue(false);
-                        authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.USER_TOKEN_EXPIRED));
+                        authResponseNotifier.setValue(new LiveEvent<>(AuthStatus.LOGIN_FAILURE));
                         return;
                     }
                     OrganizationModelRemoteDB modelRemoteDB = documentSnapshot.toObject(OrganizationModelRemoteDB.class);

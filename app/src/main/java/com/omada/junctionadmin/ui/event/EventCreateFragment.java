@@ -1,7 +1,7 @@
 package com.omada.junctionadmin.ui.event;
 
 import android.Manifest;
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -9,6 +9,8 @@ import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.InputType;
@@ -24,8 +26,10 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -51,6 +55,7 @@ public class EventCreateFragment extends Fragment {
 
     private final AtomicBoolean compressingImage = new AtomicBoolean(false);
     private final AtomicBoolean filePickerOpened = new AtomicBoolean(false);
+    private final AtomicBoolean formLinkDialogCreated = new AtomicBoolean(false);
     private static final int REQUEST_CODE_IMAGE_CHOOSER = 2;
 
     private final ActivityResultLauncher<String> storagePermissionLauncher =
@@ -83,6 +88,8 @@ public class EventCreateFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        view.setClickable(false);
 
         binding.getViewModel()
                 .getBookingValidationTrigger()
@@ -162,6 +169,11 @@ public class EventCreateFragment extends Fragment {
                 });
 
         binding.createFormButton.setOnClickListener(v -> {
+            if (formLinkDialogCreated.get()) {
+                return;
+            }
+            formLinkDialogCreated.set(true);
+            enableDisableNavigationActions(false);
             createFormLinkInputDialog();
         });
 
@@ -245,6 +257,16 @@ public class EventCreateFragment extends Fragment {
         });
     }
 
+    /*
+        There is delay when showing alert dialog, opening file picker, etc. So, disable all actions until safe and then enable it back
+     */
+    private void enableDisableNavigationActions(boolean enabled) {
+        binding.createFormButton.setClickable(enabled);
+        binding.bookVenueButton.setClickable(enabled);
+        binding.postButton.setClickable(enabled);
+        binding.eventPosterImage.setClickable(enabled);
+    }
+
     private void createFormLinkInputDialog() {
 
         AlertDialog alertDialog = new AlertDialog.Builder(requireActivity())
@@ -253,12 +275,14 @@ public class EventCreateFragment extends Fragment {
                 .setMessage("Ensure this link is valid because it cannot be changed later")
                 .setView(R.layout.alert_text_input_layout)
                 .setPositiveButton("ok", (dialog, which) -> {
-                    //TODO verify form link
                 })
                 .setNeutralButton("verify", (dialog, which) -> {
-                    //TODO verify form link
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> {
+                })
+                .setOnDismissListener(dialog -> {
+                    formLinkDialogCreated.set(false);
+                    enableDisableNavigationActions(true);
                 })
                 .create();
 
@@ -268,7 +292,7 @@ public class EventCreateFragment extends Fragment {
         TextInputLayout inputLayout = alertDialog.findViewById(R.id.alert_text_layout);
 
         editText.setText(createPostViewModel.getEventCreator().getFormLink());
-        editText.setInputType(InputType.TYPE_TEXT_VARIATION_WEB_EDIT_TEXT);
+        editText.setInputType(InputType.TYPE_TEXT_VARIATION_URI);
         editText.setHint("Your link");
 
         alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL).setOnClickListener(v -> {
@@ -276,8 +300,11 @@ public class EventCreateFragment extends Fragment {
 
                 String url = editText.getText().toString();
 
-                if (!url.startsWith("http://") && !url.startsWith("https://"))
-                    url = "http://" + url;
+                if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                    url = "https://" + url;
+                } else if (url.startsWith("http://")) {
+                    url = url.replaceFirst("http", "https");
+                }
 
                 try {
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
@@ -332,9 +359,7 @@ public class EventCreateFragment extends Fragment {
 
     private void startFilePicker() {
         filePickerOpened.set(true);
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CODE_IMAGE_CHOOSER);
     }
 

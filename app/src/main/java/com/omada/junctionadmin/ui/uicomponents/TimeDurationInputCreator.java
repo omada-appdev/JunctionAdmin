@@ -39,8 +39,8 @@ public class TimeDurationInputCreator {
 
         createdDialog = new MaterialAlertDialogBuilder(context)
                 .setCancelable(false)
-                .setTitle("Enter your timings")
-                .setMessage("Please ensure 24 hour format")
+                .setTitle("Enter your event timings")
+                .setMessage("Ensure 24 hour HH:MM format")
                 .setView(R.layout.time_duration_picker_layout)
                 .setPositiveButton("Ok", (dialog, which) -> {
 
@@ -106,6 +106,8 @@ public class TimeDurationInputCreator {
                     startHourText1.setText(Character.toString(s.charAt(editedAt)));
                 } else if (!s.toString().matches("[0-2]")) {
                     startHourText1.setText("2");
+                } else if (s.toString().equals("2") && startHourText2.getText().toString().matches("[4-9]")) {
+                    startHourText1.setText("1");
                 } else {
                     startHourText2.requestFocus();
                 }
@@ -214,6 +216,8 @@ public class TimeDurationInputCreator {
                     endHourText1.setText(Character.toString(s.charAt(editedAt)));
                 } else if (!s.toString().matches("[0-2]")) {
                     endHourText1.setText("2");
+                } else if (s.toString().equals("2") && endHourText2.getText().toString().matches("[4-9]")) {
+                    endHourText1.setText("1");
                 } else {
                     endHourText2.requestFocus();
                 }

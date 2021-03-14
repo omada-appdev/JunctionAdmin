@@ -1,4 +1,9 @@
 package com.omada.junctionadmin.ui.venue;
 
-public class InstituteVenuesFragment {
+import com.omada.junctionadmin.ui.BaseFragment;
+
+public class InstituteVenuesFragment extends BaseFragment {
+
+
+
 }

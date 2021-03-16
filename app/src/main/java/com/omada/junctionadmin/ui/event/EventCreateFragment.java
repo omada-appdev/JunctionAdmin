@@ -1,7 +1,6 @@
 package com.omada.junctionadmin.ui.event;
 
 import android.Manifest;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -9,8 +8,6 @@ import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.InputType;
@@ -29,7 +26,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -269,7 +265,7 @@ public class EventCreateFragment extends Fragment {
 
     private void createFormLinkInputDialog() {
 
-        AlertDialog alertDialog = new AlertDialog.Builder(requireActivity())
+        AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireActivity())
                 .setCancelable(false)
                 .setTitle("Enter a link for your form")
                 .setMessage("Ensure this link is valid because it cannot be changed later")

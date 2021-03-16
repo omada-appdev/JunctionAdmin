@@ -8,12 +8,11 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.ui.article.ArticleCreateFragment;
 import com.omada.junctionadmin.ui.event.EventCreateFragment;
@@ -167,7 +166,7 @@ public class CreateActivity extends AppCompatActivity {
         int stackCount = getSupportFragmentManager().getBackStackEntryCount();
         if(stackCount == 1) {
             if(createPostViewModel.getCurrentState() == CreatePostViewModel.CurrentState.CURRENT_STATE_IDLE) {
-                new AlertDialog.Builder(this)
+                new MaterialAlertDialogBuilder(this)
                         .setCancelable(false)
                         .setTitle("Discard changes?")
                         .setMessage("Any changes you made will be lost")

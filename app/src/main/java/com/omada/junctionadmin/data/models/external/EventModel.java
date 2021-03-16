@@ -134,4 +134,6 @@ public class EventModel extends PostModel {
         dest.writeStringList(tags);
         dest.writeLong(timeCreated.toEpochSecond(ZoneOffset.UTC));
     }
+
+
 }

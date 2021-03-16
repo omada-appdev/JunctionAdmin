@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.View;
 
 import androidx.appcompat.app.AlertDialog;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 
 
@@ -39,7 +41,7 @@ public class PasswordConfirmationDialogBuilder {
     }
 
     public AlertDialog build() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context)
+        MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(context)
                 .setMessage("Please confirm your password");
 
         if (view == null) {

@@ -1,6 +1,5 @@
 package com.omada.junctionadmin.ui.institute;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.textview.MaterialTextView;
 import com.mancj.materialsearchbar.MaterialSearchBar;
@@ -34,7 +34,6 @@ import com.omada.junctionadmin.viewmodels.FeedContentViewModel;
 import com.omada.junctionadmin.viewmodels.InstituteViewModel;
 import com.omada.junctionadmin.viewmodels.UserProfileViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import mva3.adapter.ItemSection;
@@ -191,7 +190,7 @@ public class InstituteFeedFragment extends Fragment implements AppBarLayout.OnOf
     }
 
     private Dialog createNoInstituteAlertDialog() {
-        return new AlertDialog.Builder(requireContext())
+        return new MaterialAlertDialogBuilder(requireContext())
                 .setCancelable(false)
                 .setTitle("Please try later")
                 .setMessage("You are currently not part of any institute")

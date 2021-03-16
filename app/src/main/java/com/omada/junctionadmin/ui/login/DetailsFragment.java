@@ -1,7 +1,6 @@
 package com.omada.junctionadmin.ui.login;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -358,8 +357,8 @@ public class DetailsFragment extends Fragment {
         }
     }
 
-    private AlertDialog.Builder createJoinRequestSentDialog() {
-        return new AlertDialog.Builder(requireContext())
+    private MaterialAlertDialogBuilder createJoinRequestSentDialog() {
+        return new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Join " + binding.getViewModel().institute.getValue())
                 .setMessage("You can view the institute temporarily but cannot post to it until your join request is accepted by the administrator. Your institute cannot be changed later. Proceed?");
     }

@@ -1,27 +1,15 @@
 package com.omada.junctionadmin.ui.uicomponents.binders;
 
 import android.util.Log;
-import android.util.Pair;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 
 import com.google.android.material.textview.MaterialTextView;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.data.models.external.VenueModel;
-import com.omada.junctionadmin.utils.ColorUtilities;
-import com.omada.junctionadmin.utils.TransformUtilities;
-import com.omada.junctionadmin.viewmodels.BookingViewModel;
-
-import java.time.ZonedDateTime;
-import java.util.List;
 
 import mva3.adapter.ItemBinder;
 import mva3.adapter.ItemViewHolder;
@@ -37,7 +25,7 @@ public class VenueSelectionItemBinder extends ItemBinder<VenueModel, VenueSelect
     @Override
     public VenueSelectionItemViewHolder createViewHolder(ViewGroup parent) {
         parent.setBackgroundColor(parent.getContext().getResources().getColor(R.color.white, parent.getContext().getTheme()));
-        View view = inflate(parent, R.layout.book_venue_item_layout);
+        View view = inflate(parent, R.layout.venue_selection_item_layout);
         return new VenueSelectionItemViewHolder(view);
     }
 

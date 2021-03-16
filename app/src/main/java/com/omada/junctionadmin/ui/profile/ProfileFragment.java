@@ -1,6 +1,5 @@
 package com.omada.junctionadmin.ui.profile;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,12 +14,14 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.view.GravityCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.omada.junctionadmin.R;
@@ -113,7 +114,7 @@ public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetCh
 
     private AlertDialog showFeedbackDialog() {
 
-        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+        AlertDialog dialog = new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Feedback")
                 .setIcon(R.drawable.ic_favorite_red_24dp)
                 .setMessage(R.string.feedback_message_text)

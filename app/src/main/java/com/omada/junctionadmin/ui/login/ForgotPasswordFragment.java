@@ -1,7 +1,5 @@
 package com.omada.junctionadmin.ui.login;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,10 +9,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.databinding.DataBindingUtil;
-import androidx.databinding.ViewDataBinding;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.databinding.LoginForgotPasswordFragmentLayoutBinding;
 import com.omada.junctionadmin.viewmodels.LoginViewModel;
@@ -58,7 +56,7 @@ public class ForgotPasswordFragment extends Fragment {
                     return;
                 }
                 if (result) {
-                    new AlertDialog.Builder(requireContext())
+                    new MaterialAlertDialogBuilder(requireContext())
                             .setTitle("Password reset")
                             .setMessage("A password reset link has been sent to " + binding.emailInput.getText().toString())
                             .setPositiveButton("OK", (dialog, which) -> {

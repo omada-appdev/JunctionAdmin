@@ -35,6 +35,7 @@ import com.omada.junctionadmin.data.models.external.NotificationModel;
 import com.omada.junctionadmin.databinding.InstituteAdminLayoutBinding;
 import com.omada.junctionadmin.ui.uicomponents.CustomBindings;
 import com.omada.junctionadmin.ui.uicomponents.binders.notifications.InstituteJoinRequestNotificationItemBinder;
+import com.omada.junctionadmin.ui.venue.InstituteVenuesFragment;
 import com.omada.junctionadmin.utils.ImageUtilities;
 import com.omada.junctionadmin.utils.image.GlideApp;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
@@ -88,7 +89,7 @@ public class InstituteAdminFragment extends Fragment {
 
         if (savedInstanceState == null
                 || instituteViewModel.getLoadedInstituteNotifications().getValue() == null
-                || instituteViewModel.getLoadedInstituteNotifications().getValue().size() == 0 ) {
+                || instituteViewModel.getLoadedInstituteNotifications().getValue().size() == 0) {
             instituteViewModel.loadInstituteNotifications();
         }
 
@@ -119,7 +120,7 @@ public class InstituteAdminFragment extends Fragment {
         instituteViewModel
                 .getLoadedInstituteNotifications()
                 .observe(getViewLifecycleOwner(), notificationModels -> {
-                    if(notificationModels == null) {
+                    if (notificationModels == null) {
                         return;
                     }
                     notificationsListSection.addAll(notificationModels.subList(notificationsListSection.size(), notificationModels.size()));
@@ -167,12 +168,23 @@ public class InstituteAdminFragment extends Fragment {
                     });
         });
 
+        if (instituteViewModel.getUserModel().isInstituteAdmin()) {
+            binding.editVenuesButton.setOnClickListener(v -> {
+                requireActivity()
+                        .getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.institute_content_placeholder, InstituteVenuesFragment.newInstance())
+                        .addToBackStack("venues")
+                        .commit();
+            });
+        }
+
         binding.profilePictureImage.setOnClickListener(v -> {
             if (compressingImage.get()) {
                 Toast.makeText(requireContext(), "Please Wait", Toast.LENGTH_SHORT).show();
                 return;
             }
-            if(!v.isEnabled()) {
+            if (!v.isEnabled()) {
                 return;
             }
             v.setEnabled(false);

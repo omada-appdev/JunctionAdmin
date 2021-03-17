@@ -303,41 +303,45 @@ public class InstituteActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (getSupportFragmentManager().getBackStackEntryCount() > 0
-                && "venues".equals(getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount() - 1).getName())
-                && instituteViewModel.getInstituteVenuesUpdater().hasBeenModified()) {
+                && "venues".equals(getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount() - 1).getName())) {
 
-            new MaterialAlertDialogBuilder(this)
-                    .setTitle("Confirm Modifications")
-                    .setMessage("Do you wish to save your changes? This action cannot be undone")
-                    .setCancelable(true)
-                    .setPositiveButton("Save", (dialog, which) -> {
+            if (instituteViewModel.getInstituteVenuesUpdater().hasBeenModified()) {
+                new MaterialAlertDialogBuilder(this)
+                        .setTitle("Confirm Modifications")
+                        .setMessage("Do you wish to save your changes? This action cannot be undone")
+                        .setCancelable(true)
+                        .setPositiveButton("Save", (dialog, which) -> {
 
-                        AlertDialog alertDialog = createVenueUpdateProgressDialog();
-                        alertDialog.show();
+                            AlertDialog alertDialog = createVenueUpdateProgressDialog();
+                            alertDialog.show();
 
-                        instituteViewModel
-                                .updateInstituteVenues()
-                                .observe(this, booleanLiveEvent -> {
-                                    if (booleanLiveEvent == null) {
-                                        return;
-                                    }
-                                    Boolean result = booleanLiveEvent.getDataOnceAndReset();
-                                    if (result == null) {
-                                        return;
-                                    } else if (Boolean.TRUE.equals(result)) {
-                                        getSupportFragmentManager().popBackStack();
-                                    } else {
-                                        Log.e("institute", "Failed to update venues");
-                                    }
-                                    alertDialog.dismiss();
-                                });
-                    })
-                    .setNegativeButton("Discard", (dialog, which) -> {
-                        instituteViewModel.resetInstituteVenuesUpdater();
-                        getSupportFragmentManager().popBackStack();
-                    })
-                    .create()
-                    .show();
+                            instituteViewModel
+                                    .updateInstituteVenues()
+                                    .observe(this, booleanLiveEvent -> {
+                                        if (booleanLiveEvent == null) {
+                                            return;
+                                        }
+                                        Boolean result = booleanLiveEvent.getDataOnceAndReset();
+                                        if (result == null) {
+                                            return;
+                                        } else if (Boolean.TRUE.equals(result)) {
+                                            getSupportFragmentManager().popBackStack();
+                                        } else {
+                                            Log.e("institute", "Failed to update venues");
+                                        }
+                                        alertDialog.dismiss();
+                                    });
+                        })
+                        .setNegativeButton("Discard", (dialog, which) -> {
+                            instituteViewModel.resetInstituteVenuesUpdater();
+                            getSupportFragmentManager().popBackStack();
+                        })
+                        .create()
+                        .show();
+            } else {
+                instituteViewModel.resetInstituteVenuesUpdater();
+                getSupportFragmentManager().popBackStack();
+            }
         } else {
             super.onBackPressed();
         }

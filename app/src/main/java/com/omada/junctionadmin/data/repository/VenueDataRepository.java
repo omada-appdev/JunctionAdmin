@@ -211,8 +211,8 @@ public class VenueDataRepository extends BaseDataHandler {
         CollectionReference venuesCollection = FirebaseFirestore.getInstance()
                 .collection("geography");
 
-        for(VenueModel ignored : added) {
-            batch.set(venuesCollection.document(), added);
+        for(VenueModel model : added) {
+            batch.set(venuesCollection.document(), venueModelConverter.convertExternalToRemoteDBModel(model));
         }
         for (VenueModel model: removed) {
             batch.delete(venuesCollection.document(model.getId()));

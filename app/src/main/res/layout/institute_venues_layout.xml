@@ -2,13 +2,13 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        android:layout_height="wrap_content">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:layout_width="match_parent"
@@ -20,9 +20,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_gravity="end"
+                android:backgroundTint="@color/colorPrimary"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
-                android:backgroundTint="@color/colorPrimary"
                 android:src="@drawable/ic_done_24px"
                 android:tint="@color/white" />
 
@@ -38,5 +38,17 @@
         android:paddingTop="48dp"
         android:paddingBottom="60dp"
         app:layout_behavior=".ui.uicomponents.behaviors.CoordinatedChildBehaviour" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add_venue_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/colorPrimary"
+        app:tint="@color/white"
+        android:padding="8dp"
+        android:src="@drawable/ic_add_plus_button"
+        android:scaleType="centerInside"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

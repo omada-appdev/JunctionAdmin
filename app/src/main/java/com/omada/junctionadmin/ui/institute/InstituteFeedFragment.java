@@ -109,6 +109,25 @@ public class InstituteFeedFragment extends Fragment implements AppBarLayout.OnOf
         ImageView instituteImage = view.findViewById(R.id.institute_image);
         adminButton = view.findViewById(R.id.institute_admin_button);
 
+        searchBar.setOnSearchActionListener(new MaterialSearchBar.OnSearchActionListener() {
+            @Override
+            public void onSearchStateChanged(boolean enabled) {
+                if(enabled) {
+                    appBarLayout.setExpanded(false, true);
+                }
+            }
+
+            @Override
+            public void onSearchConfirmed(CharSequence text) {
+
+            }
+
+            @Override
+            public void onButtonClicked(int buttonCode) {
+
+            }
+        });
+
         if (isAdmin) {
             appBarLayout.addOnOffsetChangedListener(this);
             adminButton.setVisibility(View.VISIBLE);

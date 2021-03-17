@@ -98,7 +98,6 @@ public class BookVenueFragment extends Fragment {
         dateLayout = view.findViewById(R.id.event_date_layout);
         dateInput = view.findViewById(R.id.event_date_input);
         recyclerView = view.findViewById(R.id.recycler_view);
-        newVenueButton = view.findViewById(R.id.new_venue_button);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(view.getContext());
         recyclerView.setLayoutManager(linearLayoutManager);

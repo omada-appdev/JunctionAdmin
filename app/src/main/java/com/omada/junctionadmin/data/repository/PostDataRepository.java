@@ -13,6 +13,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.storage.FirebaseStorage;
 import com.omada.junctionadmin.data.BaseDataHandler;
@@ -383,7 +384,9 @@ public class PostDataRepository extends BaseDataHandler {
                 .collection("posts")
                 .document(eventModel.getId());
 
-        batch.delete(eventDocRef);
+        Map<String, String> dataMap = new HashMap<>();
+        dataMap.put("status", "deleted");
+        batch.set(eventDocRef, dataMap);
 
         MainDataRepository.getInstance().getVenueDataRepository()
                 .deleteBooking(eventModel, batch);
@@ -391,17 +394,10 @@ public class PostDataRepository extends BaseDataHandler {
         batch.commit()
                 .addOnSuccessListener(aVoid -> {
 
-                    FirebaseStorage
-                            .getInstance()
-                            .getReference()
-                            .child("organizationFiles")
-                            .child(eventModel.getCreator())
-                            .child("posts")
-                            .child(eventModel.getId())
-                            .delete()
-                            .addOnCompleteListener(aVoid2 -> {
-                               Log.e("Posts", "Post image deletion successful");
-                            });
+                    /*
+                     The image has not been deleted because it needs to appear in user
+                     registered events
+                    */
 
                     MainDataRepository
                             .getInstance()

@@ -128,7 +128,7 @@ public class InstituteViewModel extends BaseViewModel {
         dataValidator.validateName(instituteUpdater.name.getValue(), dataValidationInformation -> {
             if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                 mutableUserInstituteModel.setName(
-                        instituteUpdater.name.getValue()
+                        instituteUpdater.name.getValue().trim()
                 );
             }
             validationAggregator.holdData(

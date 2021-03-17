@@ -53,7 +53,6 @@ public class BookVenueFragment extends Fragment {
     private RecyclerView recyclerView;
     private TextInputLayout dateLayout;
     private TextInputEditText dateInput;
-    private MaterialButton newVenueButton;
 
     private VenueModel lastSelectedVenueModel;
     private final ListSection<VenueModel> venueModelListSection = new ListSection<>();
@@ -144,13 +143,6 @@ public class BookVenueFragment extends Fragment {
                         () -> requireActivity().onBackPressed(), 200
                 );
             }
-        });
-
-        if (!bookingViewModel.isInstituteAdmin()) {
-            newVenueButton.setEnabled(false);
-            newVenueButton.setVisibility(View.GONE);
-        }
-        newVenueButton.setOnClickListener(v -> {
         });
 
         disableDateInputText(dateInput);
@@ -245,11 +237,7 @@ public class BookVenueFragment extends Fragment {
 
     private void onVenuesLoaded(List<VenueModel> venueModels) {
         if (venueModels != null && (venueModelListSection.size() == 0 || refreshVenues)) {
-            if (venueModelListSection.size() > venueModels.size()) {
-                venueModelListSection.set(venueModels);
-            } else {
-                venueModelListSection.addAll(venueModels.subList(venueModelListSection.size(), venueModels.size()));
-            }
+            venueModelListSection.set(venueModels);
             refreshVenues = false;
         }
     }

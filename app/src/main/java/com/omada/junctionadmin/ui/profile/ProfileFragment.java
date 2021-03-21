@@ -80,9 +80,7 @@ public class ProfileFragment extends Fragment implements AppBarLayout.OnOffsetCh
 
             // delay to let the drawer close
             handler.postDelayed(() -> {
-                if (itemId == R.id.members_button) {
-                } else if (itemId == R.id.settings_button) {
-                } else if (itemId == R.id.feedback_button) {
+                if (itemId == R.id.feedback_button) {
                     showFeedbackDialog();
                 } else {
                 }

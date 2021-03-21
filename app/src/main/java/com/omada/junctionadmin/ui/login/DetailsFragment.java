@@ -51,7 +51,8 @@ public class DetailsFragment extends Fragment {
                 boolean res = true;
                 for (boolean result : stringBooleanMap.values()) {
                     res = res & result;
-                } if(res) {
+                }
+                if (res) {
                     startFilePicker();
                 }
             });
@@ -115,7 +116,7 @@ public class DetailsFragment extends Fragment {
                                 binding.passwordLayout.setError("Please provide a password");
                             } else if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_UNDERFLOW) {
                                 binding.passwordLayout.setError("Please enter at least " + DataValidator.PASSWORD_MIN_SIZE + " characters");
-                            } else if(dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                            } else if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                                 binding.passwordLayout.setError("Invalid password");
                             }
                             break;
@@ -200,6 +201,9 @@ public class DetailsFragment extends Fragment {
             ((ShapeableImageView) v).setStrokeColor(null);
             if (ContextCompat.checkSelfPermission(
                     requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                    PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(
+                    requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
                 startFilePicker();
             } else {

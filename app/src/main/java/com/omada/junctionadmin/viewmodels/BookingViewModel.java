@@ -119,7 +119,7 @@ public class BookingViewModel extends BaseViewModel {
         return bookingsAtDate != null;
     }
     /*
-    Take all bookings and return pairs of FREE time slots after performing some manipulation
+    Take all bookings and return pairs of FREE time slots after performing some filtering and manipulation
     CONVERT ALL TIMES TO LOCAL BECAUSE THEY ARE STORED AS UTC IN THE SERVER
      */
     public LiveData<List<Pair<ZonedDateTime, ZonedDateTime>>> getBookings(@Nonnull String venue){
@@ -195,9 +195,11 @@ public class BookingViewModel extends BaseViewModel {
         return bookingTransformation;
     }
 
-    // returns null if completely out of bounds
-    // returns trimmed date if partially out of bounds
-    // returns booking unchanged if valid
+    /*
+     returns null if completely out of bounds
+     returns trimmed date if partially out of bounds
+     returns booking unchanged if valid
+    */
     private static Pair<ZonedDateTime, ZonedDateTime> trimToCurrentDay(
             Pair<LocalDateTime, LocalDateTime> bookedSlot,
             LocalDateTime startBookingDay, LocalDateTime endBookingDay) {

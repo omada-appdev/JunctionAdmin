@@ -34,7 +34,7 @@ import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.omada.junctionadmin.R;
-import com.omada.junctionadmin.databinding.EventCreateFragmentLayoutBinding;
+import com.omada.junctionadmin.databinding.CreateEventFragmentLayoutBinding;
 import com.omada.junctionadmin.utils.image.GlideApp;
 import com.omada.junctionadmin.utils.ImageUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
@@ -47,16 +47,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class EventCreateFragment extends Fragment {
 
     private CreatePostViewModel createPostViewModel;
-    private EventCreateFragmentLayoutBinding binding;
+    private CreateEventFragmentLayoutBinding binding;
 
     private final AtomicBoolean compressingImage = new AtomicBoolean(false);
     private final AtomicBoolean filePickerOpened = new AtomicBoolean(false);
     private final AtomicBoolean formLinkDialogCreated = new AtomicBoolean(false);
     private static final int REQUEST_CODE_IMAGE_CHOOSER = 2;
 
-    private final ActivityResultLauncher<String> storagePermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
+    private final ActivityResultLauncher<String[]> storagePermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), stringBooleanMap -> {
+                boolean res = true;
+                for (boolean result : stringBooleanMap.values()) {
+                    res = res & result;
+                } if(res) {
                     startFilePicker();
                 }
             });
@@ -72,7 +75,7 @@ public class EventCreateFragment extends Fragment {
 
         createPostViewModel = new ViewModelProvider(requireActivity()).get(CreatePostViewModel.class);
 
-        binding = DataBindingUtil.inflate(inflater, R.layout.event_create_fragment_layout, container, false);
+        binding = DataBindingUtil.inflate(inflater, R.layout.create_event_fragment_layout, container, false);
 
         binding.setLifecycleOwner(getViewLifecycleOwner());
         binding.setViewModel(createPostViewModel);
@@ -207,14 +210,14 @@ public class EventCreateFragment extends Fragment {
             ((ShapeableImageView) v).setStrokeColor(null);
             if (ContextCompat.checkSelfPermission(
                     requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                    PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(
+                    requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
-
                 startFilePicker();
             } else {
-                storagePermissionLauncher.launch(
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                storagePermissionLauncher.launch(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE});
             }
-
         });
 
         binding.titleText.addTextChangedListener(new TextWatcher() {

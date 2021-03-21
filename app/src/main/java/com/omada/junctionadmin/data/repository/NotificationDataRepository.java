@@ -187,9 +187,7 @@ public class NotificationDataRepository extends BaseDataHandler {
                         batch.update(
                                 FirebaseFirestore.getInstance()
                                         .collection("institutes")
-                                        .document(instituteId)
-                                        .collection("private")
-                                        .document("config"),
+                                        .document(instituteId),
                                 "organizations", FieldValue.arrayUnion(model.getSource())
                         );
                         batch.update(

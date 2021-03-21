@@ -2,20 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <group
-        android:id="@+id/group_1">
-        <item
-            android:id="@+id/members_button"
-            android:title="Edit Members"
-            android:icon="@drawable/ic_members"/>
-        <item
-            android:id="@+id/settings_button"
-            android:title="Settings"
-            android:icon="@drawable/ic_settings"/>
+    <group android:id="@+id/group_1">
         <item
             android:id="@+id/feedback_button"
-            android:title="Feedback"
-            android:icon="@drawable/ic_feedback"/>
+            android:icon="@drawable/ic_feedback"
+            android:title="Feedback" />
     </group>
 
 </menu>

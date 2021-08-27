@@ -3,9 +3,13 @@ package com.omada.junctionadmin.data.repository;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.common.collect.ImmutableList;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
@@ -403,12 +407,33 @@ public class PostDataRepository extends BaseDataHandler {
                             .getInstance()
                             .getUserDataRepository()
                             .decrementHeldEventsNumber();
-
-                    resultLiveData.setValue(new LiveEvent<>(true));
                 })
                 .addOnFailureListener(e -> {
                     resultLiveData.setValue(new LiveEvent<>(false));
-                    Log.e("Post", "Error creating post");
+                    Log.e("Post", "Error deleting post");
+                })
+                .continueWithTask(task -> {
+                    if(!task.isSuccessful()){
+                        return Tasks.forException(new InterruptedException());
+                    }
+                    Log.e("Post", eventModel.getImage());
+                    return FirebaseStorage.getInstance()
+                            .getReference(eventModel.getImage().replaceFirst("gs://[A-Za-z0-9.-]*/", ""))
+                            .delete();
+                })
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()) {
+                        resultLiveData.setValue(new LiveEvent<>(true));
+                    }
+                    else if(task.getException() instanceof InterruptedException){
+                        Log.e("Post", "Post image not deleted because post deletion unsuccessful");
+                        task.getException().printStackTrace();
+                    }
+                    else {
+                        Log.e("Post", "Error deleting post image");
+                        task.getException().printStackTrace();
+                        resultLiveData.setValue(new LiveEvent<>(true));
+                    }
                 });
 
         return resultLiveData;

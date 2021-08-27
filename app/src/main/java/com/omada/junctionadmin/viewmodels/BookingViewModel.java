@@ -43,7 +43,7 @@ public class BookingViewModel extends BaseViewModel {
     private Map<Long, Map<String, LiveData<List<Pair<ZonedDateTime, ZonedDateTime>>>>> cachedBookings = new HashMap<>();
 
     public ZonedDateTime getZonedBookingDate() {
-        if(bookingDate == null) {
+        if (bookingDate == null) {
             return null;
         }
         return TransformUtilities.convertUtcLocalDateTimeToSystemZone(bookingDate);
@@ -51,7 +51,7 @@ public class BookingViewModel extends BaseViewModel {
 
     public final void setBookingDate(@Nonnull LocalDateTime bookingDate) {
         this.bookingDate = bookingDate;
-        if(cachedBookings.get(this.bookingDate.atZone(ZoneId.of("UTC")).toEpochSecond()) != null) {
+        if (cachedBookings.get(this.bookingDate.atZone(ZoneId.of("UTC")).toEpochSecond()) != null) {
             return;
         }
         cachedBookings.put(this.bookingDate.atZone(ZoneId.of("UTC")).toEpochSecond(), new HashMap<>());
@@ -74,18 +74,10 @@ public class BookingViewModel extends BaseViewModel {
 
         loadedInstituteVenues.addSource(source, venueModelsLiveEvent -> {
 
-            if(venueModelsLiveEvent == null){
+            if (venueModelsLiveEvent == null) {
                 loadedInstituteVenues.setValue(null);
-            }
-            else {
-                List<VenueModel> venueModels = venueModelsLiveEvent.getDataOnceAndReset();
-                if(loadedInstituteVenues.getValue() == null){
-                    loadedInstituteVenues.setValue(venueModels);
-                }
-                else {
-                    loadedInstituteVenues.getValue().addAll(venueModels);
-                    loadedInstituteVenues.setValue(loadedInstituteVenues.getValue());
-                }
+            } else {
+                loadedInstituteVenues.setValue(venueModelsLiveEvent.getDataOnceAndReset());
             }
             loadedInstituteVenues.removeSource(source);
 
@@ -107,7 +99,7 @@ public class BookingViewModel extends BaseViewModel {
 
     public boolean checkIfBookingCached(String venue) {
 
-        LiveData<List<Pair<ZonedDateTime, ZonedDateTime>>>  bookingsAtDate;
+        LiveData<List<Pair<ZonedDateTime, ZonedDateTime>>> bookingsAtDate;
         try {
             bookingsAtDate = cachedBookings
                     .get(bookingDate.atZone(ZoneId.of("UTC")).toEpochSecond())
@@ -118,11 +110,12 @@ public class BookingViewModel extends BaseViewModel {
         }
         return bookingsAtDate != null;
     }
+
     /*
     Take all bookings and return pairs of FREE time slots after performing some filtering and manipulation
     CONVERT ALL TIMES TO LOCAL BECAUSE THEY ARE STORED AS UTC IN THE SERVER
      */
-    public LiveData<List<Pair<ZonedDateTime, ZonedDateTime>>> getBookings(@Nonnull String venue){
+    public LiveData<List<Pair<ZonedDateTime, ZonedDateTime>>> getBookings(@Nonnull String venue) {
 
         try {
             LiveData<List<Pair<ZonedDateTime, ZonedDateTime>>> bookingsAtDate = cachedBookings
@@ -130,58 +123,56 @@ public class BookingViewModel extends BaseViewModel {
                     .get(venue);
             if (bookingsAtDate == null) {
                 throw new NullPointerException();
-            }
-            else {
+            } else {
                 return bookingsAtDate;
             }
-        }
-        catch (NullPointerException e) {
+        } catch (NullPointerException e) {
             e.printStackTrace();
             Log.e("Venues", "Bookings were not cached, retrieving from database");
         }
 
         LiveData<LiveEvent<List<Pair<LocalDateTime, LocalDateTime>>>> allBookingsOnDate =
                 MainDataRepository.getInstance()
-                .getVenueDataRepository()
-                .getVenueBookingsOn(getDataRepositoryAccessIdentifier(), bookingDate, venue);
+                        .getVenueDataRepository()
+                        .getVenueBookingsOn(getDataRepositoryAccessIdentifier(), bookingDate, venue);
 
 
         // bookingDate variable is in UTC
         LiveData<List<Pair<ZonedDateTime, ZonedDateTime>>> bookingTransformation =
                 Transformations.map(
-                allBookingsOnDate,
+                        allBookingsOnDate,
 
-                input -> {
-                    if(input == null) {
-                        return null;
-                    }
-                    List<Pair<LocalDateTime, LocalDateTime>> bookingsList = input.getDataOnceAndReset();
-                    if(bookingsList != null) {
-
-                        LocalDateTime startBookingDay = bookingDate.toLocalDate().atStartOfDay();
-                        LocalDateTime endBookingDay = bookingDate.toLocalDate().plusDays(1).atStartOfDay();
-
-                        List<Pair<ZonedDateTime, ZonedDateTime>> freeSlots = new ArrayList<>();
-
-                        for (Pair<LocalDateTime, LocalDateTime> booking : bookingsList) {
-                            Pair<ZonedDateTime, ZonedDateTime> bookingZoned = trimToCurrentDay(booking, startBookingDay, endBookingDay);
-                            if(bookingZoned != null) {
-                                freeSlots.add(bookingZoned);
+                        input -> {
+                            if (input == null) {
+                                return null;
                             }
+                            List<Pair<LocalDateTime, LocalDateTime>> bookingsList = input.getDataOnceAndReset();
+                            if (bookingsList != null) {
+
+                                LocalDateTime startBookingDay = bookingDate.toLocalDate().atStartOfDay();
+                                LocalDateTime endBookingDay = bookingDate.toLocalDate().plusDays(1).atStartOfDay();
+
+                                List<Pair<ZonedDateTime, ZonedDateTime>> freeSlots = new ArrayList<>();
+
+                                for (Pair<LocalDateTime, LocalDateTime> booking : bookingsList) {
+                                    Pair<ZonedDateTime, ZonedDateTime> bookingZoned = trimToCurrentDay(booking, startBookingDay, endBookingDay);
+                                    if (bookingZoned != null) {
+                                        freeSlots.add(bookingZoned);
+                                    }
+                                }
+
+                                Collections.sort(freeSlots, (o1, o2) -> {
+                                    int res = 0;
+                                    res = o1.first.isBefore(o2.first) ? -1 : res;
+                                    res = o1.first.isAfter(o2.first) ? 1 : res;
+                                    return res;
+                                });
+                                return freeSlots;
+                            }
+                            return null;
                         }
 
-                        Collections.sort(freeSlots, (o1, o2) -> {
-                            int res = 0;
-                            res = o1.first.isBefore(o2.first) ? -1 : res;
-                            res = o1.first.isAfter(o2.first) ? 1 : res;
-                            return res;
-                        });
-                        return freeSlots;
-                    }
-                    return null;
-                }
-
-        );
+                );
 
         try {
             cachedBookings
@@ -209,7 +200,7 @@ public class BookingViewModel extends BaseViewModel {
 
         // checking if both dates are on same side of bounds
         if ((first.isBefore(startBookingDay) && second.isBefore(startBookingDay))
-            || (first.isAfter(endBookingDay) && second.isAfter(endBookingDay))) {
+                || (first.isAfter(endBookingDay) && second.isAfter(endBookingDay))) {
 
             return null;
         }
@@ -219,9 +210,8 @@ public class BookingViewModel extends BaseViewModel {
                     TransformUtilities.convertUtcLocalDateTimeToSystemZone(first),
                     TransformUtilities.convertUtcLocalDateTimeToSystemZone(second)
             );
-        }
-        else {
-            if(first.isBefore(startBookingDay)) {
+        } else {
+            if (first.isBefore(startBookingDay)) {
                 first = LocalDateTime.from(startBookingDay);
             }
             if (second.isAfter(endBookingDay)) {

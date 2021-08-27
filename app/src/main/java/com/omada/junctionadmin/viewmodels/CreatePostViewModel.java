@@ -222,6 +222,7 @@ public class CreatePostViewModel extends BaseViewModel {
             VenueModel venueModel = eventCreator.getVenueModel();
             eventModel.setVenue(venueModel.getId());
             eventModel.setVenueName(venueModel.getName());
+            eventModel.setVenueDetails(eventCreator.venueDetails.getValue());
             eventModel.setVenueAddress(venueModel.getAddress());
             eventModel.setVenueInstitute(venueModel.getInstitute());
 
@@ -387,6 +388,8 @@ public class CreatePostViewModel extends BaseViewModel {
         public final MutableLiveData<ZonedDateTime> endTime = new MutableLiveData<>();
 
         protected VenueModel venueModel;
+        public final MutableLiveData<String> venueDetails = new MutableLiveData<>();
+
         protected ImmutableList<String> tags;
         protected Map<String, Map<String, Map<String, String>>> form;
 
@@ -436,6 +439,7 @@ public class CreatePostViewModel extends BaseViewModel {
             Log.e("Create", "Resetting event");
             title.setValue(null);
             description.setValue(null);
+            venueDetails.setValue(null);
             startTime.setValue(null);
             endTime.setValue(null);
             imagePath = null;

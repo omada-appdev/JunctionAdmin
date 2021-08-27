@@ -1,7 +1,6 @@
 package com.omada.junctionadmin.ui.event;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -24,6 +23,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
@@ -34,7 +34,7 @@ import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.omada.junctionadmin.R;
-import com.omada.junctionadmin.databinding.EventCreateFragmentLayoutBinding;
+import com.omada.junctionadmin.databinding.CreateEventFragmentLayoutBinding;
 import com.omada.junctionadmin.utils.image.GlideApp;
 import com.omada.junctionadmin.utils.ImageUtilities;
 import com.omada.junctionadmin.utils.taskhandler.DataValidator;
@@ -47,15 +47,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class EventCreateFragment extends Fragment {
 
     private CreatePostViewModel createPostViewModel;
-    private EventCreateFragmentLayoutBinding binding;
+    private CreateEventFragmentLayoutBinding binding;
 
     private final AtomicBoolean compressingImage = new AtomicBoolean(false);
     private final AtomicBoolean filePickerOpened = new AtomicBoolean(false);
+    private final AtomicBoolean formLinkDialogCreated = new AtomicBoolean(false);
     private static final int REQUEST_CODE_IMAGE_CHOOSER = 2;
 
-    private final ActivityResultLauncher<String> storagePermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
+    private final ActivityResultLauncher<String[]> storagePermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), stringBooleanMap -> {
+                boolean res = true;
+                for (boolean result : stringBooleanMap.values()) {
+                    res = res & result;
+                } if(res) {
                     startFilePicker();
                 }
             });
@@ -71,7 +75,7 @@ public class EventCreateFragment extends Fragment {
 
         createPostViewModel = new ViewModelProvider(requireActivity()).get(CreatePostViewModel.class);
 
-        binding = DataBindingUtil.inflate(inflater, R.layout.event_create_fragment_layout, container, false);
+        binding = DataBindingUtil.inflate(inflater, R.layout.create_event_fragment_layout, container, false);
 
         binding.setLifecycleOwner(getViewLifecycleOwner());
         binding.setViewModel(createPostViewModel);
@@ -83,6 +87,8 @@ public class EventCreateFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        view.setClickable(false);
 
         binding.getViewModel()
                 .getBookingValidationTrigger()
@@ -162,6 +168,11 @@ public class EventCreateFragment extends Fragment {
                 });
 
         binding.createFormButton.setOnClickListener(v -> {
+            if (formLinkDialogCreated.get()) {
+                return;
+            }
+            formLinkDialogCreated.set(true);
+            enableDisableNavigationActions(false);
             createFormLinkInputDialog();
         });
 
@@ -199,14 +210,14 @@ public class EventCreateFragment extends Fragment {
             ((ShapeableImageView) v).setStrokeColor(null);
             if (ContextCompat.checkSelfPermission(
                     requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                    PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(
+                    requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
-
                 startFilePicker();
             } else {
-                storagePermissionLauncher.launch(
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                storagePermissionLauncher.launch(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE});
             }
-
         });
 
         binding.titleText.addTextChangedListener(new TextWatcher() {
@@ -245,20 +256,32 @@ public class EventCreateFragment extends Fragment {
         });
     }
 
+    /*
+        There is delay when showing alert dialog, opening file picker, etc. So, disable all actions until safe and then enable it back
+     */
+    private void enableDisableNavigationActions(boolean enabled) {
+        binding.createFormButton.setClickable(enabled);
+        binding.bookVenueButton.setClickable(enabled);
+        binding.postButton.setClickable(enabled);
+        binding.eventPosterImage.setClickable(enabled);
+    }
+
     private void createFormLinkInputDialog() {
 
-        AlertDialog alertDialog = new AlertDialog.Builder(requireActivity())
+        AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireActivity())
                 .setCancelable(false)
                 .setTitle("Enter a link for your form")
                 .setMessage("Ensure this link is valid because it cannot be changed later")
                 .setView(R.layout.alert_text_input_layout)
                 .setPositiveButton("ok", (dialog, which) -> {
-                    //TODO verify form link
                 })
                 .setNeutralButton("verify", (dialog, which) -> {
-                    //TODO verify form link
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> {
+                })
+                .setOnDismissListener(dialog -> {
+                    formLinkDialogCreated.set(false);
+                    enableDisableNavigationActions(true);
                 })
                 .create();
 
@@ -268,7 +291,7 @@ public class EventCreateFragment extends Fragment {
         TextInputLayout inputLayout = alertDialog.findViewById(R.id.alert_text_layout);
 
         editText.setText(createPostViewModel.getEventCreator().getFormLink());
-        editText.setInputType(InputType.TYPE_TEXT_VARIATION_WEB_EDIT_TEXT);
+        editText.setInputType(InputType.TYPE_TEXT_VARIATION_URI);
         editText.setHint("Your link");
 
         alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL).setOnClickListener(v -> {
@@ -276,8 +299,11 @@ public class EventCreateFragment extends Fragment {
 
                 String url = editText.getText().toString();
 
-                if (!url.startsWith("http://") && !url.startsWith("https://"))
-                    url = "http://" + url;
+                if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                    url = "https://" + url;
+                } else if (url.startsWith("http://")) {
+                    url = url.replaceFirst("http", "https");
+                }
 
                 try {
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
@@ -332,9 +358,7 @@ public class EventCreateFragment extends Fragment {
 
     private void startFilePicker() {
         filePickerOpened.set(true);
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CODE_IMAGE_CHOOSER);
     }
 

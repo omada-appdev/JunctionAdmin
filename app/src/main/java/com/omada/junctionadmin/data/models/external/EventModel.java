@@ -23,6 +23,7 @@ public class EventModel extends PostModel {
 
     protected String venue;
     protected String venueName;
+    protected String venueDetails;
     protected String venueAddress;
     protected String venueInstitute;
     protected String booking;
@@ -47,6 +48,7 @@ public class EventModel extends PostModel {
         endTime = Instant.ofEpochSecond(in.readLong()).atZone(ZoneId.of("UTC")).toLocalDateTime();
         venue = in.readString();
         venueName = in.readString();
+        venueDetails = in.readString();
         venueAddress = in.readString();
         venueInstitute = in.readString();
         booking = in.readString();
@@ -94,6 +96,10 @@ public class EventModel extends PostModel {
         return venueName;
     }
 
+    public String getVenueDetails() {
+        return venueDetails;
+    }
+
     public String getVenueAddress() {
         return venueAddress;
     }
@@ -128,10 +134,13 @@ public class EventModel extends PostModel {
         dest.writeLong(endTime.toEpochSecond(ZoneOffset.UTC));
         dest.writeString(venue);
         dest.writeString(venueName);
+        dest.writeString(venueDetails);
         dest.writeString(venueAddress);
         dest.writeString(venueInstitute);
         dest.writeString(booking);
         dest.writeStringList(tags);
         dest.writeLong(timeCreated.toEpochSecond(ZoneOffset.UTC));
     }
+
+
 }

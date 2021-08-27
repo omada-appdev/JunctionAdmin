@@ -20,7 +20,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -30,7 +29,6 @@ import com.omada.junctionadmin.R;
 import com.omada.junctionadmin.data.models.external.VenueModel;
 import com.omada.junctionadmin.ui.uicomponents.TimeDurationInputCreator;
 import com.omada.junctionadmin.ui.uicomponents.animations.VenueItemAnimator;
-import com.omada.junctionadmin.ui.uicomponents.binders.VenueBookingItemBinder;
 import com.omada.junctionadmin.ui.uicomponents.binders.VenueSelectionItemBinder;
 import com.omada.junctionadmin.viewmodels.BookingViewModel;
 import com.omada.junctionadmin.viewmodels.CreatePostViewModel;
@@ -45,8 +43,6 @@ import java.util.List;
 import mva3.adapter.ListSection;
 import mva3.adapter.MultiViewAdapter;
 import mva3.adapter.util.Mode;
-import mva3.adapter.util.OnSelectionChangedListener;
-import mva3.adapter.util.PayloadProvider;
 
 public class BookVenueFragment extends Fragment {
 
@@ -55,7 +51,6 @@ public class BookVenueFragment extends Fragment {
     private RecyclerView recyclerView;
     private TextInputLayout dateLayout;
     private TextInputEditText dateInput;
-    private MaterialButton newVenueButton;
 
     private VenueModel lastSelectedVenueModel;
     private final ListSection<VenueModel> venueModelListSection = new ListSection<>();
@@ -100,7 +95,6 @@ public class BookVenueFragment extends Fragment {
         dateLayout = view.findViewById(R.id.event_date_layout);
         dateInput = view.findViewById(R.id.event_date_input);
         recyclerView = view.findViewById(R.id.recycler_view);
-        newVenueButton = view.findViewById(R.id.new_venue_button);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(view.getContext());
         recyclerView.setLayoutManager(linearLayoutManager);
@@ -143,17 +137,8 @@ public class BookVenueFragment extends Fragment {
                 createPostViewModel.getEventCreator().setVenueModel(null);
             }
             if (item != null && createPostViewModel.getEventCreator().getVenueModel() != null) {
-                new Handler(Looper.getMainLooper()).postDelayed(
-                        () -> requireActivity().onBackPressed(), 200
-                );
+                createVenueDetailsInputDialog();
             }
-        });
-
-        if (!bookingViewModel.isInstituteAdmin()) {
-            newVenueButton.setEnabled(false);
-            newVenueButton.setVisibility(View.GONE);
-        }
-        newVenueButton.setOnClickListener(v -> {
         });
 
         disableDateInputText(dateInput);
@@ -199,7 +184,7 @@ public class BookVenueFragment extends Fragment {
     }
 
 
-    public void createTimeInputDialog() {
+    private void createTimeInputDialog() {
 
         TimeDurationInputCreator creator = new TimeDurationInputCreator(requireContext());
         AlertDialog dialog = creator.initializeDefaultTextWatchers();
@@ -233,11 +218,60 @@ public class BookVenueFragment extends Fragment {
                 dialog.dismiss();
             }
         });
+
         dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", (dialog1, which) -> {
             bookingViewModel.resetBookingDate();
             createPostViewModel.getEventCreator().startTime.postValue(null);
             createPostViewModel.getEventCreator().endTime.postValue(null);
             dateInput.setText(null);
+        });
+    }
+
+    private void createVenueDetailsInputDialog() {
+
+        AlertDialog detailsDialog = new MaterialAlertDialogBuilder(requireContext())
+                .setCancelable(false)
+                .setTitle("Details about your venue")
+                .setMessage("Perhaps some directions or a landmark")
+                .setView(R.layout.alert_text_input_layout)
+                .setPositiveButton("Done", null)
+                .setNeutralButton("Skip this step", null)
+                .create();
+        detailsDialog.show();
+
+        TextInputLayout detailsLayout = detailsDialog.findViewById(R.id.alert_text_layout);
+        TextInputEditText detailsInput = detailsDialog.findViewById(R.id.alert_text_input);
+
+        detailsDialog.setButton(DialogInterface.BUTTON_POSITIVE, "Done", (dialog, which) -> {
+            String detailsString = detailsInput.getText().toString();
+            createPostViewModel.getEventCreator().venueDetails.setValue(detailsString.trim());
+
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                requireActivity().onBackPressed();
+            }, 200);
+        });
+
+        detailsDialog.setButton(DialogInterface.BUTTON_NEUTRAL, "Skip this step", (dialog, which) -> {
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                requireActivity().onBackPressed();
+            }, 200);
+        });
+
+        detailsDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
+
+        detailsInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                detailsDialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(s.toString().trim().length() > 0);
+            }
         });
     }
 
@@ -248,11 +282,7 @@ public class BookVenueFragment extends Fragment {
 
     private void onVenuesLoaded(List<VenueModel> venueModels) {
         if (venueModels != null && (venueModelListSection.size() == 0 || refreshVenues)) {
-            if (venueModelListSection.size() > venueModels.size()) {
-                venueModelListSection.set(venueModels);
-            } else {
-                venueModelListSection.addAll(venueModels.subList(venueModelListSection.size(), venueModels.size()));
-            }
+            venueModelListSection.set(venueModels);
             refreshVenues = false;
         }
     }

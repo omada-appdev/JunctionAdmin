@@ -1,7 +1,6 @@
 package com.omada.junctionadmin.ui.login;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -52,7 +51,8 @@ public class DetailsFragment extends Fragment {
                 boolean res = true;
                 for (boolean result : stringBooleanMap.values()) {
                     res = res & result;
-                } if(res) {
+                }
+                if (res) {
                     startFilePicker();
                 }
             });
@@ -116,7 +116,7 @@ public class DetailsFragment extends Fragment {
                                 binding.passwordLayout.setError("Please provide a password");
                             } else if (dataValidationInformation.getDataValidationResult() == DataValidator.DataValidationResult.VALIDATION_RESULT_UNDERFLOW) {
                                 binding.passwordLayout.setError("Please enter at least " + DataValidator.PASSWORD_MIN_SIZE + " characters");
-                            } else if(dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
+                            } else if (dataValidationInformation.getDataValidationResult() != DataValidator.DataValidationResult.VALIDATION_RESULT_VALID) {
                                 binding.passwordLayout.setError("Invalid password");
                             }
                             break;
@@ -201,6 +201,9 @@ public class DetailsFragment extends Fragment {
             ((ShapeableImageView) v).setStrokeColor(null);
             if (ContextCompat.checkSelfPermission(
                     requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                    PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(
+                    requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
                 startFilePicker();
             } else {
@@ -292,11 +295,8 @@ public class DetailsFragment extends Fragment {
     }
 
     private void startFilePicker() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CODE_PROFILE_PICTURE_CHOOSER);
-
     }
 
     @Override
@@ -361,8 +361,8 @@ public class DetailsFragment extends Fragment {
         }
     }
 
-    private AlertDialog.Builder createJoinRequestSentDialog() {
-        return new AlertDialog.Builder(requireContext())
+    private MaterialAlertDialogBuilder createJoinRequestSentDialog() {
+        return new MaterialAlertDialogBuilder(requireContext())
                 .setTitle("Join " + binding.getViewModel().institute.getValue())
                 .setMessage("You can view the institute temporarily but cannot post to it until your join request is accepted by the administrator. Your institute cannot be changed later. Proceed?");
     }

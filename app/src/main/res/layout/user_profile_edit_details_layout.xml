@@ -1,17 +1,17 @@
 <layout>
 
     <data>
+
         <variable
             name="viewModel"
             type="com.omada.junctionadmin.viewmodels.UserProfileViewModel" />
     </data>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/coordinator"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_height="match_parent"
+        android:id="@+id/coordinator"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.AppBarLayout
@@ -25,85 +25,86 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
-                app:title="Edit Profile"
-                app:layout_scrollFlags="noScroll"/>
+                app:layout_scrollFlags="noScroll"
+                app:title="Edit Profile" />
 
         </com.google.android.material.appbar.AppBarLayout>
+
         <ScrollView
             android:id="@+id/login_details_scroll"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-            <LinearLayout android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/login_details_linear_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
-                xmlns:android="http://schemas.android.com/apk/res/android"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
                 android:paddingBottom="80dp">
 
                 <Space
                     android:layout_width="match_parent"
-                    android:layout_height="32dp"/>
+                    android:layout_height="32dp" />
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/profile_picture_image"
+                    remoteImageHttp="@{viewModel.organizationDetails.profilePicture}"
                     android:layout_width="160dp"
                     android:layout_height="160dp"
                     android:layout_gravity="center"
                     android:layout_margin="24dp"
-                    android:padding="8dp"
                     android:background="@color/white"
-                    android:scaleType="centerCrop"
-                    app:shapeAppearanceOverlay="@style/Widget.AppTheme.CircleShapeAppearance"
                     android:elevation="8dp"
-                    remoteImageHttp="@{viewModel.organizationDetails.profilePicture}"/>
+                    android:padding="8dp"
+                    android:scaleType="centerCrop"
+                    app:shapeAppearanceOverlay="@style/Widget.AppTheme.CircleShapeAppearance" />
 
                 <Space
                     android:layout_width="match_parent"
-                    android:layout_height="32dp"/>
+                    android:layout_height="32dp" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/name_layout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Organization Name"
                     android:layout_margin="8dp"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox">
+                    android:hint="Organization Name">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:layout_height="wrap_content"
-                        android:layout_width="match_parent"
                         android:id="@+id/name_input"
-                        android:inputType="textPersonName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:background="@color/transparent"
-                        android:text="@={viewModel.organizationUpdater.name}"/>
+                        android:inputType="textPersonName"
+                        android:text="@={viewModel.organizationUpdater.name}" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/phone_layout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Phone number"
                     android:layout_margin="8dp"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox">
+                    android:hint="Contact number">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:layout_height="wrap_content"
-                        android:layout_width="match_parent"
                         android:id="@+id/phone_input"
-                        android:inputType="number"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:background="@color/transparent"
-                        android:text="@={viewModel.organizationUpdater.phone}"/>
+                        android:inputType="number"
+                        android:text="@={viewModel.organizationUpdater.phone}" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <Space
                     android:layout_width="match_parent"
-                    android:layout_height="32dp"/>
+                    android:layout_height="32dp" />
 
             </LinearLayout>
         </ScrollView>
@@ -113,10 +114,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:text="done"
             android:layout_margin="24dp"
-            app:layout_anchorGravity="bottom|end"/>
-
+            android:text="done"
+            app:layout_anchorGravity="bottom|end"
+            app:shapeAppearanceOverlay="@style/Widget.AppTheme.CircleShapeAppearance" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

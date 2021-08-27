@@ -44,6 +44,7 @@ public class EventModelConverter extends BaseConverter <EventModel, EventModelRe
         model.setVenue(remoteModel.getVenue());
         model.setVenueName(remoteModel.getVenueCache().get("name"));
         model.setVenueAddress(remoteModel.getVenueCache().get("address"));
+        model.setVenueDetails(remoteModel.getVenueCache().get("details"));
         model.setVenueInstitute(remoteModel.getVenueCache().get("institute"));
 
         model.setTags(ImmutableList.copyOf(remoteModel.getTags()));
@@ -83,6 +84,7 @@ public class EventModelConverter extends BaseConverter <EventModel, EventModelRe
 
         Map<String, String> venueCache = new HashMap<>();
         venueCache.put("name", externalModel.getVenueName());
+        venueCache.put("details", externalModel.getVenueDetails());
         venueCache.put("address", externalModel.getVenueAddress());
         venueCache.put("institute", externalModel.getVenueInstitute());
         model.setVenueCache(venueCache);

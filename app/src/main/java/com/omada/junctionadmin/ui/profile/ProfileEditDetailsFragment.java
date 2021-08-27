@@ -43,9 +43,12 @@ public class ProfileEditDetailsFragment extends Fragment {
     private static final int REQUEST_CODE_PROFILE_PICTURE_CHOOSER = 3;
     private final AtomicBoolean compressingImage = new AtomicBoolean(false);
 
-    private final ActivityResultLauncher<String> storagePermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
+    private final ActivityResultLauncher<String[]> storagePermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), stringBooleanMap -> {
+                boolean res = true;
+                for (boolean result : stringBooleanMap.values()) {
+                    res = res & result;
+                } if(res) {
                     startFilePicker();
                 }
             });
@@ -91,12 +94,13 @@ public class ProfileEditDetailsFragment extends Fragment {
             ((ShapeableImageView)v).setStrokeColor(null);
             if (ContextCompat.checkSelfPermission(
                     requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                    PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(
+                    requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) ==
                     PackageManager.PERMISSION_GRANTED) {
                 startFilePicker();
-            }
-            else {
-                storagePermissionLauncher.launch(
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            } else {
+                storagePermissionLauncher.launch(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE});
             }
 
         });
@@ -169,9 +173,7 @@ public class ProfileEditDetailsFragment extends Fragment {
     }
 
     private void startFilePicker() {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CODE_PROFILE_PICTURE_CHOOSER);
 
     }

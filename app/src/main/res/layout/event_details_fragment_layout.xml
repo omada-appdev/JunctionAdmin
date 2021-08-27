@@ -6,6 +6,7 @@
 
     <data>
 
+        <import type="android.view.View"/>
         <import type="com.omada.junctionadmin.utils.TransformUtilities" />
 
         <variable
@@ -193,8 +194,8 @@
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_marginStart="24dp"
-                    android:layout_marginEnd="24dp"
                     android:layout_marginTop="8dp"
+                    android:layout_marginEnd="24dp"
                     android:src="@drawable/ic_place_24px"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="@+id/event_venue_text"
@@ -204,8 +205,8 @@
                     android:id="@+id/event_venue_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
                     android:layout_marginStart="12dp"
+                    android:layout_marginTop="32dp"
                     android:layout_marginEnd="24dp"
                     android:layout_marginBottom="8dp"
                     android:text="@{eventDetails.venueName}"
@@ -217,12 +218,29 @@
                     app:layout_constraintTop_toBottomOf="@+id/event_time_start_text" />
 
                 <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/event_venue_details_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginEnd="24dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="@{eventDetails.venueDetails}"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+                    android:textColor="@color/grey"
+                    android:textStyle="normal"
+                    android:visibility="@{eventDetails.venueDetails != null ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/venue_image"
+                    app:layout_constraintTop_toBottomOf="@+id/event_venue_text" />
+
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/event_venue_address_text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
                     android:layout_marginTop="0dp"
                     android:layout_marginEnd="24dp"
-                    android:layout_marginStart="12dp"
                     android:layout_marginBottom="8dp"
                     android:text="@{eventDetails.venueAddress}"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
@@ -230,7 +248,7 @@
                     android:textStyle="normal"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/venue_image"
-                    app:layout_constraintTop_toBottomOf="@+id/event_venue_text" />
+                    app:layout_constraintTop_toBottomOf="@+id/event_venue_details_text" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/event_description_text"

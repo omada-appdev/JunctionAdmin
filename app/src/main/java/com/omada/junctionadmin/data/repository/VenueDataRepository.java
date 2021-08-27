@@ -13,6 +13,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -196,6 +197,38 @@ public class VenueDataRepository extends BaseDataHandler {
                 .addOnCompleteListener(aVoid -> Log.e("Booking", "Removed booking from Realtime database"));
 
         batch.delete(documentReference);
+    }
+
+    public LiveData<LiveEvent<Boolean>> updateVenues(ArrayList<VenueModel> added, ArrayList<VenueModel> removed) {
+
+        if(added.size() == 0 && removed.size() == 0) {
+            return new MutableLiveData<>(new LiveEvent<>(true));
+        }
+
+        MutableLiveData<LiveEvent<Boolean>> resultLiveData = new MutableLiveData<>();
+        WriteBatch batch = FirebaseFirestore.getInstance().batch();
+
+        CollectionReference venuesCollection = FirebaseFirestore.getInstance()
+                .collection("geography");
+
+        for(VenueModel model : added) {
+            batch.set(venuesCollection.document(), venueModelConverter.convertExternalToRemoteDBModel(model));
+        }
+        for (VenueModel model: removed) {
+            batch.delete(venuesCollection.document(model.getId()));
+        }
+
+        batch.commit()
+                .addOnSuccessListener(aVoid -> {
+                    Log.e("Venues", "Updated venues successfully");
+                    resultLiveData.setValue(new LiveEvent<>(true));
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Venues", "Failed to update venues");
+                    resultLiveData.setValue(new LiveEvent<>(false));
+                });
+
+        return resultLiveData;
     }
 
     private enum BookingDayType {
